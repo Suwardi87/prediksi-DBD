@@ -222,17 +222,19 @@
         <h6><i class='bx bx-group'></i> Voting Mayoritas — Keputusan Akhir</h6>
         <p class="desc">
             Setiap pohon memberikan satu suara. Kelas dengan suara terbanyak menjadi prediksi akhir.
+            Tabel berikut menampilkan data setiap pasien, hasil voting dari 15 pohon, dan kesesuaian dengan aktual.
         </p>
         <div class="stat-row" id="statVoting"></div>
     </div>
     <div class="card-clean">
         <h6><i class='bx bx-check-circle'></i> Confusion Matrix</h6>
+        <p class="desc">Matriks kesalahan prediksi: Actual (baris) vs Prediksi (kolom).</p>
         <div id="confusionMatrix"></div>
     </div>
     <div class="card-clean">
-        <h6><i class='bx bx-list-check'></i> Detail Voting per Data</h6>
-        <p class="desc">Klik pada tabel untuk melihat distribusi suara dari 15 pohon.</p>
-        <div class="scroll-box-lg" style="max-height: 400px;">
+        <h6><i class='bx bx-list-check'></i> Detail Voting per Pasien</h6>
+        <p class="desc">Setiap kolom Pohon menunjukkan kelas yang dipilih pohon tersebut. Kolom "Suara" menunjukkan jumlah benar/salah dari 15 pohon.</p>
+        <div class="scroll-box-lg" style="max-height: 450px;">
             <table class="mini-tbl" id="tblVoting"></table>
         </div>
     </div>
@@ -457,22 +459,26 @@ function renderStep4() {
     const evalData = DATA.step8;
 
     document.getElementById('statVoting').innerHTML = `
-        <div class="stat-box"><div class="val">${voting.correct_count}</div><div class="lbl">Benar</div></div>
-        <div class="stat-box"><div class="val">${voting.total - voting.correct_count}</div><div class="lbl">Salah</div></div>
+        <div class="stat-box"><div class="val">${voting.correct_count}</div><div class="lbl">Prediksi Benar</div></div>
+        <div class="stat-box"><div class="val">${voting.total - voting.correct_count}</div><div class="lbl">Prediksi Salah</div></div>
         <div class="stat-box"><div class="val">${(voting.accuracy * 100).toFixed(1)}%</div><div class="lbl">Akurasi</div></div>
         <div class="stat-box"><div class="val">${evalData.voting_eval.mae}</div><div class="lbl">MAE</div></div>
         <div class="stat-box"><div class="val">${evalData.voting_eval.rmse}</div><div class="lbl">RMSE</div></div>
         <div class="stat-box"><div class="val">${evalData.voting_eval.r2}</div><div class="lbl">R²</div></div>
     `;
 
+    // --- Confusion Matrix ---
     const cm = [[0,0,0],[0,0,0],[0,0,0]];
     voting.voting_results.forEach(v => {
         cm[v.actual_enc][v.final_pred_enc]++;
     });
-    let cmHtml = '<table class="mini-tbl" style="width:auto; text-align:center;"><thead><tr><th></th><th style="padding:8px 14px;">Pred Rendah</th><th style="padding:8px 14px;">Pred Sedang</th><th style="padding:8px 14px;">Pred Tinggi</th></tr></thead><tbody>';
     const clsNames = ['Rendah', 'Sedang', 'Tinggi'];
+    let cmHtml = '<table class="mini-tbl" style="width:auto; text-align:center;">';
+    cmHtml += '<thead><tr><th style="padding:8px 14px;">Aktual \\ Prediksi</th>';
+    clsNames.forEach(c => { cmHtml += `<th style="padding:8px 14px;">${c}</th>`; });
+    cmHtml += '</tr></thead><tbody>';
     cm.forEach((row, i) => {
-        cmHtml += `<tr><td style="font-weight:700; padding:8px 14px;">Akt ${clsNames[i]}</td>`;
+        cmHtml += `<tr><td style="font-weight:700; padding:8px 14px;">${clsNames[i]}</td>`;
         row.forEach((val, j) => {
             const cls = i === j ? 'correct' : (val > 0 ? 'wrong' : '');
             cmHtml += `<td class="confusion-cell ${cls}" style="padding:8px 14px;">${val}</td>`;
@@ -482,12 +488,41 @@ function renderStep4() {
     cmHtml += '</tbody></table>';
     document.getElementById('confusionMatrix').innerHTML = cmHtml;
 
-    let vtHtml = '<thead><tr><th>No</th><th>Aktual</th><th>Voting 15 Pohon</th><th>Prediksi</th><th>Hasil</th></tr></thead><tbody>';
+    // --- Voting detail table ---
+    let vtHtml = '<thead><tr>';
+    vtHtml += '<th style="white-space:nowrap;">No</th>';
+    vtHtml += '<th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th>';
+    vtHtml += '<th style="text-align:center;">Aktual</th>';
+    for (let i = 1; i <= voting.voting_results[0].votes.length; i++) {
+        vtHtml += `<th style="text-align:center; font-size:0.7rem;">Pohon ${i}</th>`;
+    }
+    vtHtml += '<th style="text-align:center;">Suara</th>';
+    vtHtml += '<th style="text-align:center;">Prediksi Akhir</th>';
+    vtHtml += '<th style="text-align:center;">Keterangan</th>';
+    vtHtml += '</tr></thead><tbody>';
     voting.voting_results.forEach(v => {
-        const votes = v.vote_labels.map(l => renderTag(l)).join(' ');
+        const row = DATA.step1.data[v.no - 1];
+        vtHtml += `<tr>`;
+        vtHtml += `<td>${v.no}</td>`;
+        vtHtml += `<td>${row.usia}</td>`;
+        vtHtml += `<td>${row.lama_rawat}</td>`;
+        vtHtml += `<td>${row.jumlah_kasus}</td>`;
+        vtHtml += `<td>${row.jk === 1 ? 'L' : 'P'}</td>`;
+        vtHtml += `<td style="text-align:center;">${renderTag(v.actual)}</td>`;
+        v.vote_labels.forEach(vl => {
+            vtHtml += `<td style="text-align:center; font-size:0.72rem;">${renderTag(vl)}</td>`;
+        });
+        const correctVotes = v.vote_labels.filter(l => l === v.actual).length;
+        const wrongVotes = v.vote_labels.length - correctVotes;
+        vtHtml += `<td style="text-align:center; font-size:0.78rem;">`;
+        vtHtml += `<span style="color:var(--success);">${correctVotes}✓</span> `;
+        vtHtml += `<span style="color:var(--danger);">${wrongVotes}✗</span>`;
+        vtHtml += `</td>`;
+        vtHtml += `<td style="text-align:center;">${renderTag(v.final_pred)}</td>`;
         const cls = v.correct ? 'tag-ok' : 'tag-err';
         const res = v.correct ? '✓ Benar' : '✗ Salah';
-        vtHtml += `<tr><td>${v.no}</td><td>${renderTag(v.actual)}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(v.final_pred)}</td><td><span class="tag ${cls}">${res}</span></td></tr>`;
+        vtHtml += `<td style="text-align:center;"><span class="tag ${cls}">${res}</span></td>`;
+        vtHtml += '</tr>';
     });
     vtHtml += '</tbody>';
     document.getElementById('tblVoting').innerHTML = vtHtml;
