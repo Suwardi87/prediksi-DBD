@@ -145,33 +145,30 @@
     <div class="card-clean">
         <h6><i class='bx bx-hash'></i> Encoding — Mengubah Kategori Menjadi Angka</h6>
         <p class="desc">Agar dapat diproses algoritma, data kategorik diubah menjadi numerik.</p>
-        <div class="grid-2">
-            <div>
-                <h6 style="font-size:0.82rem; margin-bottom:6px;">Jenis Kelamin (X4)</h6>
-                <table class="mini-tbl">
-                    <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th></tr></thead>
-                    <tbody>
-                        <tr><td>Laki-laki (L)</td><td><span class="tag tag-feat">1</span></td></tr>
-                        <tr><td>Perempuan (P)</td><td><span class="tag tag-feat">0</span></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div>
-                <h6 style="font-size:0.82rem; margin-bottom:6px;">Tingkat Resiko (Target)</h6>
-                <table class="mini-tbl">
-                    <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th><th>Kondisi Kasus</th></tr></thead>
-                    <tbody>
-                        <tr><td><span class="tag tag-rendah">Rendah</span></td><td>0</td><td>Kasus ≤ 8</td></tr>
-                        <tr><td><span class="tag tag-sedang">Sedang</span></td><td>1</td><td>Kasus 9 – 15</td></tr>
-                        <tr><td><span class="tag tag-tinggi">Tinggi</span></td><td>2</td><td>Kasus > 15</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="formula-box" style="margin-top:14px;">
+
+        <div class="formula-box" style="margin-bottom:16px;">
             <strong>Fitur input (X):</strong> Usia (X1), Lama Rawat Inap (X2), Jumlah Kasus (X3), Jenis Kelamin (X4)<br>
             <strong>Target (Y):</strong> Tingkat Resiko (Rendah=0, Sedang=1, Tinggi=2)
         </div>
+
+        <h6 style="font-size:0.85rem; margin-bottom:6px;">1. Jenis Kelamin (X4)</h6>
+        <table class="mini-tbl" style="max-width:400px; margin-bottom:18px;">
+            <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th></tr></thead>
+            <tbody>
+                <tr><td>Laki-laki (L)</td><td><span class="tag tag-feat">1</span></td></tr>
+                <tr><td>Perempuan (P)</td><td><span class="tag tag-feat">0</span></td></tr>
+            </tbody>
+        </table>
+
+        <h6 style="font-size:0.85rem; margin-bottom:6px;">2. Tingkat Resiko (Target)</h6>
+        <table class="mini-tbl" style="max-width:520px;">
+            <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th><th>Kondisi Kasus</th></tr></thead>
+            <tbody>
+                <tr><td><span class="tag tag-rendah">Rendah</span></td><td>0</td><td>Kasus ≤ 8</td></tr>
+                <tr><td><span class="tag tag-sedang">Sedang</span></td><td>1</td><td>Kasus 9 – 15</td></tr>
+                <tr><td><span class="tag tag-tinggi">Tinggi</span></td><td>2</td><td>Kasus > 15</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -338,19 +335,25 @@ function renderStep2() {
         <div class="stat-box"><div class="val">${trees[0]?.best_feature || '-'}</div><div class="lbl">Fitur Root Pohon Terbaik</div></div>
     `;
 
-    let html = '';
+    let html = '<div class="scroll-box-lg" style="max-height:450px;"><table class="mini-tbl">';
+    html += '<thead><tr><th>Pohon</th><th>Data</th><th>Unik</th><th>Duplikat</th><th>Fitur Digunakan</th><th>Root Fitur</th><th>Root Threshold</th><th>Entropy Root</th><th>IG</th></tr></thead><tbody>';
     trees.forEach((t, i) => {
         const featTags = t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_', ' ')}</span>`).join(' ');
-        const cls = t.id === DATA.step4.best_tree_id ? 'best' : '';
-        html += `<div class="tree-card ${cls}">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h6><i class='bx bx-git-branch'></i> ${t.name} ${cls === 'best' ? '<span class="tag tag-ok" style="font-size:0.68rem;">Terbaik (IG tertinggi)</span>' : ''}</h6>
-                <span class="meta">${t.n_samples} data | ${t.n_unique} unik | ${t.n_duplicates} duplikat</span>
-            </div>
-            <div class="meta" style="margin-top:6px;">Fitur: ${featTags}</div>
-            <div class="meta">Entropy Root: ${t.entropy_root_calc} | IG: <strong>${t.ig}</strong> | Fitur: ${t.best_feature} (≤ ${t.root_threshold})</div>
-        </div>`;
+        const isBest = t.id === DATA.step4.best_tree_id;
+        const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
+        html += `<tr${rowStyle}>
+            <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">Terbaik</span>' : ''}</td>
+            <td>${t.n_samples}</td>
+            <td>${t.n_unique}</td>
+            <td>${t.n_duplicates}</td>
+            <td>${featTags}</td>
+            <td>${t.best_feature}</td>
+            <td>≤ ${t.root_threshold}</td>
+            <td>${t.entropy_root_calc}</td>
+            <td><strong>${t.ig}</strong></td>
+        </tr>`;
     });
+    html += '</tbody></table></div>';
     document.getElementById('treeList').innerHTML = html;
 }
 
