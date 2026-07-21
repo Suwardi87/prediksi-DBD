@@ -1,0 +1,41 @@
+@startuml sequence_diagram_login
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Login\nSistem Prediksi Penyebaran DBD
+
+actor "Pengguna" as User
+participant "Halaman\nLogin" as Login
+participant "Controller\nAuth" as Controller
+database "Database" as DB
+
+User -> Login : Membuka halaman login
+activate Login
+
+User -> Login : Input username & password
+Login -> Controller : Submit form login
+activate Controller
+
+Controller -> Controller : Validasi input
+Controller -> DB : Query user by username
+activate DB
+
+DB --> Controller : Return user data
+deactivate DB
+
+alt Password Valid
+    Controller -> Controller : Verify password
+    Controller -> Controller : Set session
+    Controller -> DB : Update last_login
+    Controller --> Login : Login berhasil
+    Login --> User : Redirect ke Dashboard
+else Password Tidak Valid
+    Controller --> Login : Login gagal
+    Login --> User : Tampilkan pesan error
+end
+
+deactivate Controller
+deactivate Login
+
+@enduml

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database binary
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+*.db
+
+# Model files
+*.pkl
+
+# Compiled UML
+Dokumen/UML/images/
+
+# Temporary
+.flask_session/
+*.log

@@ -1,0 +1,62 @@
+@startuml sequence_diagram_prediksi
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Prediksi Risiko DBD\nSistem Prediksi Penyebaran DBD
+
+actor "Pengguna" as User
+participant "Halaman\nPrediksi" as Page
+participant "Controller\nPrediksi" as Controller
+participant "Python API\n(Flask)" as API
+participant "Random Forest\nModel" as Model
+database "Database" as DB
+
+User -> Page : Buka menu Prediksi
+activate Page
+
+Page --> User : Tampilkan form input prediksi
+
+User -> Page : Input parameter:\n- Bulan\n- Jumlah Kasus\n- Rata-rata Usia\n- Jenis Kelamin\n- Lama Rawat
+
+User -> Page : Klik tombol Prediksi
+Page -> Page : Validasi input
+
+Page -> Controller : Submit data prediksi
+activate Controller
+
+Controller -> API : POST /predict\n{bulan, jumlah_kasus, usia, jk, lama_rawat}
+activate API
+
+API -> API : Load model dari file\n(random_forest_model.pkl)
+API -> API : Load encoder
+
+API -> Model : model.predict(features)
+activate Model
+Model --> API : prediction
+deactivate Model
+
+API -> Model : model.predict_proba(features)
+activate Model
+Model --> API : probabilities
+deactivate Model
+
+API -> API : Decode prediction\n(Tinggi/Sedang/Rendah)
+API -> API : Generate rekomendasi
+
+API -> DB : INSERT INTO hasil_prediksi\n(hasil, confidence)
+activate DB
+DB --> API : Success
+deactivate DB
+
+API --> Controller : Response\n{tingkat_risiko, confidence, probabilities, rekomendasi}
+deactivate API
+
+Controller --> Page : Kirim hasil prediksi
+
+Page --> User : Tampilkan hasil:\n- Tingkat Risiko (dengan warna)\n- Confidence Score\n- Probabilitas per kategori\n- Rekomendasi tindakan
+
+deactivate Controller
+deactivate Page
+
+@enduml

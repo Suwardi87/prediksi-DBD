@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Laporan{% endblock %}
+
+{% block content %}
+<div class="page-header no-print">
+    <div>
+        <h4>Laporan Kasus DBD</h4>
+        <p>Ringkasan data kasus tahun {{ tahun }}</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <form method="get" class="d-flex align-items-center gap-2">
+            <select name="tahun" class="form-control form-select" style="width: auto;" onchange="this.form.submit()">
+                {% for t in tahun_list %}
+                <option value="{{ t }}" {% if t == tahun %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <button type="button" class="btn btn-primary" onclick="printLaporan()">
+            <i class='bx bx-printer'></i><span>Print Laporan</span>
+        </button>
+    </div>
+</div>
+
+<!-- Area cetak -->
+<div id="printArea">
+    <!-- Header cetak (hanya muncul saat print) -->
+    <div class="print-header">
+        <h3 style="margin: 0;">Laporan Kasus Demam Berdarah Dengue (DBD)</h3>
+        <p style="margin: 4px 0 0;">Tahun {{ tahun }}</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header no-print"><h5><i class='bx bx-table text-primary me-2'></i>Data Kasus Per Bulan</h5></div>
+        <div class="card-body" style="padding: 0;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Bulan</th>
+                        <th>Tahun</th>
+                        <th>Jumlah Kasus</th>
+                        <th>Tingkat Risiko</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_kasus = namespace(val=0) %}
+                    {% for k in kasus_bulanan %}
+                    {% set total_kasus.val = total_kasus.val + k.jumlah_kasus %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ k.bulan }}</td>
+                        <td>{{ k.tahun }}</td>
+                        <td><strong>{{ k.jumlah_kasus }}</strong></td>
+                        <td>
+                            <span class="badge badge-{{ 'danger' if k.tingkat_risiko == 'Tinggi' else 'warning' if k.tingkat_risiko == 'Sedang' else 'success' }}">
+                                {{ k.tingkat_risiko }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">Tidak ada data</td></tr>
+                    {% endfor %}
+                    {% if kasus_bulanan %}
+                    <tr style="font-weight: bold; background: var(--gray-50);">
+                        <td colspan="3" class="text-end">Total Kasus</td>
+                        <td><strong>{{ total_kasus.val }}</strong></td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer cetak -->
+    <div class="print-footer">
+        <p style="margin: 0; font-size: 0.85rem; color: #666;">Dicetak pada: <span id="printDate"></span></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function printLaporan() {
+    // Set tanggal cetak
+    const now = new Date();
+    const options = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('printDate').textContent = now.toLocaleDateString('id-ID', options);
+    window.print();
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Print header/footer hanya tampil saat cetak */
+.print-header, .print-footer { display: none; }
+
+@media print {
+    /* Sembunyikan elemen non-print */
+    .no-print, .sidebar, .navbar, .page-header,
+    nav, footer, .btn, .form-select { display: none !important; }
+
+    /* Tampilkan header/footer cetak */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+    }
+    .print-footer {
+        display: block !important;
+        margin-top: 30px;
+        padding-top: 10px;
+        border-top: 1px solid #ccc;
+        text-align: right;
+    }
+
+    /* Layout full-width */
+    body, .main-content, .content-wrapper { margin: 0 !important; padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .card-body { padding: 0 !important; }
+
+    /* Tabel rapi */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { border: 1px solid #333 !important; padding: 6px 10px; font-size: 12px; }
+    .table thead th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* Badge print */
+    .badge { border: 1px solid #333; padding: 2px 8px; font-size: 11px; }
+    .badge-danger { background: #f8d7da !important; color: #721c24 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge-warning { background: #fff3cd !important; color: #856404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge-success { background: #d4edda !important; color: #155724 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    @page { margin: 15mm; }
+}
+</style>
+{% endblock %}

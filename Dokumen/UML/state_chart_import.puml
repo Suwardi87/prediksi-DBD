@@ -1,0 +1,67 @@
+@startuml State Chart - Import Data Excel
+title State Chart Diagram - Import Data Excel\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+}
+
+[*] --> HalamanImport
+
+state "Halaman Import Ditampilkan" as HalamanImport <<blue>> {
+}
+HalamanImport : entry / render form upload
+HalamanImport : do / menunggu pilih file
+
+state "File Excel Dipilih" as FileDipilih <<blue>> {
+}
+FileDipilih : entry / validasi ekstensi file (.xlsx)
+FileDipilih : do / menampilkan nama file terpilih
+
+state "Upload & Parsing File" as Parsing <<yellow>> {
+}
+Parsing : entry / upload file ke server
+Parsing : do / pd.read_excel(),
+Parsing :       validasi kolom yang diperlukan
+
+state "Error: File/Format Tidak Valid" as ErrorFile <<red>> {
+}
+ErrorFile : entry / tampilkan pesan error
+ErrorFile : do / menunggu pilih file ulang
+
+state "Proses Insert Data ke Database" as InsertData <<yellow>> {
+}
+InsertData : entry / loop setiap baris data
+InsertData : do / parse & validasi tiap baris,
+InsertData :       INSERT INTO pasien_dbd
+InsertData : exit / hitung berhasil & gagal
+
+state "Hasil Import Ditampilkan" as HasilImport <<green>> {
+}
+HasilImport : entry / hitung statistik import
+HasilImport : do / tampilkan total data,
+HasilImport :       berhasil, gagal, log aktivitas
+
+HalamanImport --> FileDipilih : pilih file
+FileDipilih --> Parsing : klik Upload
+Parsing --> ErrorFile : [format salah /\nkolom tidak sesuai]
+ErrorFile --> HalamanImport : pilih ulang
+Parsing --> InsertData : [file valid]
+InsertData --> HasilImport : import selesai
+HasilImport --> HalamanImport : import lagi
+HasilImport --> [*] : selesai
+
+note right of InsertData
+  Aktor: Petugas
+  Format: File Excel (.xlsx)
+  Library: pandas (pd.read_excel)
+  Tabel Target: pasien_dbd
+end note
+
+@enduml

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Detail Pasien{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Detail Pasien</h4>
+        <p>Informasi lengkap data pasien DBD</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('data.edit', id=pasien.id) }}" class="btn btn-warning"><i class='bx bx-edit'></i> Edit</a>
+        <a href="{{ url_for('data.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Kembali</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class='bx bx-user text-primary me-2'></i>Informasi Pasien</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width: 160px;">No. Rekam Medis</td>
+                        <td><strong>{{ pasien.no_rm or '-' }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Nama Pasien</td>
+                        <td><strong>{{ pasien.nama_pasien }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Usia</td>
+                        <td>{{ pasien.usia }} tahun</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Jenis Kelamin</td>
+                        <td>{{ 'Laki-laki' if pasien.jenis_kelamin == 'L' else 'Perempuan' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Alamat</td>
+                        <td>{{ pasien.alamat or '-' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class='bx bx-calendar text-warning me-2'></i>Informasi Rawat Inap</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width: 160px;">Tanggal Masuk</td>
+                        <td>{{ pasien.tanggal_masuk.strftime('%d/%m/%Y') if pasien.tanggal_masuk else '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Tanggal Keluar</td>
+                        <td>{{ pasien.tanggal_keluar.strftime('%d/%m/%Y') if pasien.tanggal_keluar else '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Lama Rawat</td>
+                        <td>{{ pasien.lama_rawat or '-' }} hari</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Bulan/Tahun</td>
+                        <td>{{ pasien.bulan or '-' }} {{ pasien.tahun or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Dibuat</td>
+                        <td>{{ pasien.created_at.strftime('%d/%m/%Y %H:%M') if pasien.created_at else '-' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

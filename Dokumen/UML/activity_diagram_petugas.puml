@@ -1,0 +1,78 @@
+@startuml activity_diagram_petugas
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityFontSize 11
+
+title Activity Diagram Petugas\nSistem Prediksi Penyebaran DBD
+
+start
+
+:Membuka Halaman Login;
+
+:Memasukkan Username dan Password;
+
+if (Validasi Login?) then (Valid)
+    :Masuk ke Dashboard;
+    
+    repeat
+        :Pilih Menu;
+        
+        switch (Menu yang dipilih?)
+        case (Kelola Data Pasien)
+            :Tampilkan Daftar Pasien;
+            if (Aksi?) then (Tambah)
+                :Input Data Pasien Baru;
+                :Validasi Data;
+                :Simpan ke Database;
+            elseif (Edit) then
+                :Pilih Data Pasien;
+                :Edit Data;
+                :Update Database;
+            else (Hapus)
+                :Konfirmasi Hapus;
+                :Hapus dari Database;
+            endif
+            
+        case (Import Data Excel)
+            :Pilih File Excel;
+            :Upload File;
+            :Validasi Format;
+            if (Format Valid?) then (Ya)
+                :Proses Import Data;
+                :Tampilkan Hasil Import;
+            else (Tidak)
+                :Tampilkan Error;
+            endif
+            
+        case (Training Model)
+            :Atur Parameter;
+            :n_estimators, max_depth, test_size;
+            :Mulai Training;
+            :Tunggu Proses;
+            :Tampilkan Metrik Evaluasi;
+            
+        case (Prediksi Risiko)
+            :Input Parameter Prediksi;
+            :Bulan, Jumlah Kasus, Usia, dll;
+            :Kirim ke API Python;
+            :Terima Hasil Prediksi;
+            :Tampilkan Tingkat Risiko;
+            
+        case (Lihat Laporan)
+            :Filter Periode;
+            :Query Data;
+            :Tampilkan Grafik dan Tabel;
+            
+        endswitch
+        
+    repeat while (Lanjut?) is (Ya)
+
+    :Logout;
+    
+else (Tidak Valid)
+    :Tampilkan Pesan Error;
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+{% block title %}Perhitungan Manual RF{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Perhitungan Manual Random Forest</h4>
+        <p>Langkah per langkah proses algoritma Random Forest — dari input data hingga evaluasi</p>
+    </div>
+    <div>
+        <button class="btn btn-primary" id="btnMulai" onclick="mulaiPerhitungan()">
+            <i class='bx bx-play-circle'></i><span>Mulai Perhitungan</span>
+        </button>
+    </div>
+</div>
+
+<!-- Loading -->
+<div id="loadingArea" style="display: none;">
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="spinner mb-3" style="margin: 0 auto;"></div>
+            <p class="text-muted">Memproses perhitungan manual...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Placeholder -->
+<div id="placeholderArea">
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class='bx bx-calculator' style="font-size: 4rem; color: var(--gray-300);"></i>
+            <h5 class="text-muted mt-3">Perhitungan Manual Random Forest</h5>
+            <p class="text-muted">Klik "Mulai Perhitungan" untuk melihat langkah-langkah perhitungan secara detail</p>
+            <div class="mt-4" style="max-width: 500px; margin: 0 auto; text-align: left;">
+                <div class="mb-2"><span class="badge badge-primary me-2">1</span> Input Data — Data pasien & fitur</div>
+                <div class="mb-2"><span class="badge badge-primary me-2">2</span> Random Sampling — Bootstrap sampling per pohon</div>
+                <div class="mb-2"><span class="badge badge-primary me-2">3</span> Pembuatan Pohon — Hitung Entropy dan Information Gain, temukan fitur terbaik untuk split cabang</div>
+                <div class="mb-2"><span class="badge badge-primary me-2">4</span> Perulangan — Ulangi langkah 2 & 3 untuk 5 pohon</div>
+                <div class="mb-2"><span class="badge badge-primary me-2">5</span> Mayoritas Voting (Aggregation) — Kumpulkan hasil prediksi dari semua 5 pohon dan ambil label terbanyak</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hasil Perhitungan -->
+<div id="hasilArea" style="display: none;">
+
+    <!-- ═══ LANGKAH 1: INPUT DATA ═══ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><span class="badge badge-primary me-2">1</span><i class='bx bx-data text-primary me-2'></i>Langkah 1: Input Data</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    Data pasien DBD diambil dari database. Setiap pasien memiliki 3 fitur:
+                    <strong>X1 = Usia</strong>, <strong>X2 = Lama Rawat Inap</strong>, <strong>X3 = Jenis Kelamin</strong>.
+                    Target (Y) = Tingkat Risiko yang ditentukan dari jumlah kasus bulanan (Rendah ≤8, Sedang 9-15, Tinggi >15).
+                </div>
+            </div>
+            <p><strong>Total Data:</strong> <span id="totalData"></span> | <strong>Fitur:</strong> <span id="nFeatures"></span> | <strong>Label Encoding:</strong> Rendah=1, Sedang=2, Tinggi=3</p>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-sm">
+                    <thead><tr><th>No</th><th>Usia (X1)</th><th>Lama Rawat (X2)</th><th>JK (X3)</th><th>Tingkat Risiko (Y)</th><th>Label</th></tr></thead>
+                    <tbody id="tblInputData"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LANGKAH 2: RANDOM SAMPLING ═══ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><span class="badge badge-primary me-2">2</span><i class='bx bx-shuffle text-primary me-2'></i>Langkah 2: Random Sampling (Bootstrap)</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    Setiap pohon keputusan dibangun dari <strong>bootstrap sample</strong> — pengambilan data acak <strong>dengan pengembalian</strong> (with replacement)
+                    dari dataset asli. Ukuran sample = ukuran data asli (<span id="sampleSize"></span> data), tetapi beberapa data bisa terpilih lebih dari sekali
+                    dan beberapa data tidak terpilih sama sekali.
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="p-3 rounded mb-3" style="background: var(--gray-50);">
+                        <h6>Konfigurasi Random Forest</h6>
+                        <table class="table table-sm mb-0">
+                            <tr><td>n_estimators (jumlah pohon)</td><td><strong id="nEstimators"></strong></td></tr>
+                            <tr><td>criterion</td><td><strong>Entropy</strong></td></tr>
+                            <tr><td>max_features (m)</td><td><strong>sqrt(<span id="nFeat2"></span>) ≈ <span id="mFeatures"></span></strong></td></tr>
+                            <tr><td>bootstrap</td><td><strong>True (with replacement)</strong></td></tr>
+                            <tr><td>random_state</td><td><strong>42</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="p-3 rounded mb-3" style="background: var(--gray-50);">
+                        <h6>Proses Bootstrap</h6>
+                        <p class="mb-1" style="font-size: 0.9rem;">Dari <span id="totalData2"></span> data asli, setiap pohon mengambil <span id="totalData3"></span> sampel acak <em>with replacement</em>.</p>
+                        <p class="mb-0" style="font-size: 0.9rem;">Di setiap node, hanya <strong>m = <span id="mFeatures2"></span></strong> fitur yang dipilih acak untuk mencari split terbaik.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="mt-3">Contoh Distribusi Bootstrap Sample (3 Pohon Pertama)</h6>
+            <div class="row" id="bootstrapExamples"></div>
+        </div>
+    </div>
+
+    <!-- ═══ LANGKAH 3: PEMBUATAN POHON ═══ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><span class="badge badge-primary me-2">3</span><i class='bx bx-git-branch text-primary me-2'></i>Langkah 3: Pembuatan Pohon Keputusan</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    Setiap pohon dibangun dengan algoritma <strong>ID3 (Iterative Dichotomiser 3)</strong> menggunakan <strong>Entropy</strong> dan <strong>Information Gain</strong>.
+                    Pada setiap node, <em>m</em> fitur dipilih acak, lalu dihitung Entropy dan Information Gain untuk menentukan split terbaik.
+                </div>
+            </div>
+
+            <div class="p-3 rounded mb-4" style="background: var(--gray-50);">
+                <h6>Rumus Perhitungan</h6>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>Entropy:</strong>
+                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.9rem;">
+                            E(S) = -Σ pᵢ × log₂(pᵢ)
+                        </div>
+                        <small class="text-muted">pᵢ = proporsi kelas i dalam dataset</small>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>Information Gain:</strong>
+                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.9rem;">
+                            IG(S,A) = E(S) - Σ (|Sᵥ|/|S|) × E(Sᵥ)
+                        </div>
+                        <small class="text-muted">A = atribut, Sᵥ = subset untuk nilai v</small>
+                    </div>
+                </div>
+            </div>
+
+            <h6>Detail Pohon (3 Pohon Pertama)</h6>
+            <div id="treesDetail"></div>
+        </div>
+    </div>
+
+    <!-- ═══ LANGKAH 4: PERULANGAN ═══ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><span class="badge badge-primary me-2">4</span><i class='bx bx-repeat text-primary me-2'></i>Langkah 4: Perulangan Tahap 2 dan 3</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    Langkah 2 (random sampling) dan Langkah 3 (pembuatan pohon) diulang sebanyak <strong>n_estimators = <span id="nEst2"></span> kali</strong>,
+                    menghasilkan <strong><span id="nEst3"></span> pohon keputusan</strong> yang berbeda-beda. Setiap pohon dibangun dari bootstrap sample yang berbeda.
+                </div>
+            </div>
+
+            <h6>Ringkasan Seluruh <span id="nEst4"></span> Pohon</h6>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Pohon</th>
+                            <th>Sampel</th>
+                            <th>Distribusi Kelas</th>
+                            <th>Entropy Root</th>
+                            <th>Fitur Split Root</th>
+                            <th>Threshold</th>
+                            <th>Info Gain</th>
+                            <th>Daun</th>
+                            <th>Kedalaman</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblAllTrees"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LANGKAH 5: EVALUASI ═══ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><span class="badge badge-primary me-2">5</span><i class='bx bx-check-shield text-primary me-2'></i>Langkah 5: Evaluasi Model (MAE, RMSE, R²)</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    Evaluasi menggunakan <strong>Stratified 5-Fold Cross-Validation</strong>.
+                    Data dibagi 5 bagian, setiap fold bergantian menjadi data test.
+                    Metrik dihitung per fold lalu dirata-rata.
+                </div>
+            </div>
+
+            <!-- Rumus -->
+            <div class="p-3 rounded mb-4" style="background: var(--gray-50);">
+                <h6>Rumus Evaluasi</h6>
+                <div class="row">
+                    <div class="col-12 col-md-4 mb-3">
+                        <strong>MAE (Mean Absolute Error):</strong>
+                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
+                            MAE = (1/n) × Σ|yᵢ - ŷᵢ|
+                        </div>
+                        <small class="text-muted">Rata-rata selisih absolut</small>
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <strong>RMSE (Root Mean Square Error):</strong>
+                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
+                            RMSE = √[(1/n) × Σ(yᵢ - ŷᵢ)²]
+                        </div>
+                        <small class="text-muted">Akar rata-rata error kuadrat</small>
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <strong>R² (Koefisien Determinasi):</strong>
+                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
+                            R² = 1 - (SS_res / SS_tot)
+                        </div>
+                        <small class="text-muted">SS_res = Σ(yᵢ-ŷᵢ)², SS_tot = Σ(yᵢ-ȳ)²</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail per Fold -->
+            <h6>Detail per Fold</h6>
+            <div id="foldsDetail"></div>
+
+            <!-- Perhitungan Manual -->
+            <div class="card mt-4" style="border: 2px solid var(--primary);">
+                <div class="card-header" style="background: var(--primary); color: white;">
+                    <h5 class="mb-0"><i class='bx bx-calculator me-2'></i>Perhitungan Manual Keseluruhan</h5>
+                </div>
+                <div class="card-body" id="manualCalc"></div>
+            </div>
+
+            <!-- Hasil Akhir -->
+            <div class="row mt-4">
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon primary"><i class='bx bx-math'></i></div>
+                        <div class="stat-content">
+                            <h3 id="finalMAE">-</h3>
+                            <p>MAE</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class='bx bx-scatter-chart'></i></div>
+                        <div class="stat-content">
+                            <h3 id="finalRMSE">-</h3>
+                            <p>RMSE</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon success"><i class='bx bx-equalizer'></i></div>
+                        <div class="stat-content">
+                            <h3 id="finalR2">-</h3>
+                            <p>R²</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function mulaiPerhitungan() {
+    document.getElementById('placeholderArea').style.display = 'none';
+    document.getElementById('hasilArea').style.display = 'none';
+    document.getElementById('loadingArea').style.display = 'block';
+    document.getElementById('btnMulai').disabled = true;
+
+    try {
+        const resp = await fetch('/perhitungan/hitung', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await resp.json();
+
+        if (data.status !== 'success') throw new Error(data.message || 'Gagal');
+
+        renderHasil(data);
+        document.getElementById('loadingArea').style.display = 'none';
+        document.getElementById('hasilArea').style.display = 'block';
+    } catch (err) {
+        document.getElementById('loadingArea').style.display = 'none';
+        document.getElementById('placeholderArea').style.display = 'block';
+        alert('Error: ' + err.message);
+    }
+    document.getElementById('btnMulai').disabled = false;
+}
+
+function renderHasil(data) {
+    // Langkah 1: Input data
+    document.getElementById('totalData').textContent = data.total_data;
+    document.getElementById('nFeatures').textContent = data.n_features;
+    let rows = '';
+    data.input_data.forEach(d => {
+        const badgeCls = d.tingkat_risiko === 'Tinggi' ? 'danger' : d.tingkat_risiko === 'Sedang' ? 'warning' : 'success';
+        rows += `<tr><td>${d.no}</td><td>${d.usia}</td><td>${d.lama_rawat}</td><td>${d.jenis_kelamin}</td>
+            <td><span class="badge badge-${badgeCls}">${d.tingkat_risiko}</span></td><td>${d.label}</td></tr>`;
+    });
+    document.getElementById('tblInputData').innerHTML = rows;
+
+    // Langkah 2: Bootstrap
+    document.getElementById('sampleSize').textContent = data.total_data;
+    document.getElementById('nEstimators').textContent = data.n_estimators;
+    document.getElementById('nFeat2').textContent = data.n_features;
+    document.getElementById('mFeatures').textContent = data.m_features;
+    document.getElementById('totalData2').textContent = data.total_data;
+    document.getElementById('totalData3').textContent = data.total_data;
+    document.getElementById('mFeatures2').textContent = data.m_features;
+
+    let bsHtml = '';
+    data.trees.slice(0, 3).forEach(t => {
+        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k}: ${v}`).join(', ');
+        bsHtml += `<div class="col-12 col-md-4 mb-3"><div class="p-3 rounded" style="background: var(--gray-50);">
+            <h6 class="text-primary">Pohon ${t.tree_id}</h6>
+            <p class="mb-1"><strong>Sampel:</strong> ${t.total_samples} data (bootstrap)</p>
+            <p class="mb-0"><strong>Distribusi:</strong> ${distStr}</p></div></div>`;
+    });
+    document.getElementById('bootstrapExamples').innerHTML = bsHtml;
+
+    // Langkah 3: Detail pohon
+    let tdHtml = '';
+    data.trees.slice(0, 3).forEach(t => {
+        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k}: ${v}`).join(', ');
+        let totalS = t.total_samples;
+        let proportions = Object.entries(t.class_dist).map(([k,v]) => `p(${k}) = ${v}/${totalS} = ${(v/totalS).toFixed(4)}`).join('<br>');
+
+        tdHtml += `<div class="card mb-3" style="border-left: 4px solid var(--primary);">
+            <div class="card-body">
+                <h6 class="text-primary mb-3">Pohon ${t.tree_id}</h6>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>1. Distribusi Kelas (Root):</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">${distStr}<br>Total: ${totalS} sampel</div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>2. Proporsi Kelas:</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">${proportions}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>3. Entropy Root:</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
+                            E(S) = ${Object.entries(t.class_dist).map(([k,v]) => {
+                                let p = v/totalS;
+                                return p > 0 ? `-(${p.toFixed(4)} × log₂(${p.toFixed(4)}))` : '0';
+                            }).join(' + ')}<br>
+                            <strong>E(S) = ${t.root_entropy}</strong>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>4. Split Terbaik (Root):</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
+                            Fitur: <strong>${t.root_feature}</strong><br>
+                            Threshold: <strong>${t.root_threshold}</strong><br>
+                            ← Kiri: ${t.left_samples} sampel (E=${t.left_entropy})<br>
+                            → Kanan: ${t.right_samples} sampel (E=${t.right_entropy})
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>5. Information Gain:</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
+                            IG = ${t.root_entropy} - (${t.left_samples}/${totalS} × ${t.left_entropy} + ${t.right_samples}/${totalS} × ${t.right_entropy})<br>
+                            <strong>IG = ${t.information_gain}</strong>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <strong>6. Struktur Pohon:</strong>
+                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
+                            Jumlah daun (leaf): <strong>${t.n_leaves}</strong><br>
+                            Kedalaman: <strong>${t.max_depth}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+    document.getElementById('treesDetail').innerHTML = tdHtml;
+
+    // Langkah 4: Semua pohon
+    ['nEst2','nEst3','nEst4'].forEach(id => document.getElementById(id).textContent = data.n_estimators);
+    let allRows = '';
+    data.trees.forEach(t => {
+        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k[0]}:${v}`).join(' ');
+        allRows += `<tr><td>Pohon ${t.tree_id}</td><td>${t.total_samples}</td><td>${distStr}</td>
+            <td>${t.root_entropy}</td><td>${t.root_feature}</td><td>${t.root_threshold ?? '-'}</td>
+            <td>${t.information_gain}</td><td>${t.n_leaves}</td><td>${t.max_depth}</td></tr>`;
+    });
+    document.getElementById('tblAllTrees').innerHTML = allRows;
+
+    // Langkah 5: Evaluasi
+    let foldsHtml = '';
+    data.folds.forEach(f => {
+        let testRows = f.test_data.map(d => {
+            const match = d.actual === d.predicted;
+            return `<tr class="${match ? '' : 'table-danger'}"><td>${d.idx}</td>
+                <td>${d.actual} (${d.actual_label})</td><td>${d.predicted} (${d.predicted_label})</td>
+                <td>${d.error}</td></tr>`;
+        }).join('');
+
+        foldsHtml += `<div class="card mb-3" style="border-left: 4px solid var(--warning);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Fold ${f.fold}</h6>
+                    <div>
+                        <span class="badge badge-primary me-1">Train: ${f.train_size}</span>
+                        <span class="badge badge-warning me-1">Test: ${f.test_size}</span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4"><small>MAE = <strong>${f.mae}</strong></small></div>
+                    <div class="col-4"><small>RMSE = <strong>${f.rmse}</strong></small></div>
+                    <div class="col-4"><small>R² = <strong>${f.r2}</strong></small></div>
+                </div>
+                <details><summary class="text-muted" style="cursor:pointer; font-size: 0.85rem;">Lihat detail data test</summary>
+                <table class="table table-sm mt-2"><thead><tr><th>Data ke-</th><th>Aktual (yᵢ)</th><th>Prediksi (ŷᵢ)</th><th>|Error|</th></tr></thead>
+                <tbody>${testRows}</tbody></table></details>
+            </div>
+        </div>`;
+    });
+    document.getElementById('foldsDetail').innerHTML = foldsHtml;
+
+    // Perhitungan Manual
+    const ev = data.evaluation;
+    document.getElementById('manualCalc').innerHTML = `
+        <div class="row">
+            <div class="col-12 mb-3">
+                <p>Dari seluruh ${ev.n_data} data prediksi (gabungan 5 fold):</p>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <div class="p-3 rounded" style="background: var(--gray-50);">
+                    <strong>MAE</strong>
+                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
+                        MAE = Σ|yᵢ - ŷᵢ| / n<br>
+                        MAE = ${ev.sum_abs_errors} / ${ev.n_data}<br>
+                        <strong class="text-primary">MAE = ${ev.manual_mae}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <div class="p-3 rounded" style="background: var(--gray-50);">
+                    <strong>RMSE</strong>
+                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
+                        MSE = Σ(yᵢ - ŷᵢ)² / n<br>
+                        MSE = ${ev.sum_sq_errors} / ${ev.n_data} = ${(ev.sum_sq_errors/ev.n_data).toFixed(4)}<br>
+                        RMSE = √MSE<br>
+                        <strong class="text-primary">RMSE = ${ev.manual_rmse}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <div class="p-3 rounded" style="background: var(--gray-50);">
+                    <strong>R²</strong>
+                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
+                        ȳ = ${ev.y_mean}<br>
+                        SS_res = Σ(yᵢ - ŷᵢ)² = ${ev.sum_sq_errors}<br>
+                        SS_tot = Σ(yᵢ - ȳ)² = ${ev.ss_tot}<br>
+                        R² = 1 - (${ev.sum_sq_errors} / ${ev.ss_tot})<br>
+                        <strong class="text-primary">R² = ${ev.manual_r2}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Hasil akhir
+    document.getElementById('finalMAE').textContent = ev.avg_mae;
+    document.getElementById('finalRMSE').textContent = ev.avg_rmse;
+    document.getElementById('finalR2').textContent = ev.avg_r2;
+}
+</script>
+{% endblock %}

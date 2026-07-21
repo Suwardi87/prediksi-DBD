@@ -1,0 +1,63 @@
+@startuml State Chart - Login
+title State Chart Diagram - Login\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+}
+
+[*] --> HalamanLogin
+
+state "Halaman Login Ditampilkan" as HalamanLogin <<blue>> {
+}
+HalamanLogin : entry / render halaman login
+HalamanLogin : do / menunggu input pengguna
+
+state "Mengisi Form Login" as MengisiForm <<blue>> {
+}
+MengisiForm : entry / form aktif menerima input
+MengisiForm : do / input username dan password
+
+state "Memvalidasi Kredensial" as Validasi <<yellow>> {
+}
+Validasi : entry / kirim data login ke server
+Validasi : do / query user di database,
+Validasi :       check_password_hash()
+
+state "Login Gagal" as LoginGagal <<red>> {
+}
+LoginGagal : entry / tampilkan pesan error
+LoginGagal : do / menunggu input ulang
+
+state "Set Session & Update Last Login" as SetSession <<green>> {
+}
+SetSession : entry / login_user(user)
+SetSession : do / update last_login timestamp,
+SetSession :       log aktivitas ke database
+
+state "Redirect ke Dashboard" as Dashboard <<green>> {
+}
+Dashboard : entry / redirect('/dashboard')
+Dashboard : do / tampilkan halaman utama
+Dashboard :       sesuai role pengguna
+
+HalamanLogin --> MengisiForm : klik form input
+MengisiForm --> Validasi : klik tombol Login
+Validasi --> LoginGagal : [password tidak valid /\nuser tidak ditemukan]
+Validasi --> SetSession : [password valid &\nuser aktif]
+LoginGagal --> MengisiForm : input ulang
+SetSession --> Dashboard : session aktif
+Dashboard --> [*] : login berhasil
+
+note right of Validasi
+  Aktor: Pengguna (Admin / Petugas / Pimpinan)
+  Objek: Login Page → Auth Controller → Database
+end note
+
+@enduml

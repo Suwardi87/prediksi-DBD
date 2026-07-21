@@ -1,0 +1,263 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="Sequence Diagram - Kelola Pasien" id="seq-kelola-pasien">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Sequence Diagram - Kelola Data Pasien DBD&#xa;Sistem Prediksi Penyebaran DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="335" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors & Objects -->
+        <!-- Admin -->
+        <mxCell id="actor" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="actor">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="850" as="sourcePoint" />
+            <mxPoint x="100" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Browser -->
+        <mxCell id="browser" value="Browser" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="220" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="browser-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#3399FF;strokeColor=#3399FF" vertex="1" parent="browser">
+          <mxGeometry x="45" y="70" width="10" height="590" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask data.py -->
+        <mxCell id="flask" value="Flask App&#xa;(data.py)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="110" width="10" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="250" width="10" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="420" width="10" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="550" width="10" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Wilayah Model -->
+        <mxCell id="wilayah" value="Wilayah&#xa;Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="580" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="wilayah-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="wilayah">
+          <mxGeometry x="45" y="280" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- PasienDBD Model -->
+        <mxCell id="pasien" value="PasienDBD&#xa;Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+          <mxGeometry x="760" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="pasien-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+          <mxGeometry x="45" y="320" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="pasien-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+          <mxGeometry x="45" y="450" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="pasien-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+          <mxGeometry x="45" y="580" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;(MySQL)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="940" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="150" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="340" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="470" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="600" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Scenario 1: View List -->
+        <mxCell id="scenario1" value="Scenario 1: Melihat Daftar Pasien" style="text;html=1;strokeColor=#3399FF;fillColor=#E6F5FF;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="155" width="960" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 1.1 Request list -->
+        <mxCell id="msg1-1" value="1.1: GET /data/" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="200" as="sourcePoint" />
+            <mxPoint x="445" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 1.2 Query DB -->
+        <mxCell id="msg1-2" value="1.2: SELECT * FROM pasien_dbd" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="230" as="sourcePoint" />
+            <mxPoint x="985" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 1.3 Return list -->
+        <mxCell id="msg1-3" value="1.3: return list pasien" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="985" y="260" as="sourcePoint" />
+            <mxPoint x="455" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 1.4 Display -->
+        <mxCell id="msg1-4" value="1.4: Tampilkan tabel pasien" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="290" as="sourcePoint" />
+            <mxPoint x="275" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Scenario 2: Create New Patient -->
+        <mxCell id="scenario2" value="Scenario 2: Tambah Data Pasien Baru" style="text;html=1;strokeColor=#33CC33;fillColor=#E6FFE6;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="960" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 2.1 Click create -->
+        <mxCell id="msg2-1" value="2.1: Klik 'Tambah Pasien'" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="360" as="sourcePoint" />
+            <mxPoint x="265" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.2 Get wilayah list -->
+        <mxCell id="msg2-2" value="2.2: get_wilayah_list()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="390" as="sourcePoint" />
+            <mxPoint x="625" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.3 Return wilayah -->
+        <mxCell id="msg2-3" value="2.3: return list wilayah" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="625" y="420" as="sourcePoint" />
+            <mxPoint x="455" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.4 Submit form -->
+        <mxCell id="msg2-4" value="2.4: Submit form (POST /data/create)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="450" as="sourcePoint" />
+            <mxPoint x="445" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.5 Save to DB -->
+        <mxCell id="msg2-5" value="2.5: INSERT INTO pasien_dbd" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="480" as="sourcePoint" />
+            <mxPoint x="805" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.6 Save to DB -->
+        <mxCell id="msg2-6" value="2.6: db.session.add() & commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815" y="510" as="sourcePoint" />
+            <mxPoint x="985" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2.7 Return success -->
+        <mxCell id="msg2-7" value="2.7: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="985" y="540" as="sourcePoint" />
+            <mxPoint x="455" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Scenario 3: Edit Patient -->
+        <mxCell id="scenario3" value="Scenario 3: Edit Data Pasien" style="text;html=1;strokeColor=#FF9900;fillColor=#FFF4E6;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="570" width="960" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 3.1 Submit edit -->
+        <mxCell id="msg3-1" value="3.1: Submit edit (POST /data/edit/&lt;id&gt;)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="610" as="sourcePoint" />
+            <mxPoint x="445" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3.2 Update DB -->
+        <mxCell id="msg3-2" value="3.2: UPDATE pasien_dbd SET ..." style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="640" as="sourcePoint" />
+            <mxPoint x="805" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3.3 DB commit -->
+        <mxCell id="msg3-3" value="3.3: db.session.commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815" y="670" as="sourcePoint" />
+            <mxPoint x="985" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3.4 Return success -->
+        <mxCell id="msg3-4" value="3.4: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="985" y="700" as="sourcePoint" />
+            <mxPoint x="455" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Scenario 4: Delete Patient -->
+        <mxCell id="scenario4" value="Scenario 4: Hapus Data Pasien" style="text;html=1;strokeColor=#CC0000;fillColor=#FFE6E6;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="730" width="960" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 4.1 Confirm delete -->
+        <mxCell id="msg4-1" value="4.1: Konfirmasi hapus (POST /data/delete/&lt;id&gt;)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="770" as="sourcePoint" />
+            <mxPoint x="445" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4.2 Delete from DB -->
+        <mxCell id="msg4-2" value="4.2: DELETE FROM pasien_dbd WHERE id=?" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="800" as="sourcePoint" />
+            <mxPoint x="985" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4.3 Return success -->
+        <mxCell id="msg4-3" value="4.3: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="985" y="830" as="sourcePoint" />
+            <mxPoint x="275" y="830" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Note: Hanya Admin&#xa;yang bisa akses" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="80" y="400" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="Note: Validasi&#xa;dilakukan di form" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="120" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

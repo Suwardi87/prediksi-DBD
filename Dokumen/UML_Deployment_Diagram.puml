@@ -1,0 +1,66 @@
+@startuml Deployment_Diagram_Prediksi_DBD
+
+title Deployment Diagram - Sistem Prediksi Penyebaran DBD
+
+skinparam monochrome true
+skinparam shadowing false
+
+node "Client Device" as Client {
+    node "Web Browser" as Browser {
+        [HTML5 + CSS3]
+        [JavaScript]
+        [Chart.js]
+    }
+}
+
+node "Application Server" as AppServer {
+    node "Python 3.8+" as Python {
+        [Flask Framework] as Flask
+        [Route Handlers] as Routes
+        [Machine Learning Engine] as ML
+        [SQLAlchemy ORM] as ORM
+        [Jinja2 Templates] as Templates
+    }
+}
+
+node "Database Server" as DBServer {
+    database "MySQL" as MySQL {
+        [users]
+        [pasien_dbd]
+        [kasus_bulanan]
+        [hasil_prediksi]
+        [model_evaluasi]
+        [wilayah]
+        [log_aktivitas]
+    }
+}
+
+cloud "CDN" as CDN {
+    [Google Fonts]
+    [Boxicons]
+}
+
+Browser --> Flask : HTTP Port 5000
+Flask --> Routes
+Routes --> ML
+Routes --> ORM
+ORM --> MySQL : PyMySQL Port 3306
+Flask --> Templates
+Browser --> CDN : Static Assets
+
+note bottom of Client
+    User mengakses sistem
+    melalui web browser
+end note
+
+note bottom of AppServer
+    Flask Server
+    Host: 127.0.0.1:5000
+end note
+
+note bottom of DBServer
+    MySQL Database
+    db_prediksi_dbd
+end note
+
+@enduml

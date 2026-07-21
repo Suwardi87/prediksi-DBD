@@ -1,0 +1,89 @@
+@startuml sequence_diagram_kelola_pasien
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Kelola Data Pasien\nSistem Prediksi Penyebaran DBD
+
+actor "Petugas" as User
+participant "Halaman\nData Pasien" as Page
+participant "Controller\nPasien" as Controller
+database "Database" as DB
+
+== Menampilkan Daftar Pasien ==
+User -> Page : Buka menu Data Pasien
+activate Page
+
+Page -> Controller : Request daftar pasien
+activate Controller
+
+Controller -> DB : SELECT * FROM pasien_dbd
+activate DB
+DB --> Controller : Return data pasien
+deactivate DB
+
+Controller --> Page : Kirim data pasien
+Page --> User : Tampilkan tabel pasien
+deactivate Controller
+
+== Tambah Data Pasien ==
+User -> Page : Klik tombol Tambah
+Page --> User : Tampilkan form input
+
+User -> Page : Input data pasien
+Page -> Controller : Submit form
+activate Controller
+
+Controller -> Controller : Validasi data
+Controller -> DB : INSERT INTO pasien_dbd
+activate DB
+DB --> Controller : Success
+deactivate DB
+
+Controller -> DB : INSERT INTO log_aktivitas
+Controller --> Page : Response sukses
+Page --> User : Tampilkan alert sukses
+
+deactivate Controller
+
+== Edit Data Pasien ==
+User -> Page : Klik tombol Edit
+Page -> Controller : Request data by ID
+activate Controller
+Controller -> DB : SELECT * WHERE id=?
+activate DB
+DB --> Controller : Return data
+deactivate DB
+Controller --> Page : Kirim data
+deactivate Controller
+Page --> User : Tampilkan form edit
+
+User -> Page : Update data
+Page -> Controller : Submit update
+activate Controller
+Controller -> DB : UPDATE pasien_dbd
+activate DB
+DB --> Controller : Success
+deactivate DB
+Controller --> Page : Response sukses
+Page --> User : Tampilkan alert sukses
+deactivate Controller
+
+== Hapus Data Pasien ==
+User -> Page : Klik tombol Hapus
+Page --> User : Konfirmasi hapus
+
+User -> Page : Konfirmasi Ya
+Page -> Controller : Request delete
+activate Controller
+Controller -> DB : DELETE FROM pasien_dbd
+activate DB
+DB --> Controller : Success
+deactivate DB
+Controller --> Page : Response sukses
+Page --> User : Refresh halaman
+deactivate Controller
+
+deactivate Page
+
+@enduml

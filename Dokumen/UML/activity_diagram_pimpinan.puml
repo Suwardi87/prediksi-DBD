@@ -1,0 +1,65 @@
+@startuml activity_diagram_pimpinan
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityFontSize 11
+
+title Activity Diagram Pimpinan\nSistem Prediksi Penyebaran DBD
+
+start
+
+:Membuka Halaman Login;
+
+:Memasukkan Username dan Password;
+
+if (Validasi Login?) then (Valid)
+    :Masuk ke Dashboard;
+    :Lihat Statistik Ringkasan;
+    
+    repeat
+        :Pilih Menu;
+        
+        switch (Menu yang dipilih?)
+        case (Dashboard)
+            :Tampilkan Total Kasus;
+            :Tampilkan Grafik Trend;
+            :Tampilkan Distribusi Risiko;
+            :Tampilkan Status Model;
+            
+        case (Prediksi Risiko)
+            :Input Data Prediksi;
+            :Proses Prediksi;
+            :Lihat Tingkat Risiko;
+            :Lihat Confidence Score;
+            :Lihat Rekomendasi Tindakan;
+            
+        case (Evaluasi Model)
+            :Tampilkan Metrik Evaluasi;
+            :Accuracy, Precision, Recall;
+            :Tampilkan Confusion Matrix;
+            :Tampilkan Feature Importance;
+            
+        case (Lihat Laporan)
+            :Pilih Jenis Laporan;
+            if (Jenis?) then (Per Bulan)
+                :Filter Tahun;
+                :Tampilkan Trend Bulanan;
+            else (Per Wilayah)
+                :Filter Periode;
+                :Tampilkan Distribusi Wilayah;
+            endif
+            :Cetak/Export Laporan;
+            
+        endswitch
+        
+    repeat while (Lanjut?) is (Ya)
+
+    :Logout;
+    
+else (Tidak Valid)
+    :Tampilkan Pesan Error;
+    :Kembali ke Login;
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,77 @@
+@startuml State Chart - Kelola Data Pasien
+title State Chart Diagram - Kelola Data Pasien\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+}
+
+[*] --> DaftarPasien
+
+state "Menampilkan Daftar Pasien" as DaftarPasien <<blue>> {
+}
+DaftarPasien : entry / query SELECT * FROM pasien_dbd
+DaftarPasien : do / render tabel data pasien
+
+state "Form Tambah Pasien Baru" as FormTambah <<green>> {
+}
+FormTambah : entry / tampilkan form kosong
+FormTambah : do / input nama, usia, JK,
+FormTambah :       lama rawat, diagnosa
+
+state "Validasi & Simpan Data Baru" as SimpanBaru <<yellow>> {
+}
+SimpanBaru : entry / validasi data input
+SimpanBaru : do / INSERT INTO pasien_dbd
+SimpanBaru : exit / log aktivitas
+
+state "Form Edit Data Pasien" as FormEdit <<green>> {
+}
+FormEdit : entry / query data by ID, isi form
+FormEdit : do / ubah data yang diperlukan
+
+state "Validasi & Update Data" as UpdateData <<yellow>> {
+}
+UpdateData : entry / validasi data perubahan
+UpdateData : do / UPDATE pasien_dbd SET ...
+UpdateData : exit / log aktivitas
+
+state "Konfirmasi Hapus" as KonfirmasiHapus <<red>> {
+}
+KonfirmasiHapus : entry / tampilkan dialog konfirmasi
+KonfirmasiHapus : do / menunggu respons pengguna
+
+state "Proses Hapus Data" as ProsesHapus <<red>> {
+}
+ProsesHapus : entry / DELETE FROM pasien_dbd
+ProsesHapus : do / log aktivitas
+ProsesHapus : exit / refresh halaman
+
+DaftarPasien --> FormTambah : klik Tambah
+FormTambah --> SimpanBaru : submit form
+SimpanBaru --> DaftarPasien : data tersimpan
+
+DaftarPasien --> FormEdit : klik Edit
+FormEdit --> UpdateData : submit update
+UpdateData --> DaftarPasien : data diupdate
+
+DaftarPasien --> KonfirmasiHapus : klik Hapus
+KonfirmasiHapus --> ProsesHapus : konfirmasi Ya
+KonfirmasiHapus --> DaftarPasien : konfirmasi Tidak
+ProsesHapus --> DaftarPasien : data terhapus
+
+DaftarPasien --> [*] : keluar halaman
+
+note right of DaftarPasien
+  Aktor: Petugas
+  Operasi CRUD: Create, Read, Update, Delete
+  Tabel: pasien_dbd
+end note
+
+@enduml

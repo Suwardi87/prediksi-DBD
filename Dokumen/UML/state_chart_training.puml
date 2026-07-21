@@ -1,0 +1,82 @@
+@startuml State Chart - Training Model Random Forest
+title State Chart Diagram - Training Model Random Forest\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+  BackgroundColor<<purple>> #e1d5e7
+  BorderColor<<purple>> #9673a6
+}
+
+[*] --> Konfigurasi
+
+state "Konfigurasi Parameter Training" as Konfigurasi <<blue>> {
+}
+Konfigurasi : entry / tampilkan form konfigurasi
+Konfigurasi : do / atur n_estimators (default=25),
+Konfigurasi :       max_depth, test_size (0.2)
+
+state "Load & Prepare Data" as LoadData <<yellow>> {
+}
+LoadData : entry / query PasienDBD & KasusBulanan
+LoadData : do / prepare_training_data()
+LoadData :       fitur: X1=Usia, X2=Lama Rawat,
+LoadData :       X3=Jenis Kelamin (encoded)
+
+state "Error: Data Tidak Cukup" as ErrorData <<red>> {
+}
+ErrorData : entry / tampilkan pesan error
+ErrorData : do / data kurang dari 3 record
+
+state "Split Data (Train / Test)" as SplitData <<yellow>> {
+}
+SplitData : entry / train_test_split(stratify=y)
+SplitData : do / 80% data training, 20% testing
+SplitData : exit / encoding label (1,2,3)
+
+state "Training Random Forest (25 Pohon)" as Training <<purple>> {
+}
+Training : entry / init RF(criterion='entropy',
+Training :       max_features=2, bootstrap=True)
+Training : do / fit(X_train, y_train)
+Training :       bootstrap sampling → bangun
+Training :       25 pohon keputusan
+
+state "Evaluasi Model" as Evaluasi <<purple>> {
+}
+Evaluasi : entry / predict(X_test)
+Evaluasi : do / hitung Accuracy, Precision,
+Evaluasi :       Recall, F1-Score,
+Evaluasi :       MAE, RMSE, R²,
+Evaluasi :       extract_all_trees_details()
+
+state "Simpan Model & Hasil Evaluasi" as SimpanModel <<green>> {
+}
+SimpanModel : entry / save model ke file (.pkl)
+SimpanModel : do / INSERT INTO model_evaluasi
+SimpanModel :       (accuracy, mae, rmse, r2)
+SimpanModel : exit / tampilkan hasil ke pengguna
+
+Konfigurasi --> LoadData : klik Mulai Training
+LoadData --> ErrorData : [data < 3 record]
+ErrorData --> Konfigurasi : kembali
+LoadData --> SplitData : [data cukup]
+SplitData --> Training : data siap
+Training --> Evaluasi : training selesai
+Evaluasi --> SimpanModel : evaluasi selesai
+SimpanModel --> [*] : model tersimpan
+
+note right of Training
+  Aktor: Petugas
+  Algoritma: Random Forest (25 pohon, entropy, m=2)
+  Fitur: Usia, Lama Rawat Inap, Jenis Kelamin
+  Label: Rendah(1), Sedang(2), Tinggi(3)
+end note
+
+@enduml

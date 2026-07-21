@@ -1,0 +1,75 @@
+@startuml activity_diagram_admin
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityFontSize 11
+
+title Activity Diagram Admin\nSistem Prediksi Penyebaran DBD
+
+start
+
+:Membuka Halaman Login;
+
+:Memasukkan Username dan Password;
+
+if (Validasi Login?) then (Valid)
+    :Masuk ke Dashboard;
+    
+    repeat
+        :Pilih Menu;
+        
+        switch (Menu yang dipilih?)
+        case (Kelola Pengguna)
+            :Tampilkan Daftar Pengguna;
+            if (Aksi?) then (Tambah/Edit)
+                :Input Data Pengguna;
+                :Simpan ke Database;
+            else (Hapus)
+                :Konfirmasi Hapus;
+                :Hapus dari Database;
+            endif
+            
+        case (Kelola Data Pasien)
+            :Tampilkan Daftar Pasien;
+            if (Aksi?) then (Tambah/Edit)
+                :Input Data Pasien;
+                :Simpan ke Database;
+            else (Import)
+                :Pilih File Excel;
+                :Proses Import;
+            endif
+            
+        case (Training Model)
+            :Atur Parameter Model;
+            :Mulai Training;
+            :Tampilkan Hasil Evaluasi;
+            
+        case (Prediksi Risiko)
+            :Input Data Prediksi;
+            :Proses Prediksi;
+            :Tampilkan Hasil dan Rekomendasi;
+            
+        case (Lihat Laporan)
+            :Pilih Filter Periode;
+            :Tampilkan Laporan;
+            
+        case (Kelola Wilayah)
+            :Tampilkan Daftar Wilayah;
+            :Tambah/Edit/Hapus Wilayah;
+            
+        case (Log Aktivitas)
+            :Tampilkan Riwayat Aktivitas;
+            
+        endswitch
+        
+    repeat while (Lanjut?) is (Ya)
+
+    :Logout;
+    
+else (Tidak Valid)
+    :Tampilkan Pesan Error;
+    :Kembali ke Form Login;
+endif
+
+stop
+
+@enduml

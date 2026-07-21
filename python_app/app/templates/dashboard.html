@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistem Prediksi DBD{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">Selamat Datang, {{ current_user.nama_lengkap }}! 👋</h4>
+        <p class="text-muted mb-0" style="font-size: 0.9rem;">Pantau statistik penyebaran DBD di RSUD Lubuk Basung</p>
+    </div>
+    <a href="{{ url_for('prediksi.index') }}" class="btn btn-primary shadow-sm" style="border-radius: 8px;">
+        <i class='bx bx-target-lock me-1'></i>
+        <span>Buat Prediksi</span>
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-3">
+        <div class="stat-card h-100 p-3 p-xl-4 d-flex align-items-center" style="border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 10px rgba(0,0,0,0.02); background: white;">
+            <div class="stat-icon me-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.5rem; border-radius: 12px; background: #f1f5f9; color: #475569;">
+                <i class='bx bx-user-plus'></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="mb-0 fw-bold" style="font-size: 1.5rem; color: #1e293b;">{{ total_kasus }}</h3>
+                <p class="text-muted mb-0" style="font-size: 0.8rem; font-weight: 500;">Total Kasus {{ tahun }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-3">
+        <div class="stat-card h-100 p-3 p-xl-4 d-flex align-items-center" style="border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 10px rgba(0,0,0,0.02); background: white;">
+            <div class="stat-icon me-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.5rem; border-radius: 12px; background: #dcfce7; color: #22c55e;">
+                <i class='bx bx-check-circle'></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="mb-0 fw-bold" style="font-size: 1.5rem; color: #1e293b;">{{ distribusi_risiko.Rendah }}</h3>
+                <p class="text-muted mb-0" style="font-size: 0.8rem; font-weight: 500;">Bulan Risiko Rendah</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-3">
+        <div class="stat-card h-100 p-3 p-xl-4 d-flex align-items-center" style="border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 10px rgba(0,0,0,0.02); background: white;">
+            <div class="stat-icon me-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.5rem; border-radius: 12px; background: #fef3c7; color: #d97706;">
+                <i class='bx bx-error'></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="mb-0 fw-bold" style="font-size: 1.5rem; color: #1e293b;">{{ distribusi_risiko.Sedang }}</h3>
+                <p class="text-muted mb-0" style="font-size: 0.8rem; font-weight: 500;">Bulan Risiko Sedang</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-3">
+        <div class="stat-card h-100 p-3 p-xl-4 d-flex align-items-center" style="border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 10px rgba(0,0,0,0.02); background: white;">
+            <div class="stat-icon me-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.5rem; border-radius: 12px; background: #fee2e2; color: #ef4444;">
+                <i class='bx bx-error-circle'></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="mb-0 fw-bold" style="font-size: 1.5rem; color: #1e293b;">{{ distribusi_risiko.Tinggi }}</h3>
+                <p class="text-muted mb-0" style="font-size: 0.8rem; font-weight: 500;">Bulan Risiko Tinggi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Trend Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class='bx bx-line-chart text-primary me-2'></i>Trend Kasus DBD {{ tahun }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Risk Distribution -->
+    <div class="col-12 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class='bx bx-pie-chart-alt-2 text-primary me-2'></i>Distribusi Risiko</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="riskChart"></canvas>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <div class="text-center">
+                        <span class="badge badge-danger">{{ distribusi_risiko.Tinggi }}</span>
+                        <p class="text-muted mt-1 mb-0" style="font-size: 0.75rem;">Tinggi</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="badge badge-warning">{{ distribusi_risiko.Sedang }}</span>
+                        <p class="text-muted mt-1 mb-0" style="font-size: 0.75rem;">Sedang</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="badge badge-success">{{ distribusi_risiko.Rendah }}</span>
+                        <p class="text-muted mt-1 mb-0" style="font-size: 0.75rem;">Rendah</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Table -->
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class='bx bx-table text-primary me-2'></i>Ringkasan Kasus Per Bulan</h5>
+                <a href="{{ url_for('laporan.index') }}" class="btn btn-sm btn-secondary">
+                    <i class='bx bx-show'></i> Lihat Semua
+                </a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Bulan</th>
+                            <th>Jumlah Kasus</th>
+                            <th>Tingkat Risiko</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kasus in kasus_bulanan[:6] %}
+                        <tr>
+                            <td>{{ kasus.bulan }}</td>
+                            <td><strong>{{ kasus.jumlah_kasus }}</strong></td>
+                            <td>
+                                <span class="badge badge-{{ 'danger' if kasus.tingkat_risiko == 'Tinggi' else 'warning' if kasus.tingkat_risiko == 'Sedang' else 'success' }}">
+                                    {{ kasus.tingkat_risiko }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Model Info -->
+    <div class="col-12 col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class='bx bx-brain text-primary me-2'></i>Status Model</h5>
+            </div>
+            <div class="card-body">
+                {% if model_info %}
+                <div class="text-center mb-3">
+                    <div class="stat-icon success" style="margin: 0 auto; width: 60px; height: 60px; font-size: 1.75rem;">
+                        <i class='bx bx-check'></i>
+                    </div>
+                    <h6 class="mt-2 mb-0">Model Aktif</h6>
+                    <small class="text-muted">Random Forest</small>
+                </div>
+                <div class="p-3 rounded" style="background: var(--gray-50);">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Akurasi</span>
+                        <span class="fw-bold text-success">{{ "%.2f"|format(model_info.accuracy * 100) }}%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">n_estimators</span>
+                        <span class="fw-medium">{{ model_info.n_estimators or 100 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Training</span>
+                        <span class="fw-medium">{{ model_info.tanggal_training.strftime('%d/%m/%Y') if model_info.tanggal_training else '-' }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class='bx bx-info-circle' style="font-size: 3rem; color: var(--gray-300);"></i>
+                    <p class="text-muted mt-2">Belum ada model</p>
+                    <a href="{{ url_for('training.index') }}" class="btn btn-primary btn-sm">
+                        <i class='bx bx-play-circle'></i> Training Sekarang
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart data from backend
+    const kasusData = {{ kasus_bulanan | map(attribute='jumlah_kasus') | list | tojson }};
+    const bulanLabels = {{ kasus_bulanan | map(attribute='bulan') | list | tojson }};
+    const risikoColors = {{ kasus_bulanan | map(attribute='tingkat_risiko') | list | tojson }}.map(r => {
+        if (r === 'Tinggi') return '#ef4444';
+        if (r === 'Sedang') return '#f59e0b';
+        return '#22c55e';
+    });
+
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'bar',
+        data: {
+            labels: bulanLabels,
+            datasets: [{
+                label: 'Jumlah Kasus',
+                data: kasusData,
+                backgroundColor: '#f59e0b',
+                borderRadius: 6,
+                barPercentage: 0.6,
+                categoryPercentage: 0.8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Risk Chart
+    const riskCtx = document.getElementById('riskChart').getContext('2d');
+    new Chart(riskCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Tinggi', 'Sedang', 'Rendah'],
+            datasets: [{
+                data: [
+                    {{ distribusi_risiko.Tinggi }},
+                    {{ distribusi_risiko.Sedang }},
+                    {{ distribusi_risiko.Rendah }}
+                ],
+                backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="State Chart - Training Model Random Forest" id="state-training">
+    <mxGraphModel dx="1422" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1027" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="State Chart Diagram - Training Model Random Forest&#xa;Sistem Prediksi Penyebaran Penyakit Menular DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="240" y="20" width="620" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Initial State -->
+        <mxCell id="initial" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="530" y="90" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- S1: Konfigurasi Parameter Training -->
+        <mxCell id="s1" value="Konfigurasi Parameter Training&#xa;&#xa;entry / tampilkan form konfigurasi&#xa;do / atur n_estimators (default=25),&#xa;       max_depth, test_size (0.2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="160" width="310" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="initial" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S2: Load & Prepare Data -->
+        <mxCell id="s2" value="Load &amp; Prepare Data&#xa;&#xa;entry / query PasienDBD &amp; KasusBulanan&#xa;do / prepare_training_data()&#xa;       fitur: X1=Usia, X2=Lama Rawat,&#xa;       X3=Jenis Kelamin (encoded)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="305" width="310" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="klik Mulai Training" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Error: Data Tidak Cukup -->
+        <mxCell id="serr" value="Error: Data Tidak Cukup&#xa;&#xa;entry / tampilkan pesan error&#xa;do / data kurang dari 3 record" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="780" y="310" width="230" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="eerr" value="[data &lt; 3 record]" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s2" target="serr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eerrb" value="kembali" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="serr" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="895" y="207" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- S3: Split Data Train/Test -->
+        <mxCell id="s3" value="Split Data (Train / Test)&#xa;&#xa;entry / train_test_split(stratify=y)&#xa;do / 80% data training, 20% testing&#xa;exit / encoding label (1,2,3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="460" width="310" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="[data cukup]" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S4: Training Random Forest -->
+        <mxCell id="s4" value="Training Random Forest (25 Pohon)&#xa;&#xa;entry / init RF(criterion='entropy',&#xa;       max_features=2, bootstrap=True)&#xa;do / fit(X_train, y_train)&#xa;       bootstrap sampling → bangun&#xa;       25 pohon keputusan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="605" width="310" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="data siap" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S5: Evaluasi Model -->
+        <mxCell id="s5" value="Evaluasi Model&#xa;&#xa;entry / predict(X_test)&#xa;do / hitung Accuracy, Precision,&#xa;       Recall, F1-Score,&#xa;       MAE, RMSE, R²,&#xa;       extract_all_trees_details()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="770" width="310" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="training selesai" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S6: Simpan Model & Hasil -->
+        <mxCell id="s6" value="Simpan Model &amp; Hasil Evaluasi&#xa;&#xa;entry / save model ke file (.pkl)&#xa;do / INSERT INTO model_evaluasi&#xa;       (accuracy, mae, rmse, r2)&#xa;exit / tampilkan hasil ke pengguna" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="390" y="935" width="310" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="evaluasi selesai" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Final State -->
+        <mxCell id="final_inner" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="535" y="1085" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="final_outer" value="" style="ellipse;fillColor=none;strokeColor=#000000;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="530" y="1080" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="model tersimpan" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s6" target="final_outer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Aktor: Petugas&#xa;Algoritma: Random Forest (25 pohon, entropy, m=2)&#xa;Fitur: Usia, Lama Rawat Inap, Jenis Kelamin&#xa;Label: Rendah(1), Sedang(2), Tinggi(3)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="780" y="500" width="290" height="75" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

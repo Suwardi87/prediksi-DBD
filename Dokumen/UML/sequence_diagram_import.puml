@@ -1,0 +1,55 @@
+@startuml sequence_diagram_import
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Import Data Excel\nSistem Prediksi Penyebaran DBD
+
+actor "Petugas" as User
+participant "Halaman\nImport" as Page
+participant "Controller\nImport" as Controller
+participant "Python API\n(Flask)" as API
+database "Database" as DB
+
+User -> Page : Buka halaman Import
+activate Page
+
+Page --> User : Tampilkan form upload
+
+User -> Page : Pilih file Excel
+User -> Page : Klik tombol Upload
+
+Page -> Page : Validasi format file\n(.xlsx)
+
+Page -> Controller : Upload file
+activate Controller
+
+Controller -> Controller : Simpan file sementara
+Controller -> API : POST /import\n{file_path}
+activate API
+
+API -> API : Load Excel dengan Pandas\npd.read_excel()
+API -> API : Validasi kolom data
+API -> API : Preprocessing data
+
+loop Untuk setiap baris data
+    API -> API : Parse data pasien
+    API -> API : Validasi nilai
+    API -> DB : INSERT INTO pasien_dbd
+    activate DB
+    DB --> API : Success
+    deactivate DB
+end
+
+API -> API : Hitung jumlah berhasil/gagal
+API --> Controller : Response\n{total, berhasil, gagal}
+deactivate API
+
+Controller -> DB : INSERT INTO log_aktivitas
+Controller --> Page : Response hasil import
+Page --> User : Tampilkan hasil:\n- Total data diproses\n- Berhasil diimport\n- Gagal diimport
+
+deactivate Controller
+deactivate Page
+
+@enduml

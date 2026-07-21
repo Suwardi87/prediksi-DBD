@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Detail Pengguna{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Detail Pengguna</h4>
+        <p>Informasi lengkap pengguna</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('users.edit', id=user.id) }}" class="btn btn-warning"><i class='bx bx-edit'></i> Edit</a>
+        <a href="{{ url_for('users.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Kembali</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class='bx bx-user text-primary me-2'></i>Informasi Pengguna</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width: 150px;">Username</td>
+                        <td><strong>{{ user.username }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Nama Lengkap</td>
+                        <td><strong>{{ user.nama_lengkap }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Email</td>
+                        <td>{{ user.email or '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Role</td>
+                        <td><span class="badge badge-{{ 'primary' if user.role == 'admin' else 'secondary' }}">{{ user.role }}</span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Status</td>
+                        <td><span class="badge badge-{{ 'success' if user.status == 'aktif' else 'danger' }}">{{ user.status }}</span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Last Login</td>
+                        <td>{{ user.last_login.strftime('%d/%m/%Y %H:%M') if user.last_login else 'Belum pernah login' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Dibuat</td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y %H:%M') if user.created_at else '-' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class='bx bx-history text-warning me-2'></i>Log Aktivitas Terkini</h5>
+            </div>
+            <div class="card-body">
+                {% if logs %}
+                <div class="timeline">
+                    {% for log in logs %}
+                    <div class="timeline-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ log.aksi }}</strong>
+                            <small class="text-muted">{{ log.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                        </div>
+                        <p class="text-muted mb-0">{{ log.deskripsi }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">Belum ada log aktivitas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

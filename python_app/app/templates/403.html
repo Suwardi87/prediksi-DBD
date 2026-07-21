@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Akses Ditolak{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card" style="margin-top: 3rem;">
+            <div class="card-body text-center py-5">
+                <div style="font-size: 6rem; color: var(--danger); margin-bottom: 1rem;">
+                    <i class='bx bx-error-circle'></i>
+                </div>
+                <h1 style="font-size: 3rem; font-weight: 700; color: var(--gray-800); margin-bottom: 1rem;">403</h1>
+                <h4 style="color: var(--gray-600); margin-bottom: 1.5rem;">Akses Ditolak</h4>
+                <p style="color: var(--gray-500); max-width: 500px; margin: 0 auto 2rem;">
+                    Maaf, Anda tidak memiliki izin untuk mengakses halaman ini. 
+                    Silakan hubungi administrator jika Anda merasa ini adalah kesalahan.
+                </p>
+                
+                <div class="d-flex gap-2 justify-content-center align-items-center">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class='bx bx-home-alt'></i>
+                        <span>Kembali ke Dashboard</span>
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <i class='bx bx-arrow-back'></i>
+                        <span>Kembali</span>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--info-light); border-radius: 10px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <div class="d-flex gap-2 align-items-center justify-content-center">
+                        <i class='bx bx-info-circle' style="font-size: 1.25rem; color: var(--info);"></i>
+                        <div style="text-align: left;">
+                            <strong style="color: var(--info);">Role Anda: {{ current_user.role|title }}</strong>
+                            <p style="margin: 0; font-size: 0.875rem; color: var(--gray-600);">
+                                Setiap role memiliki hak akses yang berbeda sesuai dengan kebijakan sistem.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

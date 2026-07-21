@@ -1,0 +1,96 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="State Chart - Login" id="state-login">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="State Chart Diagram - Login&#xa;Sistem Prediksi Penyebaran Penyakit Menular DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="500" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Initial State -->
+        <mxCell id="initial" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="530" y="90" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- S1: Halaman Login Ditampilkan -->
+        <mxCell id="s1" value="Halaman Login Ditampilkan&#xa;&#xa;entry / render halaman login&#xa;do / menunggu input pengguna" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="420" y="160" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="initial" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S2: Mengisi Form Login -->
+        <mxCell id="s2" value="Mengisi Form Login&#xa;&#xa;entry / form aktif menerima input&#xa;do / input username dan password" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="420" y="290" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="klik form input" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S3: Memvalidasi Kredensial -->
+        <mxCell id="s3" value="Memvalidasi Kredensial&#xa;&#xa;entry / kirim data login ke server&#xa;do / query user di database,&#xa;       check_password_hash()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="420" y="420" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="klik tombol Login" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S4: Login Gagal -->
+        <mxCell id="s4" value="Login Gagal&#xa;&#xa;entry / tampilkan pesan error&#xa;do / menunggu input ulang" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="140" y="420" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="[password tidak valid /&#xa;user tidak ditemukan]" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry x="-0.2" y="-20" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4b" value="input ulang" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="s4" target="s2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- S5: Set Session -->
+        <mxCell id="s5" value="Set Session &amp; Update Last Login&#xa;&#xa;entry / login_user(user)&#xa;do / update last_login timestamp,&#xa;       log aktivitas ke database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="740" y="420" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="[password valid &amp;&#xa;user aktif]" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s3" target="s5">
+          <mxGeometry x="-0.2" y="20" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- S6: Redirect ke Dashboard -->
+        <mxCell id="s6" value="Redirect ke Dashboard&#xa;&#xa;entry / redirect('/dashboard')&#xa;do / tampilkan halaman utama&#xa;       sesuai role pengguna" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="740" y="560" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="session aktif" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Final State -->
+        <mxCell id="final_inner" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="847" y="695" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="final_outer" value="" style="ellipse;fillColor=none;strokeColor=#000000;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="842" y="690" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="login berhasil" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s6" target="final_outer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Aktor: Pengguna (Admin / Petugas / Pimpinan)&#xa;Objek: Login Page → Auth Controller → Database" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="140" y="600" width="300" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

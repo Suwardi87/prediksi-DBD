@@ -1,0 +1,78 @@
+@startuml State Chart - Kelola Pengguna
+title State Chart Diagram - Kelola Pengguna\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+}
+
+[*] --> DaftarPengguna
+
+state "Menampilkan Daftar Pengguna" as DaftarPengguna <<blue>> {
+}
+DaftarPengguna : entry / query SELECT * FROM users
+DaftarPengguna : do / render tabel data pengguna
+
+state "Form Tambah Pengguna" as FormTambah <<green>> {
+}
+FormTambah : entry / tampilkan form input
+FormTambah : do / input username, password,
+FormTambah :       nama, email, role
+
+state "Validasi & Simpan Pengguna" as SimpanPengguna <<yellow>> {
+}
+SimpanPengguna : entry / cek username unik
+SimpanPengguna : do / hash password, INSERT INTO users
+SimpanPengguna : exit / log aktivitas
+
+state "Error: Username Sudah Ada" as ErrorDuplikat <<red>> {
+}
+ErrorDuplikat : entry / tampilkan pesan error
+ErrorDuplikat : do / menunggu input ulang
+
+state "Ubah Status Pengguna" as UbahStatus <<yellow>> {
+}
+UbahStatus : entry / toggle status aktif/nonaktif
+UbahStatus : do / UPDATE users SET status
+UbahStatus : exit / log aktivitas
+
+state "Konfirmasi Hapus Pengguna" as KonfirmasiHapus <<red>> {
+}
+KonfirmasiHapus : entry / tampilkan dialog konfirmasi
+KonfirmasiHapus : do / menunggu respons admin
+
+state "Proses Hapus Pengguna" as ProsesHapus <<red>> {
+}
+ProsesHapus : entry / DELETE FROM users
+ProsesHapus : do / log aktivitas
+ProsesHapus : exit / refresh halaman
+
+DaftarPengguna --> FormTambah : klik Tambah
+FormTambah --> SimpanPengguna : submit form
+SimpanPengguna --> DaftarPengguna : [username unik]\ndata tersimpan
+SimpanPengguna --> ErrorDuplikat : [username duplikat]
+ErrorDuplikat --> FormTambah : input ulang
+
+DaftarPengguna --> UbahStatus : klik Toggle Status
+UbahStatus --> DaftarPengguna : status diubah
+
+DaftarPengguna --> KonfirmasiHapus : klik Hapus
+KonfirmasiHapus --> ProsesHapus : konfirmasi Ya
+KonfirmasiHapus --> DaftarPengguna : konfirmasi Tidak
+ProsesHapus --> DaftarPengguna : pengguna terhapus
+
+DaftarPengguna --> [*] : keluar halaman
+
+note right of DaftarPengguna
+  Aktor: Admin
+  Operasi: CRUD + Toggle Status
+  Tabel: users (username unik, password di-hash)
+end note
+
+@enduml

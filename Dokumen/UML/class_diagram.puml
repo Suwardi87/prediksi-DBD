@@ -1,0 +1,142 @@
+@startuml class_diagram
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+
+title Class Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+
+' Classes
+class User {
+    -id: int
+    -username: string
+    -password: string
+    -nama_lengkap: string
+    -email: string
+    -role: enum
+    -foto: string
+    -status: enum
+    -last_login: datetime
+    --
+    +login(): boolean
+    +logout(): void
+    +create(): boolean
+    +update(): boolean
+    +delete(): boolean
+}
+
+class PasienDBD {
+    -id: int
+    -no_rm: string
+    -nama_pasien: string
+    -usia: int
+    -jenis_kelamin: enum
+    -alamat: text
+    -id_wilayah: int
+    -tanggal_masuk: date
+    -tanggal_keluar: date
+    -lama_rawat: int
+    -bulan: string
+    -tahun: int
+    -status_pasien: enum
+    --
+    +create(): boolean
+    +read(): array
+    +update(): boolean
+    +delete(): boolean
+    +getByBulan(): array
+}
+
+class Wilayah {
+    -id: int
+    -nama_wilayah: string
+    -kecamatan: string
+    -latitude: decimal
+    -longitude: decimal
+    -populasi: int
+    --
+    +create(): boolean
+    +read(): array
+    +update(): boolean
+    +delete(): boolean
+}
+
+class KasusBulanan {
+    -id: int
+    -bulan: string
+    -tahun: int
+    -jumlah_kasus: int
+    -jumlah_sembuh: int
+    -jumlah_meninggal: int
+    -tingkat_risiko: enum
+    --
+    +getByTahun(): array
+    +calculateRisk(): string
+}
+
+class HasilPrediksi {
+    -id: int
+    -tanggal_prediksi: datetime
+    -bulan_prediksi: string
+    -tahun_prediksi: int
+    -jumlah_kasus_prediksi: int
+    -tingkat_risiko_prediksi: enum
+    -confidence_score: decimal
+    -model_version: string
+    -created_by: int
+    --
+    +savePrediction(): boolean
+    +getHistory(): array
+}
+
+class ModelEvaluasi {
+    -id: int
+    -tanggal_training: datetime
+    -accuracy: decimal
+    -precision_score: decimal
+    -recall_score: decimal
+    -f1_score: decimal
+    -mae: decimal
+    -rmse: decimal
+    -r2_score: decimal
+    -n_estimators: int
+    -max_depth: int
+    -confusion_matrix: text
+    -feature_importance: text
+    --
+    +saveEvaluation(): boolean
+    +getLatest(): object
+}
+
+class LogAktivitas {
+    -id: int
+    -user_id: int
+    -aksi: string
+    -deskripsi: text
+    -ip_address: string
+    --
+    +create(): boolean
+    +getByUser(): array
+}
+
+class RandomForestModel {
+    -model: object
+    -encoder: object
+    -feature_names: array
+    --
+    +train(): object
+    +predict(): object
+    +evaluate(): object
+    +saveModel(): boolean
+    +loadModel(): boolean
+    +getFeatureImportance(): array
+}
+
+' Relationships
+PasienDBD "many" --> "1" Wilayah : berasal dari
+HasilPrediksi "many" --> "1" User : dibuat oleh
+LogAktivitas "many" --> "1" User : dilakukan oleh
+RandomForestModel ..> ModelEvaluasi : generates
+RandomForestModel ..> HasilPrediksi : creates
+
+@enduml

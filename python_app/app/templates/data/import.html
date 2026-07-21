@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Import Data Excel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.25rem;
+    }
+    .page-subtitle {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+    .upload-box {
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 3rem 2rem;
+        text-align: center;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .upload-box:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+    .upload-box.dragover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h4 class="fw-bold text-dark mb-1">Import Data Excel</h4>
+    <p class="text-muted mb-0" style="font-size: 0.9rem;">Upload file excel (.xlsx) berisi data rekam medis pasien</p>
+</div>
+
+<div class="row g-4">
+    <!-- Area Upload -->
+    <div class="col-12 col-xl-8">
+        <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white;">
+            <div class="card-body p-4 p-lg-5">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="mb-3 d-flex justify-content-center">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center;">
+                                <i class='bx bxs-file-import' style="font-size: 3rem; color: #3b82f6;"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Pilih File Excel atau Tarik Kesini</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;">Format yang didukung: .xlsx, .xls</p>
+                        <p class="text-primary mt-3 mb-0 fw-medium" id="fileName"></p>
+                        <input type="file" id="fileInput" name="file" accept=".xlsx, .xls" style="display: none;" onchange="showFileName(this)">
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-primary px-5 py-2 shadow-sm" id="btnUpload" disabled style="border-radius: 8px; font-weight: 500;">
+                            <i class='bx bx-cloud-upload me-2'></i> Mulai Proses Import
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informasi & Panduan -->
+    <div class="col-12 col-xl-4">
+        <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3" style="width: 40px; height: 40px; border-radius: 8px; background: #e0e7ff; display: flex; align-items: center; justify-content: center; color: #4f46e5;">
+                        <i class='bx bx-info-circle' style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Panduan Import</h5>
+                </div>
+                <p class="text-muted mb-3" style="font-size: 0.9rem;">Pastikan file Excel Anda memenuhi format berikut agar sistem dapat memproses data dengan benar:</p>
+                
+                <div class="p-3 mb-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <h6 class="fw-bold text-dark mb-2" style="font-size: 0.85rem;">Struktur Kolom Wajib:</h6>
+                    <ul class="text-muted mb-0 ps-3" style="font-size: 0.85rem;">
+                        <li class="mb-1"><strong>Nama Pasien</strong> (Teks)</li>
+                        <li class="mb-1"><strong>Usia</strong> (Angka)</li>
+                        <li class="mb-1"><strong>Jenis Kelamin</strong> (L/P)</li>
+                        <li><strong>Lama Rawat Inap</strong> (Angka hari)</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning mb-0" style="border-radius: 12px; font-size: 0.85rem; border: none; background: #fef3c7; color: #d97706;">
+                    <i class='bx bx-error-circle me-1'></i> Kolom <strong>No</strong> bersifat opsional. Sistem akan otomatis meng-*generate* nomor rekam medis bila kosong.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showFileName(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('fileName').innerHTML = `<strong>File terpilih:</strong> ${input.files[0].name}`;
+            document.getElementById('btnUpload').disabled = false;
+        } else {
+            document.getElementById('fileName').innerText = '';
+            document.getElementById('btnUpload').disabled = true;
+        }
+    }
+    
+    // Drag and drop support
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        fileInput.files = files;
+        showFileName(fileInput);
+    });
+</script>
+{% endblock %}

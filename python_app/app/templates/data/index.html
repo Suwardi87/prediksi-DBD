@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Data Pasien{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">Data Pasien DBD</h4>
+        <p class="text-muted mb-0" style="font-size: 0.9rem;">Kelola data rekam medis pasien</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if current_user.role == 'admin' %}
+        <form action="{{ url_for('data.delete_all') }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus SELURUH data pasien? Aksi ini tidak dapat dibatalkan!');">
+            <button type="submit" class="btn btn-danger shadow-sm" style="border-radius: 8px;"><i class='bx bx-trash me-1'></i> Hapus Semua</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('data.create') }}" class="btn btn-primary shadow-sm" style="border-radius: 8px; background: #1e3a8a; border: none;"><i class='bx bx-plus me-1'></i> Tambah Data</a>
+    </div>
+</div>
+
+<div class="card" style="border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white;">
+    <div class="card-header">
+        <h5><i class='bx bx-data text-primary me-2'></i>Daftar Pasien</h5>
+        <form method="GET" class="d-flex gap-2">
+            <input type="text" name="search" class="form-control" style="width: 200px;" placeholder="Cari..." value="{{ search }}">
+            <button type="submit" class="btn btn-secondary btn-sm"><i class='bx bx-search'></i></button>
+        </form>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No. RM</th>
+                    <th>Nama Pasien</th>
+                    <th>Usia</th>
+                    <th>JK</th>
+                    <th>Tanggal Masuk</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pasien.items %}
+                <tr>
+                    <td>{{ p.no_rm or '-' }}</td>
+                    <td><strong>{{ p.nama_pasien }}</strong></td>
+                    <td>{{ p.usia }} th</td>
+                    <td>{{ p.jenis_kelamin }}</td>
+                    <td>{{ p.tanggal_masuk.strftime('%d/%m/%Y') if p.tanggal_masuk else '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('data.edit', id=p.id) }}" class="btn btn-sm btn-secondary"><i class='bx bx-edit'></i></a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data pasien</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if pasien.pages > 1 %}
+    <div class="card-footer d-flex justify-content-between">
+        <span class="text-muted">Halaman {{ pasien.page }} dari {{ pasien.pages }}</span>
+        <div class="d-flex gap-2">
+            {% if pasien.has_prev %}<a href="?page={{ pasien.prev_num }}" class="btn btn-sm btn-secondary">Sebelumnya</a>{% endif %}
+            {% if pasien.has_next %}<a href="?page={{ pasien.next_num }}" class="btn btn-sm btn-primary">Selanjutnya</a>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

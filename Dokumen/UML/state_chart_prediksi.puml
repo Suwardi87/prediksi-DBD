@@ -1,0 +1,78 @@
+@startuml State Chart - Prediksi Risiko DBD
+title State Chart Diagram - Prediksi Risiko DBD\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+  BackgroundColor<<purple>> #e1d5e7
+  BorderColor<<purple>> #9673a6
+}
+
+[*] --> FormPrediksi
+
+state "Form Input Prediksi" as FormPrediksi <<blue>> {
+}
+FormPrediksi : entry / render form prediksi
+FormPrediksi : do / input Bulan, Jumlah Kasus,
+FormPrediksi :       Usia, Jenis Kelamin,
+FormPrediksi :       Lama Rawat Inap
+
+state "Validasi Input Data" as ValidasiInput <<yellow>> {
+}
+ValidasiInput : entry / cek field required terisi
+ValidasiInput : do / validasi tipe data & range nilai
+
+state "Error: Input Tidak Valid" as ErrorInput <<red>> {
+}
+ErrorInput : entry / tampilkan pesan error
+
+state "Load Model Random Forest" as LoadModel <<yellow>> {
+}
+LoadModel : entry / load model dari file .pkl
+LoadModel : do / cek apakah model tersedia
+
+state "Prediksi Rule-Based (Fallback)" as RuleBased <<yellow>> {
+}
+RuleBased : entry / model belum tersedia
+RuleBased : do / get_risk_level(jumlah_kasus)
+RuleBased :       ≤8=Rendah, 9-15=Sedang, >15=Tinggi
+
+state "Prediksi dengan Model RF" as ModelRF <<purple>> {
+}
+ModelRF : entry / encode fitur input
+ModelRF : do / model.predict([usia, rawat, jk])
+ModelRF :       predict_proba() → confidence
+ModelRF : exit / decode label → tingkat risiko
+
+state "Simpan & Tampilkan Hasil Prediksi" as HasilPrediksi <<green>> {
+}
+HasilPrediksi : entry / INSERT INTO hasil_prediksi
+HasilPrediksi : do / tampilkan tingkat risiko,
+HasilPrediksi :       confidence, probabilitas,
+HasilPrediksi :       rekomendasi tindakan
+
+FormPrediksi --> ValidasiInput : klik tombol Prediksi
+ValidasiInput --> ErrorInput : [input tidak valid]
+ErrorInput --> FormPrediksi : perbaiki input
+ValidasiInput --> LoadModel : [input valid]
+LoadModel --> RuleBased : [model belum ada]
+LoadModel --> ModelRF : [model tersedia]
+RuleBased --> HasilPrediksi
+ModelRF --> HasilPrediksi
+HasilPrediksi --> FormPrediksi : prediksi ulang
+HasilPrediksi --> [*] : selesai
+
+note right of ModelRF
+  Aktor: Pengguna (Petugas / Admin)
+  Model: Random Forest → predict & predict_proba
+  Fallback: Rule-based jika model belum di-training
+  Threshold: ≤8=Rendah, 9-15=Sedang, >15=Tinggi
+end note
+
+@enduml

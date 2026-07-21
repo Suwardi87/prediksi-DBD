@@ -1,0 +1,60 @@
+@startuml sequence_diagram_training
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Training Model Random Forest\nSistem Prediksi Penyebaran DBD
+
+actor "Petugas" as User
+participant "Halaman\nTraining" as Page
+participant "Controller\nTraining" as Controller
+participant "Python API\n(Flask)" as API
+participant "Random Forest\nModel" as Model
+database "Database" as DB
+
+User -> Page : Buka menu Training Model
+activate Page
+
+Page --> User : Tampilkan form konfigurasi
+
+User -> Page : Atur parameter\n(n_estimators, max_depth, test_size)
+User -> Page : Klik tombol Mulai Training
+
+Page -> Controller : Submit parameter training
+activate Controller
+
+Controller -> API : POST /train\n{n_estimators, max_depth, test_size}
+activate API
+
+API -> API : Load data dari Excel
+API -> API : Preprocessing data\n(cleaning, encoding)
+API -> API : Split data\n(training & testing)
+
+API -> Model : Inisialisasi RandomForestClassifier
+activate Model
+
+Model -> Model : fit(X_train, y_train)
+Model -> Model : predict(X_test)
+Model -> Model : Calculate metrics\n(accuracy, precision, recall, f1)
+Model -> Model : Calculate feature importance
+
+Model --> API : Return trained model
+deactivate Model
+
+API -> API : Save model to file\n(random_forest_model.pkl)
+
+API -> DB : INSERT INTO model_evaluasi\n(metrics, confusion_matrix)
+activate DB
+DB --> API : Success
+deactivate DB
+
+API --> Controller : Response\n{status, metrics, feature_importance}
+deactivate API
+
+Controller --> Page : Kirim hasil training
+Page --> User : Tampilkan hasil evaluasi\n(Accuracy, Precision, Recall, F1)
+
+deactivate Controller
+deactivate Page
+
+@enduml

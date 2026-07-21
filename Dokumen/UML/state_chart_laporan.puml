@@ -1,0 +1,66 @@
+@startuml State Chart - Lihat Laporan
+title State Chart Diagram - Lihat Laporan\nSistem Prediksi Penyebaran Penyakit Menular DBD
+
+skinparam state {
+  BackgroundColor<<blue>> #dae8fc
+  BorderColor<<blue>> #6c8ebf
+  BackgroundColor<<yellow>> #fff2cc
+  BorderColor<<yellow>> #d6b656
+  BackgroundColor<<green>> #d5e8d4
+  BorderColor<<green>> #82b366
+  BackgroundColor<<red>> #f8cecc
+  BorderColor<<red>> #b85450
+  BackgroundColor<<purple>> #e1d5e7
+  BorderColor<<purple>> #9673a6
+}
+
+[*] --> HalamanLaporan
+
+state "Halaman Laporan Ditampilkan" as HalamanLaporan <<blue>> {
+}
+HalamanLaporan : entry / load daftar tahun dari DB
+HalamanLaporan : do / tampilkan halaman laporan
+HalamanLaporan :       dengan filter default
+
+state "Memilih Filter Laporan" as MemilihFilter <<blue>> {
+}
+MemilihFilter : entry / form filter aktif
+MemilihFilter : do / pilih tahun, jenis laporan
+MemilihFilter :       (per bulan / per wilayah)
+
+state "Query & Hitung Statistik" as QueryData <<yellow>> {
+}
+QueryData : entry / query kasus_bulanan / pasien_dbd
+QueryData : do / hitung total kasus, rata-rata,
+QueryData :       kasus tertinggi, kasus terendah
+QueryData : exit / siapkan data untuk grafik
+
+state "Tampilkan Grafik & Tabel Laporan" as TampilkanLaporan <<green>> {
+}
+TampilkanLaporan : entry / render grafik (Chart.js)
+TampilkanLaporan : do / tampilkan tabel detail data,
+TampilkanLaporan :       statistik ringkasan,
+TampilkanLaporan :       grafik batang / line
+
+state "Export Laporan (PDF / Excel)" as ExportLaporan <<purple>> {
+}
+ExportLaporan : entry / generate file export
+ExportLaporan : do / format data ke PDF/Excel
+ExportLaporan : exit / download file ke pengguna
+
+HalamanLaporan --> MemilihFilter : klik filter
+MemilihFilter --> QueryData : submit filter
+QueryData --> TampilkanLaporan : data siap
+TampilkanLaporan --> MemilihFilter : ganti filter
+TampilkanLaporan --> ExportLaporan : klik Export
+ExportLaporan --> TampilkanLaporan : export selesai
+TampilkanLaporan --> [*] : keluar halaman
+
+note right of QueryData
+  Aktor: Pengguna (Admin / Petugas / Pimpinan)
+  Jenis Laporan: Per Bulan, Per Wilayah
+  Visualisasi: Chart.js (bar / line chart)
+  Export: PDF dan Excel
+end note
+
+@enduml

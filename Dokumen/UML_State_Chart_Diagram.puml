@@ -1,0 +1,77 @@
+@startuml State_Chart_Diagram_Prediksi_DBD
+
+title State Chart Diagram - Sistem Prediksi Penyebaran DBD
+
+skinparam monochrome true
+skinparam shadowing false
+
+[*] --> Idle : Akses Sistem
+
+state Idle : Menunggu input pengguna
+
+state "Proses Login" as Login {
+    [*] --> MasukkanKredensial
+    MasukkanKredensial --> ValidasiLogin : Submit
+    ValidasiLogin --> [*] : Valid
+    ValidasiLogin --> MasukkanKredensial : Invalid
+}
+
+state "Dashboard" as Dashboard : Menampilkan statistik\ndan grafik
+
+state "Manajemen Data" as DataManagement {
+    [*] --> TampilkanData
+    TampilkanData --> TambahData : Klik Tambah
+    TampilkanData --> EditData : Klik Edit
+    TampilkanData --> HapusData : Klik Hapus
+    TambahData --> SimpanData : Submit
+    EditData --> SimpanData : Submit
+    HapusData --> KonfirmasiHapus
+    KonfirmasiHapus --> TampilkanData : Konfirmasi
+    SimpanData --> TampilkanData : Berhasil
+}
+
+state "Training Model" as Training {
+    [*] --> KonfigurasiParameter
+    KonfigurasiParameter --> ProsesTraining : Mulai Training
+    ProsesTraining --> HasilEvaluasi : Selesai
+    HasilEvaluasi --> [*]
+}
+
+state "Proses Prediksi" as Prediction {
+    [*] --> InputData
+    InputData --> ProsesRandomForest : Prediksi
+    ProsesRandomForest --> HasilPrediksi : Selesai
+    
+    state HasilPrediksi {
+        [*] --> TentukanRisiko
+        TentukanRisiko --> RisikoRendah : < 12 kasus
+        TentukanRisiko --> RisikoSedang : 12-17 kasus
+        TentukanRisiko --> RisikoTinggi : >= 18 kasus
+        RisikoRendah --> TampilRekomendasi
+        RisikoSedang --> TampilRekomendasi
+        RisikoTinggi --> TampilRekomendasi
+        TampilRekomendasi --> [*]
+    }
+}
+
+state "Evaluasi Model" as Evaluation : Menampilkan metrik\ndan confusion matrix
+
+state Logout : Hapus session
+
+Idle --> Login : Belum Login
+Login --> Dashboard : Login Berhasil
+
+Dashboard --> DataManagement : Menu Data
+Dashboard --> Training : Menu Training
+Dashboard --> Prediction : Menu Prediksi
+Dashboard --> Evaluation : Menu Evaluasi
+
+DataManagement --> Dashboard : Kembali
+Training --> Dashboard : Kembali
+Prediction --> Dashboard : Kembali
+Evaluation --> Dashboard : Kembali
+
+Dashboard --> Logout : Logout
+Logout --> [*]
+
+@enduml

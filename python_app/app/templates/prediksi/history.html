@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Prediksi{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Riwayat Prediksi</h4>
+        <p>Daftar hasil prediksi tingkat risiko DBD</p>
+    </div>
+    <a href="{{ url_for('prediksi.index') }}" class="btn btn-primary"><i class='bx bx-target-lock'></i> Prediksi Baru</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class='bx bx-history text-primary me-2'></i>Riwayat Prediksi (50 Terakhir)</h5>
+    </div>
+    <div class="card-body">
+        {% if predictions %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal Prediksi</th>
+                        <th>Bulan</th>
+                        <th>Tahun</th>
+                        <th>Jumlah Kasus</th>
+                        <th>Tingkat Risiko</th>
+                        <th>Confidence</th>
+                        <th>Model</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ p.tanggal_prediksi.strftime('%d/%m/%Y %H:%M') if p.tanggal_prediksi else '-' }}</td>
+                        <td>{{ p.bulan_prediksi or '-' }}</td>
+                        <td>{{ p.tahun_prediksi or '-' }}</td>
+                        <td>{{ p.jumlah_kasus_prediksi if p.jumlah_kasus_prediksi is not none else '-' }}</td>
+                        <td>
+                            {% if p.tingkat_risiko_prediksi == 'Tinggi' %}
+                            <span class="badge badge-danger">Tinggi</span>
+                            {% elif p.tingkat_risiko_prediksi == 'Sedang' %}
+                            <span class="badge badge-warning">Sedang</span>
+                            {% elif p.tingkat_risiko_prediksi == 'Rendah' %}
+                            <span class="badge badge-success">Rendah</span>
+                            {% else %}
+                            <span class="badge badge-secondary">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ "%.1f"|format(p.confidence_score) }}%</td>
+                        <td><small class="text-muted">{{ p.model_version or '-' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class='bx bx-history' style="font-size: 4rem; color: var(--gray-300);"></i>
+            <h5 class="text-muted mt-3">Belum Ada Riwayat</h5>
+            <p class="text-muted">Silakan lakukan prediksi terlebih dahulu</p>
+            <a href="{{ url_for('prediksi.index') }}" class="btn btn-primary"><i class='bx bx-target-lock'></i> Prediksi Sekarang</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Edit Pengguna{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Edit Pengguna</h4>
+        <p>Ubah data pengguna: {{ user.username }}</p>
+    </div>
+    <a href="{{ url_for('users.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Kembali</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class='bx bx-edit text-warning me-2'></i>Form Edit Pengguna</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                <small class="text-muted">Username tidak dapat diubah</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password Baru</label>
+                <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                <input type="text" name="nama_lengkap" class="form-control" value="{{ user.nama_lengkap }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" value="{{ user.email or '' }}">
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select name="role" class="form-control" required>
+                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator</option>
+                        <option value="petugas" {% if user.role == 'petugas' %}selected{% endif %}>Petugas</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <select name="status" class="form-control" required>
+                        <option value="aktif" {% if user.status == 'aktif' %}selected{% endif %}>Aktif</option>
+                        <option value="nonaktif" {% if user.status == 'nonaktif' %}selected{% endif %}>Nonaktif</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Update</button>
+                <a href="{{ url_for('users.index') }}" class="btn btn-secondary"><i class='bx bx-x'></i> Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

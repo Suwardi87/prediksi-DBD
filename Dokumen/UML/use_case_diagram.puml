@@ -1,0 +1,74 @@
+@startuml use_case_diagram
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecaseFontSize 11
+skinparam actorFontSize 12
+
+title Use Case Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+
+left to right direction
+
+' Actors
+actor "Admin" as Admin #LightBlue
+actor "Petugas" as Petugas #LightGreen
+actor "Pimpinan" as Pimpinan #LightYellow
+
+' System boundary
+rectangle "Sistem Prediksi Penyebaran DBD" {
+    ' Authentication
+    usecase "Login" as UC1
+    usecase "Logout" as UC2
+    
+    ' Data Management
+    usecase "Kelola Pengguna" as UC3
+    usecase "Kelola Data Pasien" as UC4
+    usecase "Import Data Excel" as UC5
+    usecase "Kelola Wilayah" as UC6
+    
+    ' Machine Learning
+    usecase "Training Model\nRandom Forest" as UC7
+    usecase "Prediksi Risiko DBD" as UC8
+    usecase "Lihat Evaluasi Model" as UC9
+    
+    ' Reporting
+    usecase "Lihat Dashboard" as UC10
+    usecase "Lihat Laporan" as UC11
+    usecase "Lihat Log Aktivitas" as UC12
+}
+
+' Admin connections
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+Admin --> UC8
+Admin --> UC9
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+' Petugas connections
+Petugas --> UC1
+Petugas --> UC2
+Petugas --> UC4
+Petugas --> UC5
+Petugas --> UC7
+Petugas --> UC8
+Petugas --> UC9
+Petugas --> UC10
+Petugas --> UC11
+
+' Pimpinan connections
+Pimpinan --> UC1
+Pimpinan --> UC2
+Pimpinan --> UC8
+Pimpinan --> UC9
+Pimpinan --> UC10
+Pimpinan --> UC11
+
+@enduml

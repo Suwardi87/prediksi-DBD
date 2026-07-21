@@ -1,0 +1,202 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="Sequence Diagram - Login" id="seq-login">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Sequence Diagram - Login&#xa;Sistem Prediksi Penyebaran DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="385" y="20" width="400" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors & Objects -->
+        <!-- User -->
+        <mxCell id="actor" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="120" y="100" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="actor">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="140" y="700" as="sourcePoint" />
+            <mxPoint x="140" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Browser -->
+        <mxCell id="browser" value="Browser" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="100" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="browser-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#3399FF;strokeColor=#3399FF" vertex="1" parent="browser">
+          <mxGeometry x="45" y="70" width="10" height="440" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask App -->
+        <mxCell id="flask" value="Flask App&#xa;(auth.py)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="480" y="100" width="100" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="110" width="10" height="340" as="geometry" />
+        </mxCell>
+        
+        <!-- User Model -->
+        <mxCell id="model" value="User Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="680" y="100" width="100" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="model-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="model">
+          <mxGeometry x="45" y="180" width="10" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;(MySQL)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="880" y="100" width="100" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="220" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Messages -->
+        <!-- 1. User enters credentials -->
+        <mxCell id="msg1" value="1: Masukkan username dan password" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;entryDx=0;entryDy=5;" edge="1" parent="1" source="actor">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="140" y="200" as="sourcePoint" />
+            <mxPoint x="325" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2. Browser displays form -->
+        <mxCell id="msg2" value="2: Tampilkan form login" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="325" y="230" as="sourcePoint" />
+            <mxPoint x="140" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3. Submit form -->
+        <mxCell id="msg3" value="3: Submit login (POST /auth/login)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="140" y="260" as="sourcePoint" />
+            <mxPoint x="325" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4. Forward to Flask -->
+        <mxCell id="msg4" value="4: login(username, password)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="290" as="sourcePoint" />
+            <mxPoint x="525" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 5. Query user -->
+        <mxCell id="msg5" value="5: query.filter_by(username)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="330" as="sourcePoint" />
+            <mxPoint x="725" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 6. DB query -->
+        <mxCell id="msg6" value="6: SELECT * FROM users WHERE username=?" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="735" y="360" as="sourcePoint" />
+            <mxPoint x="925" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 7. Return user data -->
+        <mxCell id="msg7" value="7: return user_record" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="925" y="390" as="sourcePoint" />
+            <mxPoint x="735" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 8. Check password -->
+        <mxCell id="msg8" value="8: check_password(password)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="420" as="sourcePoint" />
+            <mxPoint x="725" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 9. Return validation result -->
+        <mxCell id="msg9" value="9: return True/False" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="725" y="450" as="sourcePoint" />
+            <mxPoint x="535" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Alt Frame -->
+        <mxCell id="alt-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=50;height=30;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+          <mxGeometry x="300" y="480" width="640" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-label1" value="[Valid]" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="310" y="515" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-label2" value="[Invalid]" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="310" y="605" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-divider" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;dashed=1;dashPattern=1 3;" vertex="1" parent="1">
+          <mxGeometry x="300" y="595" width="640" height="8" as="geometry" />
+        </mxCell>
+        
+        <!-- 10a. Success - Create session -->
+        <mxCell id="msg10a" value="10: login_user(), create session" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="540" as="sourcePoint" />
+            <mxPoint x="535" y="560" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="600" y="540" />
+              <mxPoint x="600" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11a. Redirect to dashboard -->
+        <mxCell id="msg11a" value="11: redirect('/dashboard')" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="525" y="575" as="sourcePoint" />
+            <mxPoint x="335" y="575" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 10b. Failed - Flash message -->
+        <mxCell id="msg10b" value="10: flash('Username atau password salah')" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="625" as="sourcePoint" />
+            <mxPoint x="535" y="645" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="620" y="625" />
+              <mxPoint x="620" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11b. Return to login -->
+        <mxCell id="msg11b" value="11: render_template('login.html')" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="525" y="660" as="sourcePoint" />
+            <mxPoint x="335" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 12. Display result -->
+        <mxCell id="msg12" value="12: Tampilkan halaman" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="325" y="690" as="sourcePoint" />
+            <mxPoint x="140" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Note: Password diverifikasi&#xa;menggunakan bcrypt/werkzeug" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="Note: Session disimpan&#xa;dengan Flask-Login" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1000" y="520" width="140" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

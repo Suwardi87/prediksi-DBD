@@ -1,0 +1,70 @@
+@startuml sequence_diagram_laporan
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Lihat Laporan\nSistem Prediksi Penyebaran DBD
+
+actor "Pengguna" as User
+participant "Halaman\nLaporan" as Page
+participant "Controller\nLaporan" as Controller
+database "Database" as DB
+
+User -> Page : Buka menu Laporan
+activate Page
+
+Page -> Controller : Request data awal
+activate Controller
+
+Controller -> DB : SELECT tahun FROM kasus_bulanan
+activate DB
+DB --> Controller : Return daftar tahun
+deactivate DB
+
+Controller --> Page : Kirim data filter
+Page --> User : Tampilkan halaman laporan\ndengan filter
+
+== Filter dan Tampilkan Laporan ==
+
+User -> Page : Pilih filter:\n- Tahun\n- Jenis Laporan
+
+Page -> Controller : Request laporan\n{tahun, jenis}
+activate Controller
+
+alt Laporan Per Bulan
+    Controller -> DB : SELECT * FROM kasus_bulanan\nWHERE tahun = ?
+    activate DB
+    DB --> Controller : Return data bulanan
+    deactivate DB
+    
+else Laporan Per Wilayah
+    Controller -> DB : SELECT wilayah, COUNT(*)\nFROM pasien_dbd\nGROUP BY wilayah
+    activate DB
+    DB --> Controller : Return data wilayah
+    deactivate DB
+end
+
+Controller -> Controller : Hitung statistik:\n- Total, Rata-rata\n- Tertinggi, Terendah
+
+Controller --> Page : Kirim data laporan
+
+Page -> Page : Render grafik (Chart.js)
+Page -> Page : Render tabel data
+
+Page --> User : Tampilkan:\n- Grafik trend\n- Tabel detail\n- Statistik ringkasan
+
+deactivate Controller
+
+== Export Laporan ==
+
+User -> Page : Klik Export PDF/Excel
+Page -> Controller : Request export
+activate Controller
+Controller -> Controller : Generate file
+Controller --> Page : File download
+Page --> User : Download file
+deactivate Controller
+
+deactivate Page
+
+@enduml

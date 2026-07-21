@@ -1,0 +1,100 @@
+@startuml sequence_diagram_kelola_pengguna
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Sequence Diagram Kelola Pengguna\nSistem Prediksi Penyebaran DBD
+
+actor "Admin" as User
+participant "Halaman\nPengguna" as Page
+participant "Controller\nUser" as Controller
+database "Database" as DB
+
+== Menampilkan Daftar Pengguna ==
+
+User -> Page : Buka menu Kelola Pengguna
+activate Page
+
+Page -> Controller : Request daftar pengguna
+activate Controller
+
+Controller -> DB : SELECT * FROM users
+activate DB
+DB --> Controller : Return data users
+deactivate DB
+
+Controller --> Page : Kirim data users
+Page --> User : Tampilkan tabel pengguna
+
+deactivate Controller
+
+== Tambah Pengguna Baru ==
+
+User -> Page : Klik tombol Tambah
+Page --> User : Tampilkan form input
+
+User -> Page : Input data:\n- Username\n- Password\n- Nama Lengkap\n- Email\n- Role
+
+Page -> Controller : Submit form
+activate Controller
+
+Controller -> Controller : Validasi username unik
+Controller -> DB : SELECT * WHERE username = ?
+activate DB
+DB --> Controller : Return result
+deactivate DB
+
+alt Username tersedia
+    Controller -> Controller : Hash password
+    Controller -> DB : INSERT INTO users
+    activate DB
+    DB --> Controller : Success
+    deactivate DB
+    
+    Controller -> DB : INSERT log_aktivitas
+    Controller --> Page : Response sukses
+    Page --> User : Tampilkan alert sukses
+    
+else Username sudah ada
+    Controller --> Page : Response error
+    Page --> User : Tampilkan pesan error
+end
+
+deactivate Controller
+
+== Ubah Status Pengguna ==
+
+User -> Page : Klik toggle status
+Page -> Controller : Request update status
+activate Controller
+
+Controller -> DB : UPDATE users SET status = ?
+activate DB
+DB --> Controller : Success
+deactivate DB
+
+Controller --> Page : Response sukses
+Page --> User : Refresh status
+deactivate Controller
+
+== Hapus Pengguna ==
+
+User -> Page : Klik tombol Hapus
+Page --> User : Konfirmasi hapus
+
+User -> Page : Konfirmasi Ya
+Page -> Controller : Request delete
+activate Controller
+
+Controller -> DB : DELETE FROM users WHERE id = ?
+activate DB
+DB --> Controller : Success
+deactivate DB
+
+Controller --> Page : Response sukses
+Page --> User : Refresh halaman
+deactivate Controller
+
+deactivate Page
+
+@enduml

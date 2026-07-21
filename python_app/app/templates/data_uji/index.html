@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Data Uji{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.25rem;
+    }
+    .page-subtitle {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+    .card-title-custom {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+    .table-dark-header th {
+        background-color: #1c324f !important;
+        color: white !important;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: none;
+        padding: 0.75rem 1rem;
+    }
+    .table td {
+        font-size: 0.85rem;
+        vertical-align: middle;
+        padding: 0.75rem 1rem;
+    }
+    .btn-dark-blue {
+        background-color: #1c324f;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+    .btn-dark-blue:hover {
+        background-color: #0f172a;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="page-title">Data Uji</h2>
+    <p class="page-subtitle">Daftar data pasien yang dialokasikan sebagai Testing Set</p>
+</div>
+
+<div class="card mb-4" style="border-radius: 8px;">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title-custom mb-0">Testing Set (20% Split)</h5>
+            <a href="{{ url_for('prediksi.index') }}" class="btn btn-dark-blue">Uji Prediksi Sekarang</a>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover table-dark-header">
+                <thead>
+                    <tr>
+                        <th width="5%">No</th>
+                        <th width="15%">No RM</th>
+                        <th width="30%">Nama Pasien</th>
+                        <th width="10%">Usia</th>
+                        <th width="15%">Jenis Kelamin</th>
+                        <th width="15%">Lama Rawat</th>
+                        <th width="10%">Bulan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in data_uji.items %}
+                    <tr>
+                        <td>{{ (data_uji.page - 1) * data_uji.per_page + loop.index }}</td>
+                        <td>{{ d.no_rm }}</td>
+                        <td><strong>{{ d.nama_pasien }}</strong></td>
+                        <td>{{ d.usia }} th</td>
+                        <td>{{ 'Laki-laki' if d.jenis_kelamin == 'L' else 'Perempuan' }}</td>
+                        <td>{{ d.lama_rawat }} hari</td>
+                        <td>{{ d.bulan }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class='bx bx-data mb-2' style="font-size: 3rem; color: var(--gray-300);"></i>
+                            <p class="text-muted mb-0">Belum ada data</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if data_uji.pages > 1 %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not data_uji.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('data_uji.index', page=data_uji.prev_num) if data_uji.has_prev else '#' }}">&laquo; Prev</a>
+                </li>
+                {% for page_num in data_uji.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == data_uji.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('data_uji.index', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not data_uji.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('data_uji.index', page=data_uji.next_num) if data_uji.has_next else '#' }}">Next &raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

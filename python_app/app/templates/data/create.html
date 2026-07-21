@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Tambah Data Pasien{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Tambah Data Pasien</h4>
+        <p>Input data pasien DBD baru</p>
+    </div>
+    <a href="{{ url_for('data.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Kembali</a>
+</div>
+
+<div class="card">
+    <div class="card-header"><h5><i class='bx bx-user-plus text-primary me-2'></i>Form Data Pasien</h5></div>
+    <form method="POST" id="pasienForm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">No. Rekam Medis</label>
+                        <input type="text" name="no_rm" class="form-control" placeholder="Contoh: RM-001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Pasien <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_pasien" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Usia <span class="text-danger">*</span></label>
+                        <input type="number" name="usia" class="form-control" min="1" max="150" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                        <select name="jenis_kelamin" class="form-control form-select" required>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Masuk <span class="text-danger">*</span></label>
+                        <input type="date" name="tanggal_masuk" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Keluar</label>
+                        <input type="date" name="tanggal_keluar" class="form-control">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Alamat</label>
+                        <textarea name="alamat" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Simpan</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

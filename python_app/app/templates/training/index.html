@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block title %}Training Model{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.25rem;
+    }
+    .page-subtitle {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-title-custom {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+    
+    .btn-dark-blue {
+        background-color: #1c324f;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+    
+    .btn-dark-blue:hover {
+        background-color: #0f172a;
+        color: white;
+    }
+    
+    .btn-oval {
+        border-radius: 20px;
+        padding: 0.2rem 1rem;
+        font-size: 0.75rem;
+    }
+    
+    .alert-success-custom {
+        background-color: #def7ec;
+        color: #03543f;
+        border: none;
+        border-radius: 6px;
+        padding: 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+        display: none;
+    }
+    
+    .table-dark-header th {
+        background-color: #1c324f !important;
+        color: white !important;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: none;
+        padding: 0.75rem 1rem;
+    }
+    
+    .table td {
+        font-size: 0.8rem;
+        vertical-align: middle;
+        padding: 0.75rem 1rem;
+    }
+    
+    .badge-yellow-light {
+        background-color: #fdf6b2;
+        color: #723b13;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .code-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 1rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #334155;
+    }
+    
+    .green-box {
+        background-color: #f0fdf4;
+        border: 1px solid #dcfce7;
+        border-radius: 6px;
+        padding: 1rem;
+        font-size: 0.85rem;
+        color: #166534;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="page-title">Training Model</h2>
+    <p class="page-subtitle">Melatih model Random Forest secara dinamis</p>
+</div>
+
+<!-- Card: Parameter Training -->
+<div class="card mb-3" style="border-radius: 8px;">
+    <div class="card-body p-4">
+        <h5 class="card-title-custom">Parameter Training</h5>
+        
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Jumlah Pohon (n_trees)</label>
+                <input type="number" id="input_n_trees" class="form-control" value="5" min="1" max="100" style="background: white;">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Kedalaman Maksimum (max_depth)</label>
+                <input type="number" id="input_max_depth" class="form-control" placeholder="Tidak dibatasi" style="background: white;">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Fitur per Node (m_features)</label>
+                <input type="text" class="form-control" value="sqrt (Otomatis)" readonly style="background: #f8fafc;">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Random Seed</label>
+                <input type="number" id="input_random_seed" class="form-control" value="42" style="background: white;">
+            </div>
+        </div>
+        
+        <button class="btn btn-dark-blue" id="btnTraining" onclick="jalankanTraining()">
+            <i class='bx bx-play-circle me-1'></i> Mulai Training
+        </button>
+    </div>
+</div>
+
+<!-- Alert Success -->
+<div class="alert-success-custom" id="alertSuccess">
+    Training selesai dengan <span id="res_n_trees"></span> pohon dari <span id="res_n_data"></span> data uji. Akurasi: <span id="res_accuracy"></span>%
+</div>
+<div class="alert alert-danger" id="alertError" style="display: none; border-radius: 6px;"></div>
+
+<!-- Table: Ringkasan Pohon -->
+<div class="card mb-4" id="cardRingkasan" style="display: none; border-radius: 8px;">
+    <div class="card-body p-4">
+        <h5 class="card-title-custom mb-3">Ringkasan Pohon Keputusan</h5>
+        <div class="table-responsive">
+            <table class="table table-dark-header">
+                <thead>
+                    <tr>
+                        <th width="20%">Pohon</th>
+                        <th width="20%">Entropy Root</th>
+                        <th width="20%">Total Sampel Node Root</th>
+                        <th width="20%">Jumlah Leaf (Daun)</th>
+                        <th width="20%">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyRingkasan">
+                    <!-- Diisi via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Card: Detail Pohon -->
+<div class="card mb-4" id="cardDetailPohon" style="display: none; border-radius: 8px;">
+    <div class="card-body p-4">
+        <h5 class="card-title-custom mb-3" id="detailPohonTitle">Detail Pohon</h5>
+        
+        <div class="mb-4">
+            <div class="text-muted mb-2" style="font-size: 0.85rem;">Entropy Root: <strong id="detailEntropy"></strong></div>
+            <div id="detailDistribusi" class="d-flex gap-2 flex-wrap"></div>
+        </div>
+        
+        <div class="text-muted mb-2" style="font-size: 0.85rem;">Information Gain (Root): <strong id="detailGain"></strong></div>
+        
+        <div class="text-muted mb-2 mt-4" style="font-size: 0.85rem;">Daftar Aturan Keputusan (Rules):</div>
+        <div class="code-box mb-4" id="detailRules">
+            <!-- Rules -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let globalTreesData = [];
+
+    async function jalankanTraining() {
+        const btn = document.getElementById('btnTraining');
+        const nTrees = parseInt(document.getElementById('input_n_trees').value) || 5;
+        let maxDepth = parseInt(document.getElementById('input_max_depth').value);
+        if (isNaN(maxDepth) || maxDepth <= 0) maxDepth = null;
+        const randomSeed = parseInt(document.getElementById('input_random_seed').value) || 42;
+        
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin me-1'></i> Memproses...";
+        btn.disabled = true;
+        
+        document.getElementById('alertSuccess').style.display = 'none';
+        document.getElementById('alertError').style.display = 'none';
+        document.getElementById('cardRingkasan').style.display = 'none';
+        document.getElementById('cardDetailPohon').style.display = 'none';
+        
+        try {
+            const res = await fetch("{{ url_for('training.start_training') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    n_estimators: nTrees,
+                    max_depth: maxDepth,
+                    random_state: randomSeed
+                })
+            });
+            const data = await res.json();
+            
+            if (res.ok && data.status === 'success') {
+                document.getElementById('res_n_trees').textContent = data.n_estimators;
+                document.getElementById('res_n_data').textContent = data.total_data;
+                document.getElementById('res_accuracy').textContent = (data.metrics.accuracy * 100).toFixed(2);
+                document.getElementById('alertSuccess').style.display = 'block';
+                
+                globalTreesData = data.trees_details.trees;
+                
+                let htmlRingkasan = '';
+                globalTreesData.forEach((tree, idx) => {
+                    htmlRingkasan += `<tr>
+                        <td><strong>${tree.name}</strong></td>
+                        <td>${tree.root_entropy.toFixed(4)}</td>
+                        <td>${tree.total_samples}</td>
+                        <td>${tree.n_leaves}</td>
+                        <td><button class="btn btn-dark-blue btn-oval" onclick="lihatDetailPohon(${idx})">Detail</button></td>
+                    </tr>`;
+                });
+                document.getElementById('tbodyRingkasan').innerHTML = htmlRingkasan;
+                document.getElementById('cardRingkasan').style.display = 'block';
+            } else {
+                const errDiv = document.getElementById('alertError');
+                errDiv.textContent = data.message || "Terjadi kesalahan saat training.";
+                errDiv.style.display = 'block';
+            }
+        } catch (err) {
+            const errDiv = document.getElementById('alertError');
+            errDiv.textContent = "Gagal terhubung ke server.";
+            errDiv.style.display = 'block';
+        }
+        
+        btn.innerHTML = "<i class='bx bx-play-circle me-1'></i> Mulai Training";
+        btn.disabled = false;
+    }
+
+    function lihatDetailPohon(idx) {
+        const tree = globalTreesData[idx];
+        document.getElementById('detailPohonTitle').textContent = `Detail ${tree.name}`;
+        document.getElementById('detailEntropy').textContent = tree.root_entropy.toFixed(4);
+        document.getElementById('detailGain').textContent = tree.information_gain.toFixed(4);
+        
+        let badgesHtml = '';
+        for (const [cls, count] of Object.entries(tree.class_distribution)) {
+            badgesHtml += `<span class="badge-yellow-light">${cls}: ${count}</span>`;
+        }
+        document.getElementById('detailDistribusi').innerHTML = badgesHtml;
+        
+        let rulesHtml = '';
+        if (tree.rules && tree.rules.length > 0) {
+            tree.rules.forEach(rule => {
+                let ruleText = rule.rule || rule;
+                rulesHtml += `<div>${ruleText}</div>`;
+            });
+        } else {
+            rulesHtml = "<em>Tidak ada aturan (Root leaf)</em>";
+        }
+        document.getElementById('detailRules').innerHTML = rulesHtml;
+        
+        document.getElementById('cardDetailPohon').style.display = 'block';
+        
+        // Scroll to detail smoothly
+        document.getElementById('cardDetailPohon').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+</script>
+{% endblock %}

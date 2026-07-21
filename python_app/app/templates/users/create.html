@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Tambah Pengguna{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4>Tambah Pengguna</h4>
+        <p>Tambah pengguna baru ke sistem</p>
+    </div>
+    <a href="{{ url_for('users.index') }}" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Kembali</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class='bx bx-user-plus text-primary me-2'></i>Form Pengguna Baru</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                <input type="text" name="nama_lengkap" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Role <span class="text-danger">*</span></label>
+                <select name="role" class="form-control" required>
+                    <option value="">-- Pilih Role --</option>
+                    <option value="admin">Administrator</option>
+                    <option value="petugas">Petugas</option>
+                </select>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Simpan</button>
+                <a href="{{ url_for('users.index') }}" class="btn btn-secondary"><i class='bx bx-x'></i> Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

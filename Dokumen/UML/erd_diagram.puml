@@ -1,0 +1,127 @@
+@startuml erd_diagram
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam linetype ortho
+
+title Entity Relationship Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+
+entity "users" as users {
+    * id : INT <<PK>>
+    --
+    * username : VARCHAR(50) <<UNIQUE>>
+    * password : VARCHAR(255)
+    * nama_lengkap : VARCHAR(100)
+    email : VARCHAR(100)
+    * role : ENUM
+    foto : VARCHAR(255)
+    * status : ENUM
+    last_login : DATETIME
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "wilayah" as wilayah {
+    * id : INT <<PK>>
+    --
+    * nama_wilayah : VARCHAR(100)
+    kecamatan : VARCHAR(100)
+    latitude : DECIMAL(10,8)
+    longitude : DECIMAL(11,8)
+    populasi : INT
+    created_at : TIMESTAMP
+}
+
+entity "pasien_dbd" as pasien {
+    * id : INT <<PK>>
+    --
+    no_rm : VARCHAR(20) <<UNIQUE>>
+    * nama_pasien : VARCHAR(100)
+    * usia : INT
+    * jenis_kelamin : ENUM
+    alamat : TEXT
+    id_wilayah : INT <<FK>>
+    * tanggal_masuk : DATE
+    tanggal_keluar : DATE
+    lama_rawat : INT
+    bulan : VARCHAR(20)
+    tahun : INT
+    status_pasien : ENUM
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "kasus_bulanan" as kasus {
+    * id : INT <<PK>>
+    --
+    * bulan : VARCHAR(20)
+    * tahun : INT
+    * jumlah_kasus : INT
+    jumlah_sembuh : INT
+    jumlah_meninggal : INT
+    tingkat_risiko : ENUM
+    created_at : TIMESTAMP
+}
+
+entity "data_training" as training {
+    * id : INT <<PK>>
+    --
+    * bulan : INT
+    * tahun : INT
+    * jumlah_kasus : INT
+    rata_rata_usia : DECIMAL(5,2)
+    jumlah_laki : INT
+    jumlah_perempuan : INT
+    rata_rata_lama_rawat : DECIMAL(5,2)
+    * tingkat_risiko : ENUM
+    created_at : TIMESTAMP
+}
+
+entity "hasil_prediksi" as prediksi {
+    * id : INT <<PK>>
+    --
+    * tanggal_prediksi : DATETIME
+    * bulan_prediksi : VARCHAR(20)
+    * tahun_prediksi : INT
+    jumlah_kasus_prediksi : INT
+    tingkat_risiko_prediksi : ENUM
+    confidence_score : DECIMAL(5,2)
+    model_version : VARCHAR(50)
+    created_by : INT <<FK>>
+    created_at : TIMESTAMP
+}
+
+entity "model_evaluasi" as evaluasi {
+    * id : INT <<PK>>
+    --
+    * tanggal_training : DATETIME
+    accuracy : DECIMAL(5,4)
+    precision_score : DECIMAL(5,4)
+    recall_score : DECIMAL(5,4)
+    f1_score : DECIMAL(5,4)
+    mae : DECIMAL(10,4)
+    rmse : DECIMAL(10,4)
+    r2_score : DECIMAL(5,4)
+    n_estimators : INT
+    max_depth : INT
+    confusion_matrix : TEXT
+    feature_importance : TEXT
+    model_path : VARCHAR(255)
+    created_at : TIMESTAMP
+}
+
+entity "log_aktivitas" as log {
+    * id : INT <<PK>>
+    --
+    user_id : INT <<FK>>
+    * aksi : VARCHAR(100)
+    deskripsi : TEXT
+    ip_address : VARCHAR(45)
+    created_at : TIMESTAMP
+}
+
+' Relationships
+wilayah ||--o{ pasien : "memiliki"
+users ||--o{ prediksi : "membuat"
+users ||--o{ log : "melakukan"
+
+@enduml

@@ -1,0 +1,216 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="Sequence Diagram - Prediksi" id="seq-prediksi">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Sequence Diagram - Prediksi Risiko DBD&#xa;Sistem Prediksi Penyebaran DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="335" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors & Objects -->
+        <!-- User -->
+        <mxCell id="actor" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="actor">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="750" as="sourcePoint" />
+            <mxPoint x="100" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Browser -->
+        <mxCell id="browser" value="Browser" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="220" y="100" width="100" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="browser-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#3399FF;strokeColor=#3399FF" vertex="1" parent="browser">
+          <mxGeometry x="45" y="70" width="10" height="490" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask prediksi.py -->
+        <mxCell id="flask" value="Flask App&#xa;(prediksi.py)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="100" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="110" width="10" height="390" as="geometry" />
+        </mxCell>
+        
+        <!-- ML Model -->
+        <mxCell id="ml" value="ML Model&#xa;(ml_model.py)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="580" y="100" width="100" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="ml-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="ml">
+          <mxGeometry x="45" y="180" width="10" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Random Forest Model -->
+        <mxCell id="rf" value="Random Forest&#xa;Model (.pkl)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+          <mxGeometry x="760" y="100" width="100" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="rf-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="rf">
+          <mxGeometry x="45" y="250" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;(MySQL)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="940" y="100" width="100" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="410" width="10" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Messages -->
+        <!-- 1. User opens prediksi page -->
+        <mxCell id="msg1" value="1: Buka halaman prediksi" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="200" as="sourcePoint" />
+            <mxPoint x="265" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2. Request page -->
+        <mxCell id="msg2" value="2: GET /prediksi/" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="230" as="sourcePoint" />
+            <mxPoint x="445" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3. Render form -->
+        <mxCell id="msg3" value="3: render_template('prediksi/index.html')" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="260" as="sourcePoint" />
+            <mxPoint x="275" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4. Display form -->
+        <mxCell id="msg4" value="4: Tampilkan form input" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="290" as="sourcePoint" />
+            <mxPoint x="100" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 5. User fills form -->
+        <mxCell id="msg5" value="5: Input data (bulan, kasus, usia, jk, lama_rawat)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="330" as="sourcePoint" />
+            <mxPoint x="265" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 6. Submit prediction -->
+        <mxCell id="msg6" value="6: Submit (POST /prediksi/predict)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="360" as="sourcePoint" />
+            <mxPoint x="445" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 7. Call predict function -->
+        <mxCell id="msg7" value="7: predict(bulan, jumlah_kasus, usia, jk, lama_rawat)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="390" as="sourcePoint" />
+            <mxPoint x="625" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 8. Load model -->
+        <mxCell id="msg8" value="8: load_model()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="420" as="sourcePoint" />
+            <mxPoint x="805" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 9. Return model -->
+        <mxCell id="msg9" value="9: return RF model" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="450" as="sourcePoint" />
+            <mxPoint x="635" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 10. Prepare features -->
+        <mxCell id="msg10" value="10: prepare_features()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="480" as="sourcePoint" />
+            <mxPoint x="635" y="500" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="700" y="480" />
+              <mxPoint x="700" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11. Predict -->
+        <mxCell id="msg11" value="11: model.predict(features)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="530" as="sourcePoint" />
+            <mxPoint x="805" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 12. Return prediction -->
+        <mxCell id="msg12" value="12: return tingkat_risiko, confidence" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="560" as="sourcePoint" />
+            <mxPoint x="635" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 13. Return result -->
+        <mxCell id="msg13" value="13: return prediction_result" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="625" y="590" as="sourcePoint" />
+            <mxPoint x="455" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 14. Save to database -->
+        <mxCell id="msg14" value="14: save(HasilPrediksi)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="620" as="sourcePoint" />
+            <mxPoint x="985" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 15. Return saved -->
+        <mxCell id="msg15" value="15: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="985" y="650" as="sourcePoint" />
+            <mxPoint x="455" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 16. Return JSON -->
+        <mxCell id="msg16" value="16: return JSON response" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="680" as="sourcePoint" />
+            <mxPoint x="275" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 17. Display result -->
+        <mxCell id="msg17" value="17: Tampilkan hasil prediksi" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="710" as="sourcePoint" />
+            <mxPoint x="100" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Note: Model Random Forest&#xa;menggunakan 25 trees" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="80" y="400" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="Note: Hasil disimpan ke&#xa;tabel hasil_prediksi" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="140" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

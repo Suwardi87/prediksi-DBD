@@ -1,0 +1,129 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="State Chart - Kelola Data Pasien" id="state-kelola-pasien">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="State Chart Diagram - Kelola Data Pasien&#xa;Sistem Prediksi Penyebaran Penyakit Menular DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="270" y="20" width="560" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Initial State -->
+        <mxCell id="initial" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="535" y="90" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- S1: Menampilkan Daftar Pasien -->
+        <mxCell id="s1" value="Menampilkan Daftar Pasien&#xa;&#xa;entry / query SELECT * FROM pasien_dbd&#xa;do / render tabel data pasien" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="420" y="160" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="initial" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S2: Form Tambah Pasien -->
+        <mxCell id="s2" value="Form Tambah Pasien Baru&#xa;&#xa;entry / tampilkan form kosong&#xa;do / input nama, usia, JK,&#xa;       lama rawat, diagnosa" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="80" y="310" width="230" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="klik Tambah" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S3: Validasi & Simpan (Tambah) -->
+        <mxCell id="s3" value="Validasi &amp; Simpan Data Baru&#xa;&#xa;entry / validasi data input&#xa;do / INSERT INTO pasien_dbd&#xa;exit / log aktivitas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="80" y="460" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="submit form" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3b" value="data tersimpan" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="s3" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="40" y="505" />
+              <mxPoint x="40" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- S4: Form Edit Pasien -->
+        <mxCell id="s4" value="Form Edit Data Pasien&#xa;&#xa;entry / query data by ID, isi form&#xa;do / ubah data yang diperlukan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="430" y="310" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="klik Edit" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S5: Validasi & Update -->
+        <mxCell id="s5" value="Validasi &amp; Update Data&#xa;&#xa;entry / validasi data perubahan&#xa;do / UPDATE pasien_dbd SET ...&#xa;exit / log aktivitas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="430" y="460" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="submit update" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5b" value="data diupdate" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="s5" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="505" />
+              <mxPoint x="700" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- S6: Konfirmasi Hapus -->
+        <mxCell id="s6" value="Konfirmasi Hapus&#xa;&#xa;entry / tampilkan dialog konfirmasi&#xa;do / menunggu respons pengguna" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="780" y="310" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="klik Hapus" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S7: Proses Hapus Data -->
+        <mxCell id="s7" value="Proses Hapus Data&#xa;&#xa;entry / DELETE FROM pasien_dbd&#xa;do / log aktivitas&#xa;exit / refresh halaman" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+          <mxGeometry x="780" y="460" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="konfirmasi Ya" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7c" value="konfirmasi Tidak" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="s6" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1050" y="355" />
+              <mxPoint x="1050" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7b" value="data terhapus" style="endArrow=classic;html=1;fontSize=10;dashed=1;dashPattern=8 8" edge="1" parent="1" source="s7" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1080" y="505" />
+              <mxPoint x="1080" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Final State -->
+        <mxCell id="final_inner" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="540" y="610" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="final_outer" value="" style="ellipse;fillColor=none;strokeColor=#000000;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="535" y="605" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="keluar halaman" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="final_outer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Aktor: Petugas&#xa;Operasi CRUD: Create, Read, Update, Delete&#xa;Tabel: pasien_dbd" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="280" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
