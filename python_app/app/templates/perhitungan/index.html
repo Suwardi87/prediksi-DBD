@@ -1,488 +1,542 @@
 {% extends "base.html" %}
-{% block title %}Perhitungan Manual RF{% endblock %}
+{% block title %}Perhitungan Manual — Alur Random Forest{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header { background: linear-gradient(135deg, var(--primary) 0%, #28446b 100%); color: white;
+    padding: 24px 32px; border-radius: 10px; margin-bottom: 24px; }
+.page-header h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+.page-header p { font-size: 0.85rem; opacity: 0.85; margin: 0; }
+
+.step-nav { display: flex; gap: 0; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray-200); }
+.step-nav .sn { padding: 10px 18px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--gray-400);
+    border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.step-nav .sn:hover { color: var(--gray-600); background: var(--gray-50); }
+.step-nav .sn.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(28,50,79,0.03); }
+.step-nav .sn .num { width: 24px; height: 24px; border-radius: 50%; background: var(--gray-200); color: var(--gray-500);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; }
+.step-nav .sn.active .num { background: var(--primary); color: white; }
+.step-nav .sn.done .num { background: var(--success); color: white; }
+
+.step-panel { display: none; animation: fadeUp 0.25s; }
+.step-panel.show { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.card-clean { background: white; border: 1px solid var(--gray-200); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+.card-clean h6 { font-size: 0.9rem; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; }
+.card-clean .desc { font-size: 0.82rem; color: var(--gray-500); margin-bottom: 12px; }
+
+.formula-box { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
+    padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; margin: 8px 0;
+    color: var(--gray-700); line-height: 1.6; }
+
+.stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.stat-box { flex: 1; min-width: 100px; background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 10px; text-align: center; }
+.stat-box .val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+.stat-box .lbl { font-size: 0.72rem; color: var(--gray-500); margin-top: 2px; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+.tag-rendah { background: #dcfce7; color: #166534; }
+.tag-sedang { background: #fef3c7; color: #92400e; }
+.tag-tinggi { background: #fee2e2; color: #991b1b; }
+.tag-feat { background: #dbeafe; color: #1e40af; }
+.tag-ok { background: #def7ec; color: #03543f; }
+.tag-err { background: #fde8e8; color: #9b1c1c; }
+
+.mini-tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.mini-tbl th { background: var(--gray-100); padding: 6px 8px; text-align: left; font-weight: 600; }
+.mini-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--gray-100); }
+.mini-tbl tr:hover td { background: var(--gray-50); }
+
+.scroll-box { max-height: 350px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: 6px; }
+.scroll-box-lg { max-height: 500px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: 6px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.tree-card { border-left: 4px solid var(--primary); background: var(--gray-50); border-radius: 0 8px 8px 0;
+    padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+.tree-card:hover { border-left-color: var(--info); }
+.tree-card.best { border-left-color: var(--success); background: #f0fdf4; }
+.tree-card h6 { font-size: 0.85rem; margin-bottom: 6px; color: var(--gray-700); }
+.tree-card .meta { font-size: 0.78rem; color: var(--gray-500); }
+
+.detail-panel { display: none; background: white; border: 1px solid var(--gray-200); border-radius: 8px;
+    padding: 16px; margin-bottom: 12px; animation: fadeUp 0.2s; }
+.detail-panel.show { display: block; }
+
+.voting-legend { display: flex; gap: 12px; font-size: 0.78rem; color: var(--gray-600); margin-bottom: 10px; }
+.voting-legend span { display: flex; align-items: center; gap: 4px; }
+
+.btn-run { background: var(--primary); color: white; border: none; padding: 10px 24px;
+    border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.btn-run:hover { background: #0f172a; }
+.btn-run:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.loading-overlay { display: none; text-align: center; padding: 60px 20px; color: var(--gray-500); }
+.loading-overlay .spinner { width: 40px; height: 40px; border: 3px solid var(--gray-200);
+    border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.confusion-cell { text-align: center; font-weight: 700; font-size: 1.1rem; }
+.confusion-cell.correct { background: #dcfce7; color: #166534; }
+.confusion-cell.wrong { background: #fee2e2; color: #991b1b; }
+
+.nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 0;
+    border-top: 1px solid var(--gray-200); margin-top: 16px; }
+.nav-btn { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200);
+    padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.nav-btn:hover { background: var(--gray-200); }
+.nav-btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.nav-btn.primary:hover { background: #0f172a; }
+
+.chart-wrap { background: white; border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <div>
-        <h4>Perhitungan Manual Random Forest</h4>
-        <p>Langkah per langkah proses algoritma Random Forest — dari input data hingga evaluasi</p>
-    </div>
-    <div>
-        <button class="btn btn-primary" id="btnMulai" onclick="mulaiPerhitungan()">
-            <i class='bx bx-play-circle'></i><span>Mulai Perhitungan</span>
-        </button>
-    </div>
+    <h4><i class='bx bx-git-branch'></i> Perhitungan Manual — Random Forest</h4>
+    <p>Alur langkah-langkah Random Forest sesuai Bab IV: 163 data, 4 fitur, m = √4 = 2, 15 pohon keputusan</p>
 </div>
 
-<!-- Loading -->
-<div id="loadingArea" style="display: none;">
-    <div class="card">
-        <div class="card-body text-center py-5">
-            <div class="spinner mb-3" style="margin: 0 auto;"></div>
-            <p class="text-muted">Memproses perhitungan manual...</p>
+<div class="step-nav" id="stepNav">
+    <div class="sn active" onclick="goStep(0)"><span class="num">1</span> Data Latih</div>
+    <div class="sn" onclick="goStep(1)"><span class="num">2</span> Encoding</div>
+    <div class="sn" onclick="goStep(2)"><span class="num">3</span> Bootstrap</div>
+    <div class="sn" onclick="goStep(3)"><span class="num">4</span> Pohon Keputusan</div>
+    <div class="sn" onclick="goStep(4)"><span class="num">5</span> Voting</div>
+    <div class="sn" onclick="goStep(5)"><span class="num">6</span> Evaluasi</div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Memproses 15 pohon keputusan...</p>
+</div>
+
+<div id="dataReady" style="display:none;">
+
+<!-- STEP 0: DATA LATIH -->
+<div class="step-panel show" id="step0">
+    <div class="card-clean">
+        <h6><i class='bx bx-table'></i> Data Latih — Data DBD 163 Pasien</h6>
+        <p class="desc">Data dari Excel yang digunakan sebagai input untuk setiap pohon keputusan.</p>
+        <div class="stat-row" id="statOverview"></div>
+        <div class="scroll-box-lg" style="max-height: 320px;">
+            <table class="mini-tbl" id="tblData"></table>
+        </div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-bar-chart-alt-2'></i> Distribusi Label</h6>
+        <p class="desc">Distribusi kelas target (Tingkat Resiko) pada data asli.</p>
+        <div class="grid-2">
+            <div class="chart-wrap"><canvas id="chartLabel"></canvas></div>
+            <div id="labelTable"></div>
         </div>
     </div>
 </div>
 
-<!-- Placeholder -->
-<div id="placeholderArea">
-    <div class="card">
-        <div class="card-body text-center py-5">
-            <i class='bx bx-calculator' style="font-size: 4rem; color: var(--gray-300);"></i>
-            <h5 class="text-muted mt-3">Perhitungan Manual Random Forest</h5>
-            <p class="text-muted">Klik "Mulai Perhitungan" untuk melihat langkah-langkah perhitungan secara detail</p>
-            <div class="mt-4" style="max-width: 500px; margin: 0 auto; text-align: left;">
-                <div class="mb-2"><span class="badge badge-primary me-2">1</span> Input Data — Data pasien & fitur</div>
-                <div class="mb-2"><span class="badge badge-primary me-2">2</span> Random Sampling — Bootstrap sampling per pohon</div>
-                <div class="mb-2"><span class="badge badge-primary me-2">3</span> Pembuatan Pohon — Hitung Entropy dan Information Gain, temukan fitur terbaik untuk split cabang</div>
-                <div class="mb-2"><span class="badge badge-primary me-2">4</span> Perulangan — Ulangi langkah 2 & 3 untuk 5 pohon</div>
-                <div class="mb-2"><span class="badge badge-primary me-2">5</span> Mayoritas Voting (Aggregation) — Kumpulkan hasil prediksi dari semua 5 pohon dan ambil label terbanyak</div>
+<!-- STEP 1: ENCODING -->
+<div class="step-panel" id="step1">
+    <div class="card-clean">
+        <h6><i class='bx bx-hash'></i> Encoding — Mengubah Kategori Menjadi Angka</h6>
+        <p class="desc">Agar dapat diproses algoritma, data kategorik diubah menjadi numerik.</p>
+        <div class="grid-2">
+            <div>
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Jenis Kelamin (X4)</h6>
+                <table class="mini-tbl">
+                    <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th></tr></thead>
+                    <tbody>
+                        <tr><td>Laki-laki (L)</td><td><span class="tag tag-feat">1</span></td></tr>
+                        <tr><td>Perempuan (P)</td><td><span class="tag tag-feat">0</span></td></tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Hasil Perhitungan -->
-<div id="hasilArea" style="display: none;">
-
-    <!-- ═══ LANGKAH 1: INPUT DATA ═══ -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5><span class="badge badge-primary me-2">1</span><i class='bx bx-data text-primary me-2'></i>Langkah 1: Input Data</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info mb-3">
-                <i class='bx bx-info-circle'></i>
-                <div>
-                    Data pasien DBD diambil dari database. Setiap pasien memiliki 3 fitur:
-                    <strong>X1 = Usia</strong>, <strong>X2 = Lama Rawat Inap</strong>, <strong>X3 = Jenis Kelamin</strong>.
-                    Target (Y) = Tingkat Risiko yang ditentukan dari jumlah kasus bulanan (Rendah ≤8, Sedang 9-15, Tinggi >15).
-                </div>
-            </div>
-            <p><strong>Total Data:</strong> <span id="totalData"></span> | <strong>Fitur:</strong> <span id="nFeatures"></span> | <strong>Label Encoding:</strong> Rendah=1, Sedang=2, Tinggi=3</p>
-            <div style="max-height: 400px; overflow-y: auto;">
-                <table class="table table-sm">
-                    <thead><tr><th>No</th><th>Usia (X1)</th><th>Lama Rawat (X2)</th><th>JK (X3)</th><th>Tingkat Risiko (Y)</th><th>Label</th></tr></thead>
-                    <tbody id="tblInputData"></tbody>
+            <div>
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Tingkat Resiko (Target)</h6>
+                <table class="mini-tbl">
+                    <thead><tr><th>Nilai Asli</th><th>Nilai Encoding</th><th>Kondisi Kasus</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="tag tag-rendah">Rendah</span></td><td>0</td><td>Kasus ≤ 8</td></tr>
+                        <tr><td><span class="tag tag-sedang">Sedang</span></td><td>1</td><td>Kasus 9 – 15</td></tr>
+                        <tr><td><span class="tag tag-tinggi">Tinggi</span></td><td>2</td><td>Kasus > 15</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
-    </div>
-
-    <!-- ═══ LANGKAH 2: RANDOM SAMPLING ═══ -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5><span class="badge badge-primary me-2">2</span><i class='bx bx-shuffle text-primary me-2'></i>Langkah 2: Random Sampling (Bootstrap)</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info mb-3">
-                <i class='bx bx-info-circle'></i>
-                <div>
-                    Setiap pohon keputusan dibangun dari <strong>bootstrap sample</strong> — pengambilan data acak <strong>dengan pengembalian</strong> (with replacement)
-                    dari dataset asli. Ukuran sample = ukuran data asli (<span id="sampleSize"></span> data), tetapi beberapa data bisa terpilih lebih dari sekali
-                    dan beberapa data tidak terpilih sama sekali.
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <div class="p-3 rounded mb-3" style="background: var(--gray-50);">
-                        <h6>Konfigurasi Random Forest</h6>
-                        <table class="table table-sm mb-0">
-                            <tr><td>n_estimators (jumlah pohon)</td><td><strong id="nEstimators"></strong></td></tr>
-                            <tr><td>criterion</td><td><strong>Entropy</strong></td></tr>
-                            <tr><td>max_features (m)</td><td><strong>sqrt(<span id="nFeat2"></span>) ≈ <span id="mFeatures"></span></strong></td></tr>
-                            <tr><td>bootstrap</td><td><strong>True (with replacement)</strong></td></tr>
-                            <tr><td>random_state</td><td><strong>42</strong></td></tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <div class="p-3 rounded mb-3" style="background: var(--gray-50);">
-                        <h6>Proses Bootstrap</h6>
-                        <p class="mb-1" style="font-size: 0.9rem;">Dari <span id="totalData2"></span> data asli, setiap pohon mengambil <span id="totalData3"></span> sampel acak <em>with replacement</em>.</p>
-                        <p class="mb-0" style="font-size: 0.9rem;">Di setiap node, hanya <strong>m = <span id="mFeatures2"></span></strong> fitur yang dipilih acak untuk mencari split terbaik.</p>
-                    </div>
-                </div>
-            </div>
-
-            <h6 class="mt-3">Contoh Distribusi Bootstrap Sample (3 Pohon Pertama)</h6>
-            <div class="row" id="bootstrapExamples"></div>
-        </div>
-    </div>
-
-    <!-- ═══ LANGKAH 3: PEMBUATAN POHON ═══ -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5><span class="badge badge-primary me-2">3</span><i class='bx bx-git-branch text-primary me-2'></i>Langkah 3: Pembuatan Pohon Keputusan</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info mb-3">
-                <i class='bx bx-info-circle'></i>
-                <div>
-                    Setiap pohon dibangun dengan algoritma <strong>ID3 (Iterative Dichotomiser 3)</strong> menggunakan <strong>Entropy</strong> dan <strong>Information Gain</strong>.
-                    Pada setiap node, <em>m</em> fitur dipilih acak, lalu dihitung Entropy dan Information Gain untuk menentukan split terbaik.
-                </div>
-            </div>
-
-            <div class="p-3 rounded mb-4" style="background: var(--gray-50);">
-                <h6>Rumus Perhitungan</h6>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>Entropy:</strong>
-                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.9rem;">
-                            E(S) = -Σ pᵢ × log₂(pᵢ)
-                        </div>
-                        <small class="text-muted">pᵢ = proporsi kelas i dalam dataset</small>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>Information Gain:</strong>
-                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.9rem;">
-                            IG(S,A) = E(S) - Σ (|Sᵥ|/|S|) × E(Sᵥ)
-                        </div>
-                        <small class="text-muted">A = atribut, Sᵥ = subset untuk nilai v</small>
-                    </div>
-                </div>
-            </div>
-
-            <h6>Detail Pohon (3 Pohon Pertama)</h6>
-            <div id="treesDetail"></div>
-        </div>
-    </div>
-
-    <!-- ═══ LANGKAH 4: PERULANGAN ═══ -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5><span class="badge badge-primary me-2">4</span><i class='bx bx-repeat text-primary me-2'></i>Langkah 4: Perulangan Tahap 2 dan 3</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info mb-3">
-                <i class='bx bx-info-circle'></i>
-                <div>
-                    Langkah 2 (random sampling) dan Langkah 3 (pembuatan pohon) diulang sebanyak <strong>n_estimators = <span id="nEst2"></span> kali</strong>,
-                    menghasilkan <strong><span id="nEst3"></span> pohon keputusan</strong> yang berbeda-beda. Setiap pohon dibangun dari bootstrap sample yang berbeda.
-                </div>
-            </div>
-
-            <h6>Ringkasan Seluruh <span id="nEst4"></span> Pohon</h6>
-            <div style="max-height: 500px; overflow-y: auto;">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Pohon</th>
-                            <th>Sampel</th>
-                            <th>Distribusi Kelas</th>
-                            <th>Entropy Root</th>
-                            <th>Fitur Split Root</th>
-                            <th>Threshold</th>
-                            <th>Info Gain</th>
-                            <th>Daun</th>
-                            <th>Kedalaman</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tblAllTrees"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- ═══ LANGKAH 5: EVALUASI ═══ -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5><span class="badge badge-primary me-2">5</span><i class='bx bx-check-shield text-primary me-2'></i>Langkah 5: Evaluasi Model (MAE, RMSE, R²)</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info mb-3">
-                <i class='bx bx-info-circle'></i>
-                <div>
-                    Evaluasi menggunakan <strong>Stratified 5-Fold Cross-Validation</strong>.
-                    Data dibagi 5 bagian, setiap fold bergantian menjadi data test.
-                    Metrik dihitung per fold lalu dirata-rata.
-                </div>
-            </div>
-
-            <!-- Rumus -->
-            <div class="p-3 rounded mb-4" style="background: var(--gray-50);">
-                <h6>Rumus Evaluasi</h6>
-                <div class="row">
-                    <div class="col-12 col-md-4 mb-3">
-                        <strong>MAE (Mean Absolute Error):</strong>
-                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
-                            MAE = (1/n) × Σ|yᵢ - ŷᵢ|
-                        </div>
-                        <small class="text-muted">Rata-rata selisih absolut</small>
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <strong>RMSE (Root Mean Square Error):</strong>
-                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
-                            RMSE = √[(1/n) × Σ(yᵢ - ŷᵢ)²]
-                        </div>
-                        <small class="text-muted">Akar rata-rata error kuadrat</small>
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <strong>R² (Koefisien Determinasi):</strong>
-                        <div class="p-2 rounded mt-1" style="background: white; font-family: monospace; font-size: 0.85rem;">
-                            R² = 1 - (SS_res / SS_tot)
-                        </div>
-                        <small class="text-muted">SS_res = Σ(yᵢ-ŷᵢ)², SS_tot = Σ(yᵢ-ȳ)²</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detail per Fold -->
-            <h6>Detail per Fold</h6>
-            <div id="foldsDetail"></div>
-
-            <!-- Perhitungan Manual -->
-            <div class="card mt-4" style="border: 2px solid var(--primary);">
-                <div class="card-header" style="background: var(--primary); color: white;">
-                    <h5 class="mb-0"><i class='bx bx-calculator me-2'></i>Perhitungan Manual Keseluruhan</h5>
-                </div>
-                <div class="card-body" id="manualCalc"></div>
-            </div>
-
-            <!-- Hasil Akhir -->
-            <div class="row mt-4">
-                <div class="col-12 col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-icon primary"><i class='bx bx-math'></i></div>
-                        <div class="stat-content">
-                            <h3 id="finalMAE">-</h3>
-                            <p>MAE</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-icon warning"><i class='bx bx-scatter-chart'></i></div>
-                        <div class="stat-content">
-                            <h3 id="finalRMSE">-</h3>
-                            <p>RMSE</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-icon success"><i class='bx bx-equalizer'></i></div>
-                        <div class="stat-content">
-                            <h3 id="finalR2">-</h3>
-                            <p>R²</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="formula-box" style="margin-top:14px;">
+            <strong>Fitur input (X):</strong> Usia (X1), Lama Rawat Inap (X2), Jumlah Kasus (X3), Jenis Kelamin (X4)<br>
+            <strong>Target (Y):</strong> Tingkat Resiko (Rendah=0, Sedang=1, Tinggi=2)
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- STEP 2: BOOTSTRAP -->
+<div class="step-panel" id="step2">
+    <div class="card-clean">
+        <h6><i class='bx bx-duplicate'></i> Bootstrap Sampling — 15 Sampel Acak</h6>
+        <p class="desc">
+            Setiap pohon dilatih dengan sampel yang diambil secara acak <strong>dengan pengembalian</strong> (bootstrap) dari 163 data.
+            Dengan m = √4 = 2, setiap node hanya mempertimbangkan 2 fitur secara acak.
+        </p>
+        <div class="stat-row" id="statBootstrap"></div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-git-repo'></i> Daftar 15 Pohon (Bootstrap Sample)</h6>
+        <p class="desc">Setiap pohon dilatih dengan bootstrap sample yang berbeda. Lihat distribusi kelas dan fitur yang digunakan.</p>
+        <div id="treeList"></div>
+    </div>
+</div>
+
+<!-- STEP 3: POHON KEPUTUSAN -->
+<div class="step-panel" id="step3">
+    <div class="card-clean">
+        <h6><i class='bx bx-selection'></i> Pohon Keputusan — Perhitungan Entropy & Information Gain</h6>
+        <p class="desc">
+            Setiap pohon memilih 2 fitur secara acak dari 4 fitur untuk membagi data.
+            Pilih pohon untuk melihat detail perhitungan.
+        </p>
+        <div class="formula-box">
+            <strong>Entropy:</strong> E(S) = −Σ pᵢ × log₂(pᵢ)<br>
+            <strong>Information Gain:</strong> IG(S,A) = E(S) − Σ (|Sᵥ|/|S|) × E(Sᵥ)
+        </div>
+    </div>
+    <div class="card-clean">
+        <h6>Pilih Pohon untuk Dilihat</h6>
+        <div id="treeSelectBtns" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;"></div>
+        <div id="treeDetail" class="detail-panel"></div>
+    </div>
+</div>
+
+<!-- STEP 4: VOTING -->
+<div class="step-panel" id="step4">
+    <div class="card-clean">
+        <h6><i class='bx bx-group'></i> Voting Mayoritas — Keputusan Akhir</h6>
+        <p class="desc">
+            Setiap pohon memberikan satu suara. Kelas dengan suara terbanyak menjadi prediksi akhir.
+        </p>
+        <div class="stat-row" id="statVoting"></div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-check-circle'></i> Confusion Matrix</h6>
+        <div id="confusionMatrix"></div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-list-check'></i> Detail Voting per Data</h6>
+        <p class="desc">Klik pada tabel untuk melihat distribusi suara dari 15 pohon.</p>
+        <div class="scroll-box-lg" style="max-height: 400px;">
+            <table class="mini-tbl" id="tblVoting"></table>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 5: EVALUASI -->
+<div class="step-panel" id="step5">
+    <div class="card-clean">
+        <h6><i class='bx bx-line-chart'></i> Evaluasi — Metrik Kinerja</h6>
+        <p class="desc">Evaluasi model menggunakan seluruh 163 data (training-set evaluation).</p>
+        <div class="stat-row" id="statEval"></div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-bar'></i> Evaluasi Per Pohon</h6>
+        <p class="desc">Perbandingan kinerja masing-masing pohon terhadap metrik akhir.</p>
+        <div class="scroll-box" style="max-height: 350px;">
+            <table class="mini-tbl" id="tblTreeEval"></table>
+        </div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-message-square-dots'></i> Analisis</h6>
+        <div id="analysisText" style="font-size:0.85rem; color:var(--gray-600); line-height:1.7;"></div>
+    </div>
+</div>
+
+</div><!-- /dataReady -->
+
+<!-- NAV BAR -->
+<div class="nav-bar" id="navBar" style="display:none;">
+    <button class="nav-btn" id="btnPrev" onclick="prevStep()"><i class='bx bx-left-arrow-alt'></i> Sebelumnya</button>
+    <span id="stepLabel" style="font-size:0.82rem; color:var(--gray-500);"></span>
+    <button class="nav-btn primary" id="btnNext" onclick="nextStep()">Selanjutnya <i class='bx bx-right-arrow-alt'></i></button>
+</div>
+
 <script>
-async function mulaiPerhitungan() {
-    document.getElementById('placeholderArea').style.display = 'none';
-    document.getElementById('hasilArea').style.display = 'none';
-    document.getElementById('loadingArea').style.display = 'block';
-    document.getElementById('btnMulai').disabled = true;
+const STEPS = ['Data Latih', 'Encoding', 'Bootstrap', 'Pohon Keputusan', 'Voting', 'Evaluasi'];
+let currentStep = 0;
+let DATA = null;
+let treeChartInstance = null;
 
-    try {
-        const resp = await fetch('/perhitungan/hitung', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-        const data = await resp.json();
+function goStep(n) {
+    if (!DATA && n > 0) return;
+    currentStep = n;
+    document.querySelectorAll('.step-nav .sn').forEach((el, i) => {
+        el.classList.toggle('active', i === n);
+        if (i < n) el.classList.add('done');
+    });
+    document.querySelectorAll('.step-panel').forEach((el, i) => {
+        el.classList.toggle('show', i === n);
+    });
+    document.getElementById('btnPrev').style.display = n === 0 ? 'none' : '';
+    document.getElementById('btnNext').textContent = n === STEPS.length - 1 ? 'Selesai' : 'Selanjutnya';
+    document.getElementById('stepLabel').textContent = `Langkah ${n + 1} dari ${STEPS.length}`;
+    document.getElementById('navBar').style.display = '';
+}
+function nextStep() { if (currentStep < STEPS.length - 1) goStep(currentStep + 1); }
+function prevStep() { if (currentStep > 0) goStep(currentStep - 1); }
 
-        if (data.status !== 'success') throw new Error(data.message || 'Gagal');
-
-        renderHasil(data);
-        document.getElementById('loadingArea').style.display = 'none';
-        document.getElementById('hasilArea').style.display = 'block';
-    } catch (err) {
-        document.getElementById('loadingArea').style.display = 'none';
-        document.getElementById('placeholderArea').style.display = 'block';
-        alert('Error: ' + err.message);
-    }
-    document.getElementById('btnMulai').disabled = false;
+function renderTag(label) {
+    const cls = label === 'Rendah' ? 'tag-rendah' : label === 'Sedang' ? 'tag-sedang' : 'tag-tinggi';
+    return `<span class="tag ${cls}">${label}</span>`;
 }
 
-function renderHasil(data) {
-    // Langkah 1: Input data
-    document.getElementById('totalData').textContent = data.total_data;
-    document.getElementById('nFeatures').textContent = data.n_features;
-    let rows = '';
-    data.input_data.forEach(d => {
-        const badgeCls = d.tingkat_risiko === 'Tinggi' ? 'danger' : d.tingkat_risiko === 'Sedang' ? 'warning' : 'success';
-        rows += `<tr><td>${d.no}</td><td>${d.usia}</td><td>${d.lama_rawat}</td><td>${d.jenis_kelamin}</td>
-            <td><span class="badge badge-${badgeCls}">${d.tingkat_risiko}</span></td><td>${d.label}</td></tr>`;
+function renderStep0() {
+    const d = DATA.step1;
+    document.getElementById('statOverview').innerHTML = `
+        <div class="stat-box"><div class="val">${d.total}</div><div class="lbl">Total Data</div></div>
+        <div class="stat-box"><div class="val">${d.features.length}</div><div class="lbl">Jumlah Fitur</div></div>
+        <div class="stat-box"><div class="val">15</div><div class="lbl">Jumlah Pohon</div></div>
+        <div class="stat-box"><div class="val">m = √4 = 2</div><div class="lbl">Fitur per Split</div></div>
+    `;
+    let html = '<thead><tr><th>No</th><th>Nama</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th><th>Resiko</th><th>Encoded</th></tr></thead><tbody>';
+    d.data.forEach(r => {
+        html += `<tr><td>${r.no}</td><td>${r.nama}</td><td>${r.usia}</td><td>${r.lama_rawat}</td><td>${r.jumlah_kasus}</td><td>${r.jk === 1 ? 'L' : 'P'}</td><td>${renderTag(r.tingkat_risiko)}</td><td>${r.label_encoded}</td></tr>`;
     });
-    document.getElementById('tblInputData').innerHTML = rows;
+    html += '</tbody>';
+    document.getElementById('tblData').innerHTML = html;
 
-    // Langkah 2: Bootstrap
-    document.getElementById('sampleSize').textContent = data.total_data;
-    document.getElementById('nEstimators').textContent = data.n_estimators;
-    document.getElementById('nFeat2').textContent = data.n_features;
-    document.getElementById('mFeatures').textContent = data.m_features;
-    document.getElementById('totalData2').textContent = data.total_data;
-    document.getElementById('totalData3').textContent = data.total_data;
-    document.getElementById('mFeatures2').textContent = data.m_features;
-
-    let bsHtml = '';
-    data.trees.slice(0, 3).forEach(t => {
-        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k}: ${v}`).join(', ');
-        bsHtml += `<div class="col-12 col-md-4 mb-3"><div class="p-3 rounded" style="background: var(--gray-50);">
-            <h6 class="text-primary">Pohon ${t.tree_id}</h6>
-            <p class="mb-1"><strong>Sampel:</strong> ${t.total_samples} data (bootstrap)</p>
-            <p class="mb-0"><strong>Distribusi:</strong> ${distStr}</p></div></div>`;
+    const labels = Object.keys(d.label_counts);
+    const counts = labels.map(l => d.label_counts[l]);
+    const colors = ['#22c55e', '#f59e0b', '#ef4444'];
+    const ctx = document.getElementById('chartLabel').getContext('2d');
+    if (treeChartInstance) treeChartInstance.destroy();
+    treeChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
     });
-    document.getElementById('bootstrapExamples').innerHTML = bsHtml;
 
-    // Langkah 3: Detail pohon
-    let tdHtml = '';
-    data.trees.slice(0, 3).forEach(t => {
-        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k}: ${v}`).join(', ');
-        let totalS = t.total_samples;
-        let proportions = Object.entries(t.class_dist).map(([k,v]) => `p(${k}) = ${v}/${totalS} = ${(v/totalS).toFixed(4)}`).join('<br>');
-
-        tdHtml += `<div class="card mb-3" style="border-left: 4px solid var(--primary);">
-            <div class="card-body">
-                <h6 class="text-primary mb-3">Pohon ${t.tree_id}</h6>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>1. Distribusi Kelas (Root):</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">${distStr}<br>Total: ${totalS} sampel</div>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>2. Proporsi Kelas:</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">${proportions}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>3. Entropy Root:</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
-                            E(S) = ${Object.entries(t.class_dist).map(([k,v]) => {
-                                let p = v/totalS;
-                                return p > 0 ? `-(${p.toFixed(4)} × log₂(${p.toFixed(4)}))` : '0';
-                            }).join(' + ')}<br>
-                            <strong>E(S) = ${t.root_entropy}</strong>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>4. Split Terbaik (Root):</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
-                            Fitur: <strong>${t.root_feature}</strong><br>
-                            Threshold: <strong>${t.root_threshold}</strong><br>
-                            ← Kiri: ${t.left_samples} sampel (E=${t.left_entropy})<br>
-                            → Kanan: ${t.right_samples} sampel (E=${t.right_entropy})
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>5. Information Gain:</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
-                            IG = ${t.root_entropy} - (${t.left_samples}/${totalS} × ${t.left_entropy} + ${t.right_samples}/${totalS} × ${t.right_entropy})<br>
-                            <strong>IG = ${t.information_gain}</strong>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <strong>6. Struktur Pohon:</strong>
-                        <div class="p-2 rounded mt-1" style="background: var(--gray-50);">
-                            Jumlah daun (leaf): <strong>${t.n_leaves}</strong><br>
-                            Kedalaman: <strong>${t.max_depth}</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+    let tbl = '<table class="mini-tbl"><thead><tr><th>Kelas</th><th>Jumlah</th><th>Persentase</th></tr></thead><tbody>';
+    labels.forEach((l, i) => {
+        const pct = (counts[i] / d.total * 100).toFixed(1);
+        tbl += `<tr><td>${renderTag(l)}</td><td>${counts[i]}</td><td>${pct}%</td></tr>`;
     });
-    document.getElementById('treesDetail').innerHTML = tdHtml;
+    tbl += '</tbody></table>';
+    document.getElementById('labelTable').innerHTML = tbl;
+}
 
-    // Langkah 4: Semua pohon
-    ['nEst2','nEst3','nEst4'].forEach(id => document.getElementById(id).textContent = data.n_estimators);
-    let allRows = '';
-    data.trees.forEach(t => {
-        let distStr = Object.entries(t.class_dist).map(([k,v]) => `${k[0]}:${v}`).join(' ');
-        allRows += `<tr><td>Pohon ${t.tree_id}</td><td>${t.total_samples}</td><td>${distStr}</td>
-            <td>${t.root_entropy}</td><td>${t.root_feature}</td><td>${t.root_threshold ?? '-'}</td>
-            <td>${t.information_gain}</td><td>${t.n_leaves}</td><td>${t.max_depth}</td></tr>`;
-    });
-    document.getElementById('tblAllTrees').innerHTML = allRows;
-
-    // Langkah 5: Evaluasi
-    let foldsHtml = '';
-    data.folds.forEach(f => {
-        let testRows = f.test_data.map(d => {
-            const match = d.actual === d.predicted;
-            return `<tr class="${match ? '' : 'table-danger'}"><td>${d.idx}</td>
-                <td>${d.actual} (${d.actual_label})</td><td>${d.predicted} (${d.predicted_label})</td>
-                <td>${d.error}</td></tr>`;
-        }).join('');
-
-        foldsHtml += `<div class="card mb-3" style="border-left: 4px solid var(--warning);">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0">Fold ${f.fold}</h6>
-                    <div>
-                        <span class="badge badge-primary me-1">Train: ${f.train_size}</span>
-                        <span class="badge badge-warning me-1">Test: ${f.test_size}</span>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-4"><small>MAE = <strong>${f.mae}</strong></small></div>
-                    <div class="col-4"><small>RMSE = <strong>${f.rmse}</strong></small></div>
-                    <div class="col-4"><small>R² = <strong>${f.r2}</strong></small></div>
-                </div>
-                <details><summary class="text-muted" style="cursor:pointer; font-size: 0.85rem;">Lihat detail data test</summary>
-                <table class="table table-sm mt-2"><thead><tr><th>Data ke-</th><th>Aktual (yᵢ)</th><th>Prediksi (ŷᵢ)</th><th>|Error|</th></tr></thead>
-                <tbody>${testRows}</tbody></table></details>
-            </div>
-        </div>`;
-    });
-    document.getElementById('foldsDetail').innerHTML = foldsHtml;
-
-    // Perhitungan Manual
-    const ev = data.evaluation;
-    document.getElementById('manualCalc').innerHTML = `
-        <div class="row">
-            <div class="col-12 mb-3">
-                <p>Dari seluruh ${ev.n_data} data prediksi (gabungan 5 fold):</p>
-            </div>
-            <div class="col-12 col-md-4 mb-3">
-                <div class="p-3 rounded" style="background: var(--gray-50);">
-                    <strong>MAE</strong>
-                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
-                        MAE = Σ|yᵢ - ŷᵢ| / n<br>
-                        MAE = ${ev.sum_abs_errors} / ${ev.n_data}<br>
-                        <strong class="text-primary">MAE = ${ev.manual_mae}</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4 mb-3">
-                <div class="p-3 rounded" style="background: var(--gray-50);">
-                    <strong>RMSE</strong>
-                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
-                        MSE = Σ(yᵢ - ŷᵢ)² / n<br>
-                        MSE = ${ev.sum_sq_errors} / ${ev.n_data} = ${(ev.sum_sq_errors/ev.n_data).toFixed(4)}<br>
-                        RMSE = √MSE<br>
-                        <strong class="text-primary">RMSE = ${ev.manual_rmse}</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4 mb-3">
-                <div class="p-3 rounded" style="background: var(--gray-50);">
-                    <strong>R²</strong>
-                    <div class="mt-2" style="font-family: monospace; font-size: 0.9rem;">
-                        ȳ = ${ev.y_mean}<br>
-                        SS_res = Σ(yᵢ - ŷᵢ)² = ${ev.sum_sq_errors}<br>
-                        SS_tot = Σ(yᵢ - ȳ)² = ${ev.ss_tot}<br>
-                        R² = 1 - (${ev.sum_sq_errors} / ${ev.ss_tot})<br>
-                        <strong class="text-primary">R² = ${ev.manual_r2}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
+function renderStep2() {
+    const trees = DATA.step4.trees;
+    let totalDups = 0;
+    trees.forEach(t => { totalDups += t.n_duplicates; });
+    document.getElementById('statBootstrap').innerHTML = `
+        <div class="stat-box"><div class="val">${trees.length}</div><div class="lbl">Jumlah Pohon</div></div>
+        <div class="stat-box"><div class="val">163</div><div class="lbl">Data per Bootstrap</div></div>
+        <div class="stat-box"><div class="val">m = 2</div><div class="lbl">Fitur Acak / Node</div></div>
+        <div class="stat-box"><div class="val">${trees[0]?.best_feature || '-'}</div><div class="lbl">Fitur Root Pohon Terbaik</div></div>
     `;
 
-    // Hasil akhir
-    document.getElementById('finalMAE').textContent = ev.avg_mae;
-    document.getElementById('finalRMSE').textContent = ev.avg_rmse;
-    document.getElementById('finalR2').textContent = ev.avg_r2;
+    let html = '';
+    trees.forEach((t, i) => {
+        const featTags = t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_', ' ')}</span>`).join(' ');
+        const cls = t.id === DATA.step4.best_tree_id ? 'best' : '';
+        html += `<div class="tree-card ${cls}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h6><i class='bx bx-git-branch'></i> ${t.name} ${cls === 'best' ? '<span class="tag tag-ok" style="font-size:0.68rem;">Terbaik (IG tertinggi)</span>' : ''}</h6>
+                <span class="meta">${t.n_samples} data | ${t.n_unique} unik | ${t.n_duplicates} duplikat</span>
+            </div>
+            <div class="meta" style="margin-top:6px;">Fitur: ${featTags}</div>
+            <div class="meta">Entropy Root: ${t.entropy_root_calc} | IG: <strong>${t.ig}</strong> | Fitur: ${t.best_feature} (≤ ${t.root_threshold})</div>
+        </div>`;
+    });
+    document.getElementById('treeList').innerHTML = html;
 }
+
+function renderStep3() {
+    const trees = DATA.step4.trees;
+    let btns = '';
+    trees.forEach((t, i) => {
+        btns += `<button class="nav-btn" onclick="showTreeDetail(${i})" style="font-size:0.78rem; padding:6px 12px;">${t.name}</button>`;
+    });
+    document.getElementById('treeSelectBtns').innerHTML = btns;
+    showTreeDetail(0);
+}
+
+function showTreeDetail(idx) {
+    const t = DATA.step4.trees[idx];
+    const panel = document.getElementById('treeDetail');
+    panel.className = 'detail-panel show';
+
+    let featTags = t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_', ' ')}</span>`).join(' ');
+
+    let distTbl = '<table class="mini-tbl"><thead><tr><th>Kelas</th><th>Jumlah</th><th>Proporsi</th></tr></thead><tbody>';
+    Object.entries(t.class_dist).forEach(([k, v]) => {
+        const p = (v / t.n_samples * 100).toFixed(1);
+        distTbl += `<tr><td>${renderTag(k)}</td><td>${v}</td><td>${p}%</td></tr>`;
+    });
+    distTbl += '</tbody></table>';
+
+    let rulesHtml = '';
+    if (t.rules && t.rules.length) {
+        rulesHtml = `<pre style="font-size:0.78rem; background:var(--gray-50); padding:12px; border-radius:6px; overflow-x:auto; border:1px solid var(--gray-200); max-height:300px; overflow-y:auto;">${t.rules.join('\n')}</pre>`;
+    }
+
+    panel.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h6 style="font-size:0.9rem; margin:0;"><i class='bx bx-git-branch'></i> ${t.name}</h6>
+            <span class="meta">Data: ${t.n_samples} | Fitur: ${t.n_features} | m = √${t.n_features} = ${t.m_features}</span>
+        </div>
+        <div class="grid-2">
+            <div>
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Informasi Bootstrap</h6>
+                <table class="mini-tbl">
+                    <tr><td>Total Data Bootstrap</td><td><strong>${t.n_samples}</strong></td></tr>
+                    <tr><td>Data Unik</td><td>${t.n_unique}</td></tr>
+                    <tr><td>Data Duplikat (OOB proxy)</td><td>${t.n_duplicates} (${t.oob_pct}%)</td></tr>
+                    <tr><td>Fitur Digunakan</td><td>${featTags}</td></tr>
+                    <tr><td>Max Depth</td><td>${t.max_depth}</td></tr>
+                    <tr><td>Jumlah Daun</td><td>${t.n_leaves}</td></tr>
+                </table>
+            </div>
+            <div>
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Root Split — Perhitungan</h6>
+                <div class="formula-box">
+                    <strong>E(S)</strong> = Entropy Root = ${t.entropy_root_calc}<br>
+                    <strong>Fitur:</strong> ${t.best_feature} ≤ ${t.root_threshold}<br>
+                    <strong>E(S, ${t.best_feature})</strong> = 
+                    (${t.left_samples} × ${t.left_entropy} + ${t.right_samples} × ${t.right_entropy}) / ${t.n_samples}
+                    = ${(t.left_samples * t.left_entropy + t.right_samples * t.right_entropy).toFixed(4)}<br>
+                    <strong>IG</strong> = ${t.entropy_root_calc} − ${(t.left_samples * t.left_entropy + t.right_samples * t.right_entropy).toFixed(4)} = <strong style="color:var(--primary);">${t.ig}</strong>
+                </div>
+                <div style="margin-top:8px;">
+                    <span style="font-size:0.82rem; color:var(--gray-600);">Rumus Excel:</span>
+                    <div class="formula-box" style="font-size:0.8rem;">Entropy Root = ${t.entropy_root_excel || '-'}</div>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:14px;">
+            <h6 style="font-size:0.82rem; margin-bottom:6px;">Distribusi Kelas</h6>
+            ${distTbl}
+        </div>
+        <div style="margin-top:14px;">
+            <details open>
+                <summary style="font-size:0.82rem; color:var(--gray-600); cursor:pointer; margin-bottom:6px;">Aturan Pohon (Rules)</summary>
+                ${rulesHtml}
+            </details>
+        </div>
+    `;
+}
+
+function renderStep4() {
+    const voting = DATA.step7;
+    const evalData = DATA.step8;
+
+    document.getElementById('statVoting').innerHTML = `
+        <div class="stat-box"><div class="val">${voting.correct_count}</div><div class="lbl">Benar</div></div>
+        <div class="stat-box"><div class="val">${voting.total - voting.correct_count}</div><div class="lbl">Salah</div></div>
+        <div class="stat-box"><div class="val">${(voting.accuracy * 100).toFixed(1)}%</div><div class="lbl">Akurasi</div></div>
+        <div class="stat-box"><div class="val">${evalData.voting_eval.mae}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${evalData.voting_eval.rmse}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${evalData.voting_eval.r2}</div><div class="lbl">R²</div></div>
+    `;
+
+    const cm = [[0,0,0],[0,0,0],[0,0,0]];
+    voting.voting_results.forEach(v => {
+        cm[v.actual_enc][v.final_pred_enc]++;
+    });
+    let cmHtml = '<table class="mini-tbl" style="width:auto; text-align:center;"><thead><tr><th></th><th style="padding:8px 14px;">Pred Rendah</th><th style="padding:8px 14px;">Pred Sedang</th><th style="padding:8px 14px;">Pred Tinggi</th></tr></thead><tbody>';
+    const clsNames = ['Rendah', 'Sedang', 'Tinggi'];
+    cm.forEach((row, i) => {
+        cmHtml += `<tr><td style="font-weight:700; padding:8px 14px;">Akt ${clsNames[i]}</td>`;
+        row.forEach((val, j) => {
+            const cls = i === j ? 'correct' : (val > 0 ? 'wrong' : '');
+            cmHtml += `<td class="confusion-cell ${cls}" style="padding:8px 14px;">${val}</td>`;
+        });
+        cmHtml += '</tr>';
+    });
+    cmHtml += '</tbody></table>';
+    document.getElementById('confusionMatrix').innerHTML = cmHtml;
+
+    let vtHtml = '<thead><tr><th>No</th><th>Aktual</th><th>Voting 15 Pohon</th><th>Prediksi</th><th>Hasil</th></tr></thead><tbody>';
+    voting.voting_results.forEach(v => {
+        const votes = v.vote_labels.map(l => renderTag(l)).join(' ');
+        const cls = v.correct ? 'tag-ok' : 'tag-err';
+        const res = v.correct ? '✓ Benar' : '✗ Salah';
+        vtHtml += `<tr><td>${v.no}</td><td>${renderTag(v.actual)}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(v.final_pred)}</td><td><span class="tag ${cls}">${res}</span></td></tr>`;
+    });
+    vtHtml += '</tbody>';
+    document.getElementById('tblVoting').innerHTML = vtHtml;
+}
+
+function renderStep5() {
+    const ev = DATA.step8.voting_eval;
+    document.getElementById('statEval').innerHTML = `
+        <div class="stat-box"><div class="val">${ev.mae}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${ev.rmse}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${ev.r2}</div><div class="lbl">R²</div></div>
+        <div class="stat-box"><div class="val">${ev.n}</div><div class="lbl">Jumlah Data</div></div>
+    `;
+
+    let pe = DATA.step8.per_tree_eval;
+    let html = '<thead><tr><th>Pohon</th><th>MAE</th><th>RMSE</th><th>R²</th><th>SS Residual</th><th>SS Total</th></tr></thead><tbody>';
+    pe.forEach(p => {
+        const cls = p.r2 < 0 ? 'style="color:var(--danger);"' : (p.r2 > 0.5 ? 'style="color:var(--success);"' : '');
+        html += `<tr><td>${p.name}</td><td>${p.mae}</td><td>${p.rmse}</td><td ${cls}><strong>${p.r2}</strong></td><td>${p.ss_res}</td><td>${p.ss_tot}</td></tr>`;
+    });
+    html += '</tbody>';
+    document.getElementById('tblTreeEval').innerHTML = html;
+
+    const bestTree = pe.reduce((a, b) => a.r2 > b.r2 ? a : b);
+    const worstTree = pe.reduce((a, b) => a.r2 < b.r2 ? a : b);
+
+    document.getElementById('analysisText').innerHTML = `
+        <p><strong>Hasil Voting Mayoritas (15 pohon):</strong></p>
+        <ul style="margin: 8px 0 12px 18px;">
+            <li><strong>Akurasi:</strong> ${(DATA.step7.accuracy * 100).toFixed(1)}% (${DATA.step7.correct_count}/${DATA.step7.total} data benar)</li>
+            <li><strong>MAE:</strong> ${ev.mae} — rata-rata kesalahan prediksi</li>
+            <li><strong>RMSE:</strong> ${ev.rmse} — penalti lebih besar untuk kesalahan besar</li>
+            <li><strong>R²:</strong> ${ev.r2} — proporsi varians yang dijelaskan model (1.0 = sempurna)</li>
+        </ul>
+        <p><strong>Analisis Per Pohon:</strong></p>
+        <ul style="margin: 8px 0 12px 18px;">
+            <li>Pohon terbaik: <strong>${bestTree.name}</strong> dengan R² = ${bestTree.r2}</li>
+            <li>Pohon terburuk: <strong>${worstTree.name}</strong> dengan R² = ${worstTree.r2}</li>
+            <li>Beberapa pohon memiliki R² negatif, artinya prediksinya lebih buruk daripada sekadar memprediksi rata-rata.</li>
+        </ul>
+        <p><strong>Catatan:</strong> Evaluasi ini dilakukan pada data training (163 data yang sama digunakan untuk pelatihan). 
+        Akurasi yang dilaporkan mungkin lebih tinggi daripada performa pada data baru (overfitting).</p>
+    `;
+}
+
+async function jalankanPerhitungan() {
+    const overlay = document.getElementById('loadingOverlay');
+    const ready = document.getElementById('dataReady');
+    overlay.style.display = 'block';
+    ready.style.display = 'none';
+
+    try {
+        const resp = await fetch('/perhitungan/hitung', { method: 'POST' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        DATA = await resp.json();
+        if (DATA.status === 'error') throw new Error(DATA.message);
+
+        renderStep0();
+        renderStep2();
+        renderStep3();
+        renderStep4();
+        renderStep5();
+
+        overlay.style.display = 'none';
+        ready.style.display = 'block';
+        goStep(0);
+    } catch (err) {
+        overlay.innerHTML = `<div style="color:var(--danger);"><i class='bx bx-error-circle' style="font-size:2rem;"></i><p>Gagal memuat: ${err.message}</p>
+            <button class="btn-run" onclick="location.reload()" style="margin-top:10px;">Muat Ulang</button></div>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', jalankanPerhitungan);
 </script>
 {% endblock %}

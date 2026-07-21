@@ -102,7 +102,7 @@
         <!-- Pagination -->
         {% if logs.pages > 1 %}
         <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
+            <ul class="pagination justify-content-center mb-0">
                 <li class="page-item {% if not logs.has_prev %}disabled{% endif %}">
                     <a class="page-link" href="{{ url_for('log.index', page=logs.prev_num) if logs.has_prev else '#' }}">&laquo; Prev</a>
                 </li>

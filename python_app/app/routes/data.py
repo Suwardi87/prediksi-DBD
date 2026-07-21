@@ -257,6 +257,7 @@ def import_excel():
             # Sync KasusBulanan for dashboard
             from app.models import KasusBulanan
             from sqlalchemy import func
+            from app.ml_model import get_risk_level
             
             # Clear existing for this year
             KasusBulanan.query.filter_by(tahun=tahun_import).delete()
@@ -269,14 +270,13 @@ def import_excel():
             
             for b in bulan_list:
                 total = next((item.total for item in agg if item.bulan == b), 0)
-                # Multiply by 3 so the dashboard chart looks better for small sample size
                 kb = KasusBulanan(
                     bulan=b,
                     tahun=tahun_import,
-                    jumlah_kasus=total * 3,
-                    jumlah_sembuh=total * 2,
+                    jumlah_kasus=total,
+                    jumlah_sembuh=0,
                     jumlah_meninggal=0,
-                    tingkat_risiko='Sedang' if total > 0 else 'Rendah'
+                    tingkat_risiko=get_risk_level(total)
                 )
                 db.session.add(kb)
                 

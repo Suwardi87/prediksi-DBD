@@ -101,7 +101,7 @@
         <!-- Pagination -->
         {% if data_uji.pages > 1 %}
         <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
+            <ul class="pagination justify-content-center mb-0">
                 <li class="page-item {% if not data_uji.has_prev %}disabled{% endif %}">
                     <a class="page-link" href="{{ url_for('data_uji.index', page=data_uji.prev_num) if data_uji.has_prev else '#' }}">&laquo; Prev</a>
                 </li>

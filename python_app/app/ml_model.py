@@ -155,8 +155,11 @@ def calculate_entropy(class_counts):
     return entropy
 
 
-def extract_rules(tree, feature_names):
+def extract_rules(tree, feature_names, model_classes=None):
     """Mengekstrak rules dari single Decision Tree"""
+    if model_classes is None:
+        model_classes = np.array([1, 2, 3])
+    
     tree_ = tree.tree_
     feature_name = [
         feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
@@ -180,8 +183,8 @@ def extract_rules(tree, feature_names):
         else:
             value = tree_.value[node][0]
             class_idx = np.argmax(value)
-            # Map index ke kelas asli berdasarkan urutan classes_ model
-            class_name = ['Rendah', 'Sedang', 'Tinggi'][class_idx]
+            class_label = model_classes[class_idx] if class_idx < len(model_classes) else 2
+            class_name = INVERSE_LABEL_MAP.get(class_label, f'Class {class_label}')
             
             rules.append({
                 'rule': " AND ".join(current_rule),
@@ -204,7 +207,8 @@ def create_manual_rf():
     rf.fit(dummy_X, dummy_y)
     rf.estimators_ = []
     
-    excel_path = r"c:\xampp\htdocs\PrediksiPenyebaranPenyakitMenularDemamBerdarahDongue\Data DBD 15 Sampel.xlsx"
+    excel_path = os.path.join(os.path.dirname(__file__), '..', '..', 'Data DBD 15 Sampel.xlsx')
+    excel_path = os.path.abspath(excel_path)
     try:
         xls = pd.ExcelFile(excel_path)
         features_order = ['Usia.1', 'Lama Rawat Inap.1', 'Jenis Kelamin.1']
@@ -324,18 +328,22 @@ def extract_all_trees_details(model, X_test, y_test,
         tree = estimator.tree_
         
         # ── 1. Distribusi kelas di root (= bootstrap sample) ──
+        # Catatan: sklearn modern mengembalikan tree.value sebagai fractions (sum=1.0),
+        # bukan raw counts. Kalikan dengan weighted_n_node_samples untuk dapat counts asli.
         root_counts = tree.value[0].flatten()
-        total_samples = int(root_counts.sum())
+        total_weighted = float(tree.weighted_n_node_samples[0])
+        root_counts_scaled = root_counts * total_weighted
+        total_samples = int(round(root_counts_scaled.sum()))
         class_dist = {}
         class_probs = {}
         for j, cls in enumerate(model.classes_):
             cls_name = INVERSE_LABEL_MAP.get(cls, f'Class {cls}')
-            cnt = int(root_counts[j]) if j < len(root_counts) else 0
+            cnt = int(round(root_counts_scaled[j])) if j < len(root_counts_scaled) else 0
             class_dist[cls_name] = cnt
             class_probs[cls_name] = round(cnt / total_samples, 6) if total_samples > 0 else 0
         
         # ── 2. Entropy root ──
-        root_entropy = calculate_entropy(root_counts)
+        root_entropy = calculate_entropy([round(c) for c in root_counts_scaled])
         
         # ── 3. Fitur dan threshold split di root ──
         root_feature_idx = tree.feature[0]
@@ -354,12 +362,14 @@ def extract_all_trees_details(model, X_test, y_test,
         right_count = 0
         
         if tree.children_left[0] >= 0 and tree.children_right[0] >= 0:
-            left_counts = tree.value[tree.children_left[0]].flatten()
-            right_counts = tree.value[tree.children_right[0]].flatten()
-            left_entropy = calculate_entropy(left_counts)
-            right_entropy = calculate_entropy(right_counts)
-            left_count = int(left_counts.sum())
-            right_count = int(right_counts.sum())
+            left_w = float(tree.weighted_n_node_samples[tree.children_left[0]])
+            right_w = float(tree.weighted_n_node_samples[tree.children_right[0]])
+            left_counts = tree.value[tree.children_left[0]].flatten() * left_w
+            right_counts = tree.value[tree.children_right[0]].flatten() * right_w
+            left_entropy = calculate_entropy([round(c) for c in left_counts])
+            right_entropy = calculate_entropy([round(c) for c in right_counts])
+            left_count = int(round(left_counts.sum()))
+            right_count = int(round(right_counts.sum()))
             lw = left_count / total_samples if total_samples > 0 else 0
             rw = right_count / total_samples if total_samples > 0 else 0
             information_gain = root_entropy - (lw * left_entropy + rw * right_entropy)
@@ -484,6 +494,16 @@ def train_model(data, n_estimators=25, max_depth=None, random_state=42):
     if len(unique_classes) < 2:
         raise ValueError(f"Data harus memiliki minimal 2 class berbeda. Ditemukan: {len(unique_classes)} class")
     
+    # Cek minimal samples per class untuk StratifiedKFold
+    n_folds = 5
+    unique, counts = np.unique(y_encoded, return_counts=True)
+    min_class_count = int(min(counts))
+    if min_class_count < n_folds:
+        raise ValueError(
+            f"Setiap class harus memiliki minimal {n_folds} data untuk {n_folds}-Fold CV. "
+            f"Class dengan data paling sedikit hanya memiliki {min_class_count} data."
+        )
+    
     # ═══════════════════════════════════════════════════════════════════
     # EVALUASI: Stratified K-Fold Cross-Validation (stabil & konsisten)
     # ═══════════════════════════════════════════════════════════════════
@@ -491,7 +511,6 @@ def train_model(data, n_estimators=25, max_depth=None, random_state=42):
     # K-Fold CV menggunakan SEMUA data untuk evaluasi → metrik stabil
     # meskipun parameter (n_estimators) diubah.
     
-    n_folds = 5
     skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=random_state)
     
     # Akumulasi metrik dari setiap fold
@@ -812,10 +831,9 @@ def predict_batch_with_trees(pasien_list):
         # Batasi penampilan maksimal 5 pohon pertama untuk UI (walau n_estimators > 5)
         trees_to_show = model.estimators_[:5]
         for tree in trees_to_show:
-            # Tree prediction is an array of shape (1, n_classes)
-            # Find the index of the max value
-            tree_pred_idx = np.argmax(tree.predict(X)[0])
-            pred_class = model.classes_[tree_pred_idx]
+            # Tree prediction mengembalikan kelas asli (bukan array probabilitas),
+            # jadi langsung pakai tanpa np.argmax
+            pred_class = int(tree.predict(X)[0])
             tree_votes.append(inverse_label_map.get(pred_class, 'Sedang'))
             
         # Get final prediction
@@ -833,7 +851,7 @@ def predict_batch_with_trees(pasien_list):
         
         results.append({
             'id': pasien.id,
-            'nama': pasien.nama_lengkap,
+            'nama': pasien.nama_pasien,
             'usia': pasien.usia,
             'lama_rawat': lama_rawat,
             'jumlah_kasus': jml_kasus,

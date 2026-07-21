@@ -3,114 +3,28 @@
 
 {% block extra_css %}
 <style>
-    /* Styling khusus agar mirip dengan referensi gambar */
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--gray-800);
-        margin-bottom: 0.25rem;
-    }
-    .page-subtitle {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-    
-    .card-title-custom {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--gray-800);
-        margin-bottom: 1rem;
-    }
-    
-    .text-sm {
-        font-size: 0.85rem;
-        color: var(--gray-600);
-    }
-    
-    .btn-dark-blue {
-        background-color: #1c324f;
-        color: white;
-        border: none;
-        padding: 0.6rem 1.5rem;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.85rem;
-    }
-    
-    .btn-dark-blue:hover {
-        background-color: #0f172a;
-        color: white;
-    }
-    
-    .alert-success-custom {
-        background-color: #def7ec;
-        color: #03543f;
-        border: none;
-        border-radius: 6px;
-        padding: 1rem;
-        font-size: 0.85rem;
-        margin-bottom: 1.5rem;
-        display: none;
-    }
-    
-    /* Table specific */
-    .table-dark-header th {
-        background-color: #1c324f !important;
-        color: white !important;
-        font-size: 0.75rem;
-        font-weight: 500;
-        text-transform: none;
-        padding: 0.75rem 1rem;
-    }
-    
-    .table td {
-        font-size: 0.8rem;
-        vertical-align: middle;
-        padding: 0.5rem 1rem;
-    }
-    
-    .badge-yellow {
-        background-color: #fdf6b2;
-        color: #723b13;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.7rem;
-    }
-    
-    .badge-green {
-        background-color: #def7ec;
-        color: #03543f;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.7rem;
-    }
-    
-    .badge-red {
-        background-color: #fde8e8;
-        color: #9b1c1c;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.7rem;
-    }
-    
-    .tree-col {
-        text-align: center;
-        width: 30px;
-    }
+.page-title { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); margin-bottom: 0.25rem; }
+.page-subtitle { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 1.5rem; }
+.card-title-custom { font-size: 1rem; font-weight: 700; color: var(--gray-800); margin-bottom: 1rem; }
+.text-sm { font-size: 0.85rem; color: var(--gray-600); }
+.btn-dark-blue { background-color: #1c324f; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 500; font-size: 0.85rem; }
+.btn-dark-blue:hover { background-color: #0f172a; color: white; }
+.alert-success-custom { background-color: #def7ec; color: #03543f; border: none; border-radius: 6px; padding: 1rem; font-size: 0.85rem; margin-bottom: 1.5rem; display: none; }
+.table-dark-header th { background-color: #1c324f !important; color: white !important; font-size: 0.75rem; font-weight: 500; padding: 0.75rem 1rem; }
+.table td { font-size: 0.8rem; vertical-align: middle; padding: 0.5rem 1rem; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+.tag-rendah { background: #dcfce7; color: #166534; }
+.tag-sedang { background: #fef3c7; color: #92400e; }
+.tag-tinggi { background: #fee2e2; color: #991b1b; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div>
-    <h2 class="page-title">Prediksi Risiko</h2>
-    <p class="page-subtitle">Melakukan prediksi tingkat risiko penyebaran DBD menggunakan 5 pohon (Sesuai Bab 4)</p>
+    <h2 class="page-title">Prediksi Risiko DBD</h2>
+    <p class="page-subtitle">Upload data uji dan jalankan prediksi Random Forest</p>
 </div>
 
-<!-- Card: Prediksi Data Uji -->
 <div class="card mb-3" style="border-radius: 8px;">
     <div class="card-body p-4">
         <h5 class="card-title-custom">Prediksi Data Uji</h5>
@@ -119,176 +33,66 @@
     </div>
 </div>
 
-<!-- Alert Success -->
-<div class="alert-success-custom" id="alertSuccess">
-    Prediksi berhasil untuk 10 data uji
-</div>
+<div class="alert-success-custom" id="alertSuccess"></div>
 
-<!-- Table: Hasil Voting per Pohon -->
 <div class="card mb-4" id="cardVoting" style="display: none; border-radius: 8px;">
     <div class="card-body p-4">
         <h5 class="card-title-custom mb-3">Hasil Voting per Pohon</h5>
         <div class="table-responsive">
             <table class="table table-dark-header">
                 <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="20%">Nama</th>
-                        {% for i in range(1, 6) %}
-                        <th class="tree-col">P{{ i }}</th>
-                        {% endfor %}
-                        <th width="10%">Hasil</th>
-                        <th width="10%">Aktual</th>
-                        <th width="10%">Status</th>
-                    </tr>
+                    <tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th><th>Hasil 5 Pohon</th><th>Hasil Akhir</th></tr>
                 </thead>
-                <tbody id="tbodyVoting">
-                    <!-- Akan diisi via JS -->
-                </tbody>
+                <tbody id="votingBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Table: Detail Prediksi -->
-<div class="card mb-4" id="cardDetail" style="display: none; border-radius: 8px;">
+<div class="card mb-4" id="cardAccuracy" style="display: none; border-radius: 8px;">
     <div class="card-body p-4">
-        <h5 class="card-title-custom mb-3">Detail Prediksi</h5>
-        <div class="table-responsive">
-            <table class="table table-dark-header">
-                <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="25%">Nama</th>
-                        <th width="10%">Usia</th>
-                        <th width="15%">Lama Rawat</th>
-                        <th width="15%">Jml Kasus</th>
-                        <th width="10%">JK</th>
-                        <th width="10%">Prediksi</th>
-                        <th width="10%">Aktual</th>
-                    </tr>
-                </thead>
-                <tbody id="tbodyDetail">
-                    <!-- Akan diisi via JS -->
-                </tbody>
-            </table>
+        <h5 class="card-title-custom mb-3">Akurasi</h5>
+        <div class="row">
+            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--primary);" id="accValue">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Akurasi</div></div></div>
+            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--success);" id="correctCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Benar</div></div></div>
+            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--danger);" id="wrongCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Salah</div></div></div>
+            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--warning);" id="totalCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Total</div></div></div>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    async function jalankanPrediksi() {
-        const btn = document.querySelector('button[onclick="jalankanPrediksi()"]');
-        const origText = btn.innerHTML;
-        btn.innerHTML = 'Memproses...';
-        btn.disabled = true;
-        
-        document.getElementById('cardVoting').style.display = 'none';
-        document.getElementById('cardDetail').style.display = 'none';
-        document.getElementById('alertSuccess').style.display = 'none';
-        
-        try {
-            const res = await fetch("{{ url_for('prediksi.batch_predict') }}");
-            const json = await res.json();
-            
-            if (json.status === 'success') {
-                const data = json.data;
-                
-                // Cek berapa banyak pohon yang dikembalikan oleh backend
-                let numTrees = 0;
-                if (data.length > 0) {
-                    numTrees = data[0].tree_votes.length;
-                }
-                
-                // Update tabel header jika jumlah pohon tidak sama dengan 5
-                if (numTrees > 0) {
-                    let headerVoting = `<tr>
-                        <th width="5%">No</th>
-                        <th width="20%">Nama</th>`;
-                    for (let i = 1; i <= numTrees; i++) {
-                        headerVoting += `<th class="tree-col">P${i}</th>`;
-                    }
-                    headerVoting += `
-                        <th width="10%">Hasil Akhir</th>
-                        <th width="10%">Aktual</th>
-                        <th width="10%">Status</th>
-                    </tr>`;
-                    document.querySelector('#cardVoting thead').innerHTML = headerVoting;
-                }
+function renderTag(label) {
+    const cls = label === 'Rendah' ? 'tag-rendah' : label === 'Sedang' ? 'tag-sedang' : 'tag-tinggi';
+    return `<span class="tag ${cls}">${label}</span>`;
+}
 
-                let htmlVoting = '';
-                let htmlDetail = '';
-                
-                data.forEach((item, idx) => {
-                    // Cek badge untuk Prediksi dan Aktual
-                    let classPrediksi = getBadgeClass(item.final_prediction);
-                    let classAktual = getBadgeClass(item.aktual);
-                    let statusClass = (item.status_prediksi === "Benar") ? "badge-green" : "badge-red";
-                    
-                    // Table Voting (Hasil Voting per Pohon)
-                    htmlVoting += `<tr>
-                        <td>${idx + 1}</td>
-                        <td>${item.nama}</td>`;
-                        
-                    item.tree_votes.forEach(vote => {
-                        let classTree = getBadgeClass(vote);
-                        htmlVoting += `<td><span class="${classTree}">${vote.charAt(0)}</span></td>`;
-                    });
-                    
-                    htmlVoting += `
-                        <td><span class="${classPrediksi}">${item.final_prediction}</span></td>
-                        <td><span class="${classAktual}">${item.aktual}</span></td>
-                        <td><span class="${statusClass}">${item.status_prediksi}</span></td>
-                    </tr>`;
-                    
-                    // Table Detail
-                    let jkText = item.jenis_kelamin === 'L' ? 'L' : 'P';
-                    htmlDetail += `<tr>
-                        <td>${idx + 1}</td>
-                        <td>${item.nama}</td>
-                        <td>${item.usia}</td>
-                        <td>${item.lama_rawat}</td>
-                        <td>${item.jumlah_kasus}</td>
-                        <td>${jkText}</td>
-                        <td><span class="${classPrediksi}">${item.final_prediction}</span></td>
-                        <td><span class="${classAktual}">${item.aktual}</span></td>
-                    </tr>`;
-                });
-                
-                document.getElementById('tbodyVoting').innerHTML = htmlVoting;
-                document.getElementById('tbodyDetail').innerHTML = htmlDetail;
-                
-                // Tampilkan sukses
-                const alertBox = document.getElementById('alertSuccess');
-                alertBox.innerHTML = `Prediksi berhasil untuk ${data.length} data uji terbaru.`;
-                alertBox.className = "alert-success-custom";
-                alertBox.style.color = "#03543f";
-                alertBox.style.backgroundColor = "#def7ec";
-                alertBox.style.display = 'block';
-                
-                document.getElementById('cardVoting').style.display = 'block';
-                document.getElementById('cardDetail').style.display = 'block';
-            } else {
-                throw new Error(json.message);
-            }
-        } catch (error) {
-            const alertBox = document.getElementById('alertSuccess');
-            alertBox.innerHTML = `Gagal menjalankan prediksi: ${error.message}`;
-            alertBox.className = "alert alert-danger";
-            alertBox.style.display = 'block';
-        } finally {
-            btn.innerHTML = origText;
-            btn.disabled = false;
-        }
+async function jalankanPrediksi() {
+    try {
+        const resp = await fetch('/prediksi/batch_predict', { method: 'POST' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (data.status === 'error') throw new Error(data.message);
+
+        document.getElementById('alertSuccess').style.display = 'block';
+        document.getElementById('alertSuccess').textContent = `Prediksi berhasil untuk ${data.total} data uji`;
+        document.getElementById('cardVoting').style.display = 'block';
+        document.getElementById('cardAccuracy').style.display = 'block';
+
+        let tbody = '';
+        data.predictions.forEach(p => {
+            const votes = p.individual_predictions.map(v => renderTag(v)).join(' ');
+            tbody += `<tr><td>${p.no}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(p.final_prediction)}</td></tr>`;
+        });
+        document.getElementById('votingBody').innerHTML = tbody;
+
+        document.getElementById('accValue').textContent = data.accuracy;
+        document.getElementById('correctCount').textContent = data.correct_count;
+        document.getElementById('wrongCount').textContent = data.total - data.correct_count;
+        document.getElementById('totalCount').textContent = data.total;
+    } catch (err) {
+        alert('Gagal: ' + err.message);
     }
-    
-    function getBadgeClass(status) {
-        if (status === "Tinggi") return "badge-red";
-        if (status === "Sedang") return "badge-yellow";
-        return "badge-green";
-    }
+}
 </script>
 {% endblock %}

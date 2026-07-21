@@ -31,27 +31,37 @@ def api_train():
     try:
         data = request.get_json() or {}
         n_estimators = data.get('n_estimators', 100)
-        test_size = data.get('test_size', 0.2)
         random_state = data.get('random_state', 42)
         
-        kasus_bulanan = KasusBulanan.query.all()
+        from app.models import PasienDBD
+        pasien_list = PasienDBD.query.all()
         
-        if not kasus_bulanan:
+        if not pasien_list:
             return jsonify({
                 'status': 'error',
                 'message': 'No training data available'
             }), 400
         
-        df = prepare_training_data(kasus_bulanan)
-        result = train_model(df, n_estimators, None, test_size, random_state)
+        kasus_records = KasusBulanan.query.all()
+        kasus_bulanan_dict = {(kb.bulan, kb.tahun): kb.jumlah_kasus for kb in kasus_records}
         
-        # Save to database
+        if not kasus_bulanan_dict:
+            from sqlalchemy import func
+            counts = db.session.query(
+                PasienDBD.bulan, PasienDBD.tahun, func.count(PasienDBD.id)
+            ).group_by(PasienDBD.bulan, PasienDBD.tahun).all()
+            for bulan, tahun, count in counts:
+                kasus_bulanan_dict[(bulan, tahun)] = count
+        
+        df = prepare_training_data(pasien_list, kasus_bulanan_dict)
+        result = train_model(df, n_estimators=n_estimators, random_state=random_state)
+        
         evaluation = ModelEvaluasi(
             tanggal_training=datetime.now(),
             accuracy=result['metrics']['accuracy'],
-            precision_score=result['metrics']['precision'],
-            recall_score=result['metrics']['recall'],
-            f1_score=result['metrics']['f1_score'],
+            precision_score=result['metrics']['precision_weighted'],
+            recall_score=result['metrics']['recall_weighted'],
+            f1_score=result['metrics']['f1_score_weighted'],
             mae=result['metrics']['mae'],
             rmse=result['metrics']['rmse'],
             r2_score=result['metrics']['r2_score'],
