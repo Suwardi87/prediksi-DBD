@@ -195,7 +195,7 @@
         <h6><i class='bx bx-selection'></i> Pohon Keputusan — Perhitungan Entropy & Information Gain</h6>
         <p class="desc">
             Setiap pohon memilih 2 fitur secara acak dari 4 fitur untuk membagi data.
-            Pilih pohon untuk melihat detail perhitungan.
+            Berikut perhitungan root split untuk semua 15 pohon.
         </p>
         <div class="formula-box">
             <strong>Entropy:</strong> E(S) = −Σ pᵢ × log₂(pᵢ)<br>
@@ -203,9 +203,16 @@
         </div>
     </div>
     <div class="card-clean">
-        <h6>Pilih Pohon untuk Dilihat</h6>
-        <div id="treeSelectBtns" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;"></div>
-        <div id="treeDetail" class="detail-panel"></div>
+        <h6>Root Split — Semua 15 Pohon</h6>
+        <div class="scroll-box-lg" style="max-height:520px;">
+            <table class="mini-tbl" id="tblPohon"></table>
+        </div>
+    </div>
+    <div class="card-clean">
+        <h6>Aturan Pohon (Rules)</h6>
+        <p class="desc">Pilih pohon untuk melihat aturan if-then dari pohon keputusan.</p>
+        <div id="ruleBtns" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;"></div>
+        <div id="rulePanel" class="detail-panel"></div>
     </div>
 </div>
 
@@ -359,75 +366,88 @@ function renderStep2() {
 
 function renderStep3() {
     const trees = DATA.step4.trees;
+
+    let html = '<thead><tr>';
+    html += '<th style="position:sticky; top:0; z-index:1;">Metrik</th>';
+    trees.forEach(t => { html += `<th style="position:sticky; top:0; z-index:1;">${t.name}</th>`; });
+    html += '</tr></thead><tbody>';
+
+    const rows = [
+        { label: 'Jumlah Data', key: 'n_samples' },
+        { label: 'Data Unik', key: 'n_unique' },
+        { label: 'Duplikat (OOB)', key: 'n_duplicates' },
+        { label: 'OOB %', key: 'oob_pct', suffix: '%' },
+        { label: 'Fitur Digunakan', key: '_features', render: t => t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_',' ')}</span>`).join(' ') },
+        { label: 'Jumlah Fitur', key: 'n_features' },
+        { label: 'm (sqrt)', key: 'm_features' },
+        { label: 'Entropy Root', key: 'entropy_root_calc' },
+        { label: 'Root Fitur', key: 'best_feature' },
+        { label: 'Root Threshold', key: 'root_threshold', prefix: '≤ ' },
+        { label: 'E(left)', key: 'left_entropy' },
+        { label: 'E(right)', key: 'right_entropy' },
+        { label: 'N left', key: 'left_samples' },
+        { label: 'N right', key: 'right_samples' },
+        { label: 'Weighted E(S,A)', key: '_weighted', render: t => {
+            const w = (t.left_samples * t.left_entropy + t.right_samples * t.right_entropy) / t.n_samples;
+            return w.toFixed(4);
+        }},
+        { label: 'Information Gain', key: '_ig', render: t => `<strong style="color:var(--primary);">${t.ig}</strong>`, bold: true },
+        { label: 'Max Depth', key: 'max_depth' },
+        { label: 'Jumlah Daun', key: 'n_leaves' },
+    ];
+
+    rows.forEach(row => {
+        const isBold = row.bold ? ' font-weight:700;' : '';
+        html += `<tr><td style="font-weight:700; white-space:nowrap;">${row.label}</td>`;
+        trees.forEach(t => {
+            let val;
+            if (row.render) {
+                val = row.render(t);
+            } else {
+                val = (row.prefix || '') + t[row.key] + (row.suffix || '');
+            }
+            html += `<td${row.bold ? ' style="font-weight:700;"' : ''}>${val}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    document.getElementById('tblPohon').innerHTML = html;
+
     let btns = '';
     trees.forEach((t, i) => {
-        btns += `<button class="nav-btn" onclick="showTreeDetail(${i})" style="font-size:0.78rem; padding:6px 12px;">${t.name}</button>`;
+        btns += `<button class="nav-btn" onclick="showRuleDetail(${i})" style="font-size:0.78rem; padding:6px 12px;">${t.name}</button>`;
     });
-    document.getElementById('treeSelectBtns').innerHTML = btns;
-    showTreeDetail(0);
+    document.getElementById('ruleBtns').innerHTML = btns;
+    showRuleDetail(0);
 }
 
-function showTreeDetail(idx) {
+function showRuleDetail(idx) {
     const t = DATA.step4.trees[idx];
-    const panel = document.getElementById('treeDetail');
+    const panel = document.getElementById('rulePanel');
     panel.className = 'detail-panel show';
-
-    let featTags = t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_', ' ')}</span>`).join(' ');
-
-    let distTbl = '<table class="mini-tbl"><thead><tr><th>Kelas</th><th>Jumlah</th><th>Proporsi</th></tr></thead><tbody>';
-    Object.entries(t.class_dist).forEach(([k, v]) => {
-        const p = (v / t.n_samples * 100).toFixed(1);
-        distTbl += `<tr><td>${renderTag(k)}</td><td>${v}</td><td>${p}%</td></tr>`;
-    });
-    distTbl += '</tbody></table>';
 
     let rulesHtml = '';
     if (t.rules && t.rules.length) {
         rulesHtml = `<pre style="font-size:0.78rem; background:var(--gray-50); padding:12px; border-radius:6px; overflow-x:auto; border:1px solid var(--gray-200); max-height:300px; overflow-y:auto;">${t.rules.join('\n')}</pre>`;
     }
 
+    let distTbl = '<table class="mini-tbl" style="max-width:350px; margin-top:10px;"><thead><tr><th>Kelas</th><th>Jumlah</th><th>Proporsi</th></tr></thead><tbody>';
+    Object.entries(t.class_dist).forEach(([k, v]) => {
+        const p = (v / t.n_samples * 100).toFixed(1);
+        distTbl += `<tr><td>${renderTag(k)}</td><td>${v}</td><td>${p}%</td></tr>`;
+    });
+    distTbl += '</tbody></table>';
+
     panel.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h6 style="font-size:0.9rem; margin:0;"><i class='bx bx-git-branch'></i> ${t.name}</h6>
-            <span class="meta">Data: ${t.n_samples} | Fitur: ${t.n_features} | m = √${t.n_features} = ${t.m_features}</span>
+        <div style="margin-bottom:10px;">
+            <strong>${t.name}</strong> — Data: ${t.n_samples} | Fitur: ${t.features_used.map(f=>f.replace('_',' ')).join(', ')}
         </div>
         <div class="grid-2">
+            <div>${rulesHtml || '<p style="color:var(--gray-400);">Tidak ada aturan</p>'}</div>
             <div>
-                <h6 style="font-size:0.82rem; margin-bottom:6px;">Informasi Bootstrap</h6>
-                <table class="mini-tbl">
-                    <tr><td>Total Data Bootstrap</td><td><strong>${t.n_samples}</strong></td></tr>
-                    <tr><td>Data Unik</td><td>${t.n_unique}</td></tr>
-                    <tr><td>Data Duplikat (OOB proxy)</td><td>${t.n_duplicates} (${t.oob_pct}%)</td></tr>
-                    <tr><td>Fitur Digunakan</td><td>${featTags}</td></tr>
-                    <tr><td>Max Depth</td><td>${t.max_depth}</td></tr>
-                    <tr><td>Jumlah Daun</td><td>${t.n_leaves}</td></tr>
-                </table>
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Distribusi Kelas</h6>
+                ${distTbl}
             </div>
-            <div>
-                <h6 style="font-size:0.82rem; margin-bottom:6px;">Root Split — Perhitungan</h6>
-                <div class="formula-box">
-                    <strong>E(S)</strong> = Entropy Root = ${t.entropy_root_calc}<br>
-                    <strong>Fitur:</strong> ${t.best_feature} ≤ ${t.root_threshold}<br>
-                    <strong>E(S, ${t.best_feature})</strong> = 
-                    (${t.left_samples} × ${t.left_entropy} + ${t.right_samples} × ${t.right_entropy}) / ${t.n_samples}
-                    = ${(t.left_samples * t.left_entropy + t.right_samples * t.right_entropy).toFixed(4)}<br>
-                    <strong>IG</strong> = ${t.entropy_root_calc} − ${(t.left_samples * t.left_entropy + t.right_samples * t.right_entropy).toFixed(4)} = <strong style="color:var(--primary);">${t.ig}</strong>
-                </div>
-                <div style="margin-top:8px;">
-                    <span style="font-size:0.82rem; color:var(--gray-600);">Rumus Excel:</span>
-                    <div class="formula-box" style="font-size:0.8rem;">Entropy Root = ${t.entropy_root_excel || '-'}</div>
-                </div>
-            </div>
-        </div>
-        <div style="margin-top:14px;">
-            <h6 style="font-size:0.82rem; margin-bottom:6px;">Distribusi Kelas</h6>
-            ${distTbl}
-        </div>
-        <div style="margin-top:14px;">
-            <details open>
-                <summary style="font-size:0.82rem; color:var(--gray-600); cursor:pointer; margin-bottom:6px;">Aturan Pohon (Rules)</summary>
-                ${rulesHtml}
-            </details>
         </div>
     `;
 }
