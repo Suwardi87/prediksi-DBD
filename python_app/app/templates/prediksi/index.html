@@ -39,10 +39,8 @@
     <div class="card-body p-4">
         <h5 class="card-title-custom mb-3">Hasil Voting per Pohon</h5>
         <div class="table-responsive">
-            <table class="table table-dark-header">
-                <thead>
-                    <tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th><th>Hasil 5 Pohon</th><th>Hasil Akhir</th><th>Aktual</th><th>Status</th></tr>
-                </thead>
+            <table class="table table-dark-header" id="votingTable">
+                <thead id="votingHead"></thead>
                 <tbody id="votingBody"></tbody>
             </table>
         </div>
@@ -81,9 +79,14 @@ async function jalankanPrediksi() {
 
         let tbody = '';
         let correct = 0;
+        const nTrees = data.data[0].tree_votes.length;
+        let thead = '<tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th>';
+        for (let i = 1; i <= nTrees; i++) thead += `<th>Pohon ${i}</th>`;
+        thead += '<th>Hasil Akhir</th><th>Aktual</th><th>Status</th></tr>';
+        document.getElementById('votingHead').innerHTML = thead;
         data.data.forEach(p => {
-            const votes = p.tree_votes.map(v => renderTag(v)).join(' ');
-            tbody += `<tr><td>${p.id}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td>${p.status_prediksi}</td></tr>`;
+            const votes = p.tree_votes.map(v => `<td style="font-size:0.72rem;">${renderTag(v)}</td>`).join('');
+            tbody += `<tr><td>${p.id}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td>${votes}<td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td>${p.status_prediksi}</td></tr>`;
             if (p.status_prediksi === 'Benar') correct++;
         });
         document.getElementById('votingBody').innerHTML = tbody;
