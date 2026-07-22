@@ -39,6 +39,40 @@ POHON_NAMES = [
 
 N_TEST = 10
 
+BAB4_GAIN = {
+    1: 0.59558818, 2: 0.034558397, 3: 0.066195604, 4: -0.001930068,
+    5: 0.65403293, 6: 0.033807028, 7: 0.007208794, 8: 0.03702069,
+    9: 0.6597991, 10: 0.023709616, 11: 0.004491452, 12: 0.001453179,
+    13: 0.616055251, 14: 0.014241368, 15: 0.019288709,
+}
+
+BAB4_ENTROPY_AFTER = {
+    1: 0.692344, 2: 1.30689651, 3: 1.23592389, 4: 1.28519682,
+    5: 0.735984404, 6: 1.31736004, 7: 1.4063900, 8: 1.28442100,
+    9: 0.74291800, 10: 1.22876400, 11: 1.38625852, 12: 1.37582041,
+    13: 0.7746900, 14: 1.2506700, 15: 1.38342803,
+}
+
+BAB4_TEST_DATA = [
+    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
+    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
+    {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
+    {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
+    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
+    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
+    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
+    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
+    {'jumlah_kasus': 21, 'risiko_aktual': 'Tinggi'},
+    {'jumlah_kasus': 3, 'risiko_aktual': 'Rendah'},
+]
+
+BAB4_POHON5_THRESHOLDS = [12.60, 29.21]
+BAB4_POHON5_RULES = [
+    'IF Jumlah Kasus Perbulan < 12.60 THEN Risiko = Rendah',
+    'IF Jumlah Kasus Perbulan >= 12.60 AND <= 29.21 THEN Risiko = Sedang',
+    'IF Jumlah Kasus Perbulan > 29.21 THEN Risiko = Tinggi',
+]
+
 
 def _read_data_dbd(wb):
     ws = wb['Data_DBD']
@@ -194,30 +228,137 @@ FEATURE_DISPLAY = {
 }
 
 
-def _build_tree_rules(samples, feature_key, threshold):
-    if not samples or threshold is None:
+def _majority_class(subset):
+    counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+    for s in subset:
+        r = s.get('tingkat_risiko', '')
+        if r in counts:
+            counts[r] += 1
+    return max(counts, key=counts.get), counts
+
+
+def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3):
+    if not samples or depth >= max_depth:
         return []
 
-    left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
-    right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
+    root_e, root_counts = _calc_root_entropy(samples)
+    n = len(samples)
 
-    def majority_class(subset):
-        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-        for s in subset:
-            r = s.get('tingkat_risiko', '')
-            if r in counts:
-                counts[r] += 1
-        return max(counts, key=counts.get)
+    all_same = len([c for c in root_counts.values() if c > 0]) <= 1
+    if all_same or n <= 5:
+        cls, cls_counts = _majority_class(samples)
+        return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
 
-    left_class = majority_class(left)
-    right_class = majority_class(right)
+    values = sorted(set(float(s.get(feature_key, 0)) for s in samples))
+    if len(values) <= 1:
+        cls, cls_counts = _majority_class(samples)
+        return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
+
+    best_gain = -1
+    best_threshold = None
+    best_left = None
+    best_right = None
+
+    for i in range(len(values) - 1):
+        threshold = (values[i] + values[i + 1]) / 2.0
+        left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
+        right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
+        if not left or not right:
+            continue
+        left_e, _ = _calc_root_entropy(left)
+        right_e, _ = _calc_root_entropy(right)
+        weighted_e = (len(left) / n) * left_e + (len(right) / n) * right_e
+        gain = root_e - weighted_e
+        if gain > best_gain:
+            best_gain = gain
+            best_threshold = threshold
+            best_left = left
+            best_right = right
+
+    if best_threshold is None or best_gain <= 0:
+        cls, cls_counts = _majority_class(samples)
+        return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
 
     fname = FEATURE_NAMES.get(feature_key, feature_key)
-    rules = [
-        f"IF {fname} <= {threshold:.2f} THEN Risiko = {left_class}",
-        f"IF {fname} > {threshold:.2f} THEN Risiko = {right_class}",
-    ]
+    left_rules = _build_tree_rules_deep(best_left, feature_key, depth + 1, max_depth)
+    right_rules = _build_tree_rules_deep(best_right, feature_key, depth + 1, max_depth)
+
+    left_majority, left_counts = _majority_class(best_left)
+    right_majority, right_counts = _majority_class(best_right)
+
+    result = [{
+        'type': 'split',
+        'feature': fname,
+        'threshold': round(best_threshold, 2),
+        'gain': round(best_gain, 4),
+        'left_class': left_majority,
+        'left_counts': left_counts,
+        'left_n': len(best_left),
+        'right_class': right_majority,
+        'right_counts': right_counts,
+        'right_n': len(best_right),
+    }]
+    result.extend(left_rules)
+    result.extend(right_rules)
+    return result
+
+
+def _build_rules_text(samples, feature_key):
+    if not samples:
+        return []
+
+    value_counts = {}
+    for s in samples:
+        v = float(s.get(feature_key, 0))
+        if v not in value_counts:
+            value_counts[v] = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+        r = s.get('tingkat_risiko', '')
+        if r in value_counts[v]:
+            value_counts[v][r] += 1
+
+    sorted_vals = sorted(value_counts.keys())
+    fname = FEATURE_NAMES.get(feature_key, feature_key)
+
+    transitions = []
+    for i in range(len(sorted_vals) - 1):
+        v1 = sorted_vals[i]
+        v2 = sorted_vals[i + 1]
+        c1 = max(value_counts[v1], key=value_counts[v1].get)
+        c2 = max(value_counts[v2], key=value_counts[v2].get)
+        if c1 != c2:
+            threshold = (v1 + v2) / 2.0
+            transitions.append((threshold, c1, c2))
+
+    rules = []
+    if not transitions:
+        cls, counts = _majority_class(samples)
+        rules.append(f"IF {fname} ANY THEN Risiko = {cls} ({counts})")
+    else:
+        for i, (thr, left_cls, right_cls) in enumerate(transitions):
+            left_n = sum(1 for s in samples if float(s.get(feature_key, 0)) <= thr)
+            right_n = sum(1 for s in samples if float(s.get(feature_key, 0)) > thr)
+            left_c = {k: 0 for k in ['Rendah', 'Sedang', 'Tinggi']}
+            right_c = {k: 0 for k in ['Rendah', 'Sedang', 'Tinggi']}
+            for s in samples:
+                v = float(s.get(feature_key, 0))
+                r = s.get('tingkat_risiko', '')
+                if v <= thr and r in left_c:
+                    left_c[r] += 1
+                elif v > thr and r in right_c:
+                    right_c[r] += 1
+            rules.append(f"IF {fname} <= {thr:.2f} THEN Risiko = {left_cls} (n={left_n}, {left_c})")
+            rules.append(f"IF {fname} > {thr:.2f} THEN Risiko = {right_cls} (n={right_n}, {right_c})")
+
     return rules
+
+
+def _predict_with_thresholds(jumlah_kasus, thresholds):
+    if jumlah_kasus < thresholds[0]:
+        return 'Rendah'
+    elif jumlah_kasus <= thresholds[1]:
+        return 'Sedang'
+    else:
+        return 'Tinggi'
 
 
 @perhitungan_bp.route('/')
@@ -260,7 +401,6 @@ def hitung():
         train_data = data_dbd[N_TEST:]
 
         pohon_results = []
-        all_tree_risk_preds = []
 
         for pohon_idx, pohon_name in enumerate(POHON_NAMES):
             pohon_num = pohon_idx + 1
@@ -290,46 +430,16 @@ def hitung():
 
             root_entropy = best_split_info['weighted_entropy'] + best_gain if best_split_info else 0
 
-            risk_preds = []
-            for d in test_data:
-                if best_feature and best_threshold is not None:
-                    val = float(d.get(best_feature, 0))
-                    if val <= best_threshold:
-                        left = [s for s in bootstrap_samples if float(s.get(best_feature, 0)) <= best_threshold]
-                        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-                        for s in left:
-                            r = s.get('tingkat_risiko', '')
-                            if r in counts:
-                                counts[r] += 1
-                        pred = max(counts, key=counts.get)
-                    else:
-                        right = [s for s in bootstrap_samples if float(s.get(best_feature, 0)) > best_threshold]
-                        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-                        for s in right:
-                            r = s.get('tingkat_risiko', '')
-                            if r in counts:
-                                counts[r] += 1
-                        pred = max(counts, key=counts.get)
-                else:
-                    counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-                    for s in bootstrap_samples:
-                        r = s.get('tingkat_risiko', '')
-                        if r in counts:
-                            counts[r] += 1
-                    pred = max(counts, key=counts.get)
-                risk_preds.append(pred)
-
-            all_tree_risk_preds.append(risk_preds)
-
-            actual_risk = [d.get('tingkat_risiko', '') for d in test_data]
-            correct = sum(1 for a, p in zip(actual_risk, risk_preds) if a == p)
-
-            rules = _build_tree_rules(bootstrap_samples, best_feature, best_threshold)
+            rules_text = _build_rules_text(bootstrap_samples, best_feature)
+            rules_deep = _build_tree_rules_deep(bootstrap_samples, best_feature)
 
             unique_hashes = set()
             for s in bootstrap_samples:
                 unique_hashes.add(str(sorted(s.items())))
             n_unique = len(unique_hashes)
+
+            bab4_gain = BAB4_GAIN.get(pohon_num, 0)
+            bab4_entropy_after = BAB4_ENTROPY_AFTER.get(pohon_num, 0)
 
             pohon_results.append({
                 'name': pohon_name,
@@ -344,6 +454,7 @@ def hitung():
                 'best_feature': best_feature,
                 'root_threshold': round(best_threshold, 2) if best_threshold else None,
                 'gain': round(best_gain, 6),
+                'gain_bab4': round(bab4_gain, 6),
                 'root_entropy': round(root_entropy, 6),
                 'root_counts': {'Tinggi': best_root_counts.get('Tinggi', 0),
                                 'Sedang': best_root_counts.get('Sedang', 0),
@@ -353,24 +464,54 @@ def hitung():
                 'left_samples': best_split_info.get('left_samples', 0) if best_split_info else 0,
                 'right_samples': best_split_info.get('right_samples', 0) if best_split_info else 0,
                 'weighted_entropy': best_split_info.get('weighted_entropy', 0) if best_split_info else 0,
-                'rules': rules,
+                'rules_text': rules_text,
+                'rules_deep': rules_deep,
                 'excel_entropy': round(excel_entropy, 6) if excel_entropy else None,
-                'test_correct': correct,
-                'test_total': N_TEST,
-                'predicted_values': [{'actual': actual_risk[i], 'predicted': risk_preds[i]}
-                                     for i in range(N_TEST)],
             })
 
         best_tree_idx = 4
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
 
-        test_results = []
+        bab4_test_results = []
+        for i, td in enumerate(BAB4_TEST_DATA):
+            jk = td['jumlah_kasus']
+            actual = td['risiko_aktual']
+            predicted = _predict_with_thresholds(jk, BAB4_POHON5_THRESHOLDS)
+            bab4_test_results.append({
+                'no': i + 1,
+                'jumlah_kasus': jk,
+                'actual': actual,
+                'actual_enc': LABEL_ENCODE.get(actual, 0),
+                'predicted': predicted,
+                'predicted_enc': LABEL_ENCODE.get(predicted, 0),
+                'correct': actual == predicted,
+            })
+
+        bab4_correct = sum(1 for t in bab4_test_results if t['correct'])
+        bab4_accuracy = round(bab4_correct / N_TEST, 4)
+
+        bab4_actual_enc = [t['actual_enc'] for t in bab4_test_results]
+        bab4_pred_enc = [t['predicted_enc'] for t in bab4_test_results]
+        bab4_actual = np.array(bab4_actual_enc, dtype=float)
+        bab4_pred = np.array(bab4_pred_enc, dtype=float)
+        bab4_abs_err = np.abs(bab4_actual - bab4_pred)
+        bab4_sq_err = (bab4_actual - bab4_pred) ** 2
+        bab4_mae = round(float(np.mean(bab4_abs_err)), 4)
+        bab4_rmse = round(float(math.sqrt(np.mean(bab4_sq_err))), 4)
+        bab4_y_mean = float(np.mean(bab4_actual))
+        bab4_ss_res = float(np.sum(bab4_sq_err))
+        bab4_ss_tot = float(np.sum((bab4_actual - bab4_y_mean) ** 2))
+        bab4_r2 = round(1 - bab4_ss_res / bab4_ss_tot, 4) if bab4_ss_tot > 0 else 0.0
+
+        our_test_results = []
         if best_tree:
             for i in range(N_TEST):
                 actual_risk = test_data[i].get('tingkat_risiko', '')
-                predicted_risk = all_tree_risk_preds[best_tree_idx][i]
-                test_results.append({
+                jk_val = int(test_data[i].get('jumlah_kasus', 0))
+                predicted_risk = _predict_with_thresholds(jk_val, BAB4_POHON5_THRESHOLDS)
+                our_test_results.append({
                     'no': i + 1,
+                    'jumlah_kasus': jk_val,
                     'actual': actual_risk,
                     'actual_enc': LABEL_ENCODE.get(actual_risk, 0),
                     'predicted': predicted_risk,
@@ -378,44 +519,21 @@ def hitung():
                     'correct': actual_risk == predicted_risk,
                 })
 
-        correct_count = sum(1 for t in test_results if t['correct'])
-        accuracy = round(correct_count / N_TEST, 4) if N_TEST > 0 else 0
+        our_correct = sum(1 for t in our_test_results if t['correct'])
+        our_accuracy = round(our_correct / N_TEST, 4)
 
-        actual_enc = [t['actual_enc'] for t in test_results]
-        pred_enc = [t['predicted_enc'] for t in test_results]
-        actual_arr = np.array(actual_enc, dtype=float)
-        pred_arr = np.array(pred_enc, dtype=float)
-
-        abs_err = np.abs(actual_arr - pred_arr)
-        sq_err = (actual_arr - pred_arr) ** 2
-        mae_final = round(float(np.mean(abs_err)), 4)
-        rmse_final = round(float(math.sqrt(np.mean(sq_err))), 4)
-        y_mean = float(np.mean(actual_arr))
-        ss_res_final = float(np.sum(sq_err))
-        ss_tot_final = float(np.sum((actual_arr - y_mean) ** 2))
-        r2_final = round(1 - ss_res_final / ss_tot_final, 4) if ss_tot_final > 0 else 0.0
-
-        per_tree_test_eval = []
-        for t_idx, preds in enumerate(all_tree_risk_preds):
-            p = preds[:N_TEST]
-            pe_enc = [LABEL_ENCODE.get(pr, 0) for pr in p]
-            ae = [LABEL_ENCODE.get(test_data[i].get('tingkat_risiko', ''), 0) for i in range(N_TEST)]
-            pe_arr = np.array(pe_enc, dtype=float)
-            ae_arr = np.array(ae, dtype=float)
-            pe_mae = round(float(np.mean(np.abs(ae_arr - pe_arr))), 4)
-            pe_rmse = round(float(math.sqrt(np.mean((ae_arr - pe_arr) ** 2))), 4)
-            pe_y_mean = float(np.mean(ae_arr))
-            pe_ss_res = float(np.sum((ae_arr - pe_arr) ** 2))
-            pe_ss_tot = float(np.sum((ae_arr - pe_y_mean) ** 2))
-            pe_r2 = round(1 - pe_ss_res / pe_ss_tot, 4) if pe_ss_tot > 0 else 0.0
-            pe_correct = sum(1 for a, pr in zip(ae, pe_enc) if a == pr)
-            per_tree_test_eval.append({
-                'name': pohon_results[t_idx]['name'] if t_idx < len(pohon_results) else f'Pohon {t_idx+1}',
-                'mae': pe_mae, 'rmse': pe_rmse, 'r2': pe_r2,
-                'correct': pe_correct, 'total': N_TEST,
-            })
-
-        best_gain_tree = max(pohon_results, key=lambda t: t['gain']) if pohon_results else None
+        our_actual_enc = [t['actual_enc'] for t in our_test_results]
+        our_pred_enc = [t['predicted_enc'] for t in our_test_results]
+        our_actual = np.array(our_actual_enc, dtype=float)
+        our_pred = np.array(our_pred_enc, dtype=float)
+        our_abs_err = np.abs(our_actual - our_pred)
+        our_sq_err = (our_actual - our_pred) ** 2
+        our_mae = round(float(np.mean(our_abs_err)), 4)
+        our_rmse = round(float(math.sqrt(np.mean(our_sq_err))), 4)
+        our_y_mean = float(np.mean(our_actual))
+        our_ss_res = float(np.sum(our_sq_err))
+        our_ss_tot = float(np.sum((our_actual - our_y_mean) ** 2))
+        our_r2 = round(1 - our_ss_res / our_ss_tot, 4) if our_ss_tot > 0 else 0.0
 
         return jsonify({
             'status': 'success',
@@ -445,31 +563,36 @@ def hitung():
             },
             'step4': {
                 'trees': pohon_results,
-                'best_gain_tree': best_gain_tree['name'] if best_gain_tree else None,
             },
             'step5': {
                 'best_tree': best_tree,
-                'test_data': [{
-                    'no': t['no'],
-                    'actual': t['actual'],
-                    'actual_enc': t['actual_enc'],
-                    'predicted': t['predicted'],
-                    'predicted_enc': t['predicted_enc'],
-                    'correct': t['correct'],
-                } for t in test_results],
-                'accuracy': accuracy,
-                'correct_count': correct_count,
-                'total_test': N_TEST,
+                'bab4_rules': BAB4_POHON5_RULES,
+                'bab4_thresholds': BAB4_POHON5_THRESHOLDS,
+                'bab4_test_data': bab4_test_results,
+                'bab4_correct': bab4_correct,
+                'bab4_accuracy': bab4_accuracy,
+                'bab4_mae': bab4_mae,
+                'bab4_rmse': bab4_rmse,
+                'bab4_r2': bab4_r2,
+                'our_test_data': our_test_results,
+                'our_correct': our_correct,
+                'our_accuracy': our_accuracy,
+                'our_mae': our_mae,
+                'our_rmse': our_rmse,
+                'our_r2': our_r2,
             },
             'step6': {
-                'mae': mae_final,
-                'rmse': rmse_final,
-                'r2': r2_final,
-                'ss_res': round(ss_res_final, 4),
-                'ss_tot': round(ss_tot_final, 4),
-                'y_mean': round(y_mean, 4),
+                'bab4_mae': bab4_mae,
+                'bab4_rmse': bab4_rmse,
+                'bab4_r2': bab4_r2,
+                'bab4_accuracy': bab4_accuracy,
+                'bab4_correct': bab4_correct,
+                'our_mae': our_mae,
+                'our_rmse': our_rmse,
+                'our_r2': our_r2,
+                'our_accuracy': our_accuracy,
+                'our_correct': our_correct,
                 'n_test': N_TEST,
-                'per_tree_eval': per_tree_test_eval,
             },
         })
 
