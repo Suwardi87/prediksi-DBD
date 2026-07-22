@@ -1,6 +1,9 @@
 """
-Perhitungan Manual Routes — Alur Langkah RF dari Excel
-Sesuai Bab IV: 163 data, 4 fitur, m=√4=2, 15 pohon, Entropy
+Perhitungan Manual Routes — Sesuai Bab IV
+163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus)
+m=√4=2, 15 pohon, Encoding: Rendah=1, Sedang=2, Tinggi=3
+Grouping: Kasus 1-10=Rendah, 11-20=Sedang, >20=Tinggi
+Pohon 5 = pohon terbaik. Evaluasi pada 10 data uji.
 """
 import os
 import math
@@ -15,8 +18,8 @@ EXCEL_PATH = os.path.normpath(os.path.join(
     os.path.dirname(__file__), '..', '..', '..', 'Data DBD 15 Sampel.xlsx'
 ))
 
-LABEL_ENCODE = {'Rendah': 0, 'Sedang': 1, 'Tinggi': 2}
-LABEL_DECODE = {0: 'Rendah', 1: 'Sedang', 2: 'Tinggi'}
+LABEL_ENCODE = {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3}
+LABEL_DECODE = {1: 'Rendah', 2: 'Sedang', 3: 'Tinggi'}
 
 COL_MAP = {
     'Usia': 'usia',
@@ -33,6 +36,29 @@ POHON_NAMES = [
     'Pohon 6', 'Pohon 7(BP)', 'Pohon 8 (BP)', 'Pohon 9', 'Pohon 10',
     'Pohon 11', 'Pohon 12', 'Pohon 13', 'Pohon 14', 'Pohon 15',
 ]
+
+POHON_TARGET = {
+    1: 'jumlah_kasus', 5: 'jumlah_kasus', 9: 'jumlah_kasus', 13: 'jumlah_kasus',
+    2: 'usia', 8: 'usia', 10: 'usia', 14: 'usia',
+    3: 'lama_rawat', 6: 'lama_rawat', 11: 'lama_rawat', 15: 'lama_rawat',
+    4: 'jk', 7: 'jk', 12: 'jk',
+}
+
+POHON_TARGET_LABEL = {
+    'jumlah_kasus': 'Jumlah Kasus Perbulan',
+    'usia': 'Usia',
+    'lama_rawat': 'Lama Rawat Inap',
+    'jk': 'Jenis Kelamin',
+}
+
+GROUPING_RULES = {
+    'jumlah_kasus': [(1, 10, 'Rendah'), (11, 20, 'Sedang'), (21, 999, 'Tinggi')],
+    'usia': [(0, 17, 'Anak-anak'), (18, 59, 'Dewasa'), (60, 150, 'Lansia')],
+    'lama_rawat': [(1, 2, 'Singkat'), (3, 4, 'Sedang'), (5, 99, 'Lama')],
+    'jk': [(0, 0, 'Perempuan'), (1, 1, 'Laki-laki')],
+}
+
+N_TEST = 10
 
 
 def _read_data_dbd(wb):
@@ -89,12 +115,6 @@ def _read_pohon(wb, pohon_name):
             break
 
     entropy_root = None
-    class_dist = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-    for s in samples:
-        cls = s.get('tingkat_risiko')
-        if cls in class_dist:
-            class_dist[cls] += 1
-
     for r in range(1, min(ws.max_row + 1, 20)):
         for c in range(1, min(ws.max_column + 1, 25)):
             v = ws.cell(row=r, column=c).value
@@ -109,7 +129,6 @@ def _read_pohon(wb, pohon_name):
     return {
         'samples': samples,
         'entropy_root': entropy_root,
-        'class_dist': class_dist,
         'features_used': features_used,
         'n_samples': len(samples),
     }
@@ -127,23 +146,40 @@ def _calc_entropy(counts):
     return ent
 
 
-def _train_tree(samples, features_used):
+def _classify_value(value, feature_key):
+    rules = GROUPING_RULES.get(feature_key, [])
+    for lo, hi, label in rules:
+        if lo <= value <= hi:
+            return label
+    return rules[-1][2] if rules else 'Tidak Diketahui'
+
+
+def _predict_risk_from_value(predicted_value, feature_key):
+    label = _classify_value(predicted_value, feature_key)
+    if feature_key == 'jumlah_kasus':
+        return label
+    return label
+
+
+def _train_tree_regression(samples, features_used, target_feature):
     if not samples or not features_used:
         return None
+
+    feature_cols = [f for f in features_used if f != target_feature]
+    if not feature_cols:
+        feature_cols = features_used[:]
 
     X = []
     y = []
     for s in samples:
-        row = []
-        for f in features_used:
-            row.append(float(s.get(f, 0)))
+        row = [float(s.get(f, 0)) for f in feature_cols]
         X.append(row)
-        y.append(LABEL_ENCODE.get(s.get('tingkat_risiko'), 1))
+        y.append(float(s.get(target_feature, 0)))
 
     X = np.array(X)
     y = np.array(y)
 
-    n_features = len(features_used)
+    n_features = len(feature_cols)
     m_features = max(1, int(math.sqrt(n_features)))
 
     clf = DecisionTreeClassifier(
@@ -154,7 +190,7 @@ def _train_tree(samples, features_used):
     clf.fit(X, y)
 
     tree = clf.tree_
-    feature_names = [f.replace('_', ' ').title() for f in features_used]
+    feature_names = [f.replace('_', ' ').title() for f in feature_cols]
 
     root_counts = tree.value[0].flatten()
     total_w = float(tree.weighted_n_node_samples[0])
@@ -191,9 +227,24 @@ def _train_tree(samples, features_used):
     n_leaves = int(tree.n_leaves)
     max_depth = int(tree.max_depth)
 
+    predicted_values = []
+    for s in samples:
+        row = [float(s.get(f, 0)) for f in feature_cols]
+        pred = clf.predict([row])[0]
+        predicted_values.append(pred)
+
+    actual_values = [float(s.get(target_feature, 0)) for s in samples]
+    mae = float(np.mean(np.abs(np.array(actual_values) - np.array(predicted_values))))
+    rmse = float(math.sqrt(np.mean((np.array(actual_values) - np.array(predicted_values)) ** 2)))
+    y_mean = float(np.mean(actual_values))
+    ss_res = float(np.sum((np.array(actual_values) - np.array(predicted_values)) ** 2))
+    ss_tot = float(np.sum((np.array(actual_values) - y_mean) ** 2))
+    r2 = round(1 - ss_res / ss_tot, 4) if ss_tot > 0 else 0.0
+
     return {
         'clf': clf,
-        'features_used': features_used,
+        'feature_cols': feature_cols,
+        'target_feature': target_feature,
         'feature_names': feature_names,
         'root_entropy': round(root_entropy, 4),
         'root_ig': round(root_ig, 4),
@@ -209,44 +260,19 @@ def _train_tree(samples, features_used):
         'n_samples': len(samples),
         'n_features': n_features,
         'm_features': m_features,
-    }
-
-
-def _predict_all(clf, features_used, data_dbd):
-    preds = []
-    for d in data_dbd:
-        row = [float(d.get(f, 0)) for f in features_used]
-        p = clf.predict([row])[0]
-        preds.append(int(p))
-    return preds
-
-
-def _compute_eval(actual_encoded, pred_encoded):
-    actual = np.array(actual_encoded, dtype=float)
-    pred = np.array(pred_encoded, dtype=float)
-    n = len(actual)
-    if n == 0:
-        return {'mae': 0, 'rmse': 0, 'r2': 0}
-    abs_err = np.abs(actual - pred)
-    sq_err = (actual - pred) ** 2
-    mae = float(np.mean(abs_err))
-    mse = float(np.mean(sq_err))
-    rmse = float(math.sqrt(mse))
-    y_mean = float(np.mean(actual))
-    ss_res = float(np.sum(sq_err))
-    ss_tot = float(np.sum((actual - y_mean) ** 2))
-    r2 = round(1 - ss_res / ss_tot, 4) if ss_tot > 0 else 0.0
-    return {
         'mae': round(mae, 4),
         'rmse': round(rmse, 4),
         'r2': round(r2, 4),
         'ss_res': round(ss_res, 4),
         'ss_tot': round(ss_tot, 4),
-        'y_mean': round(y_mean, 4),
-        'sum_abs': round(float(np.sum(abs_err)), 4),
-        'sum_sq': round(float(np.sum(sq_err)), 4),
-        'n': n,
     }
+
+
+def _predict_risk(clf, feature_cols, target_feature, data_point):
+    row = [float(data_point.get(f, 0)) for f in feature_cols]
+    predicted_value = clf.predict([row])[0]
+    risk_label = _classify_value(predicted_value, target_feature)
+    return risk_label, predicted_value
 
 
 @perhitungan_bp.route('/')
@@ -280,53 +306,63 @@ def hitung():
                 'nama': d.get('nama', ''),
                 'usia': int(d.get('usia', 0)),
                 'lama_rawat': int(d.get('lama_rawat', 0)),
-                'jumlah_kasus': int(d.get('jumlah_kasus', 0)),
                 'jk': int(d.get('jk', 0)),
                 'jk_label': 'L' if d.get('jk') == 1 else 'P',
+                'jumlah_kasus': int(d.get('jumlah_kasus', 0)),
                 'tingkat_risiko': d.get('tingkat_risiko', ''),
-                'label_encoded': LABEL_ENCODE.get(d.get('tingkat_risiko'), 1),
+                'tingkat_risiko_encoded': LABEL_ENCODE.get(d.get('tingkat_risiko'), 0),
             })
 
-        pohon_results = []
-        all_tree_preds = []
+        test_data = data_dbd[:N_TEST]
+        train_data = data_dbd[N_TEST:]
 
-        for pohon_name in POHON_NAMES:
+        pohon_results = []
+        all_tree_risk_preds = []
+
+        for pohon_idx, pohon_name in enumerate(POHON_NAMES):
+            pohon_num = pohon_idx + 1
             pohon_data = _read_pohon(wb, pohon_name)
             if pohon_data is None or pohon_data['n_samples'] == 0:
                 continue
 
-            tree_info = _train_tree(pohon_data['samples'], pohon_data['features_used'])
+            target_feature = POHON_TARGET.get(pohon_num, 'jumlah_kasus')
+            target_label = POHON_TARGET_LABEL.get(target_feature, target_feature)
+
+            tree_info = _train_tree_regression(
+                pohon_data['samples'], pohon_data['features_used'], target_feature
+            )
             if tree_info is None:
                 continue
 
-            preds = _predict_all(tree_info['clf'], tree_info['features_used'], data_dbd)
-            all_tree_preds.append(preds)
+            risk_preds = []
+            predicted_values = []
+            for d in test_data:
+                risk_label, pred_val = _predict_risk(
+                    tree_info['clf'], tree_info['feature_cols'], target_feature, d
+                )
+                risk_preds.append(risk_label)
+                predicted_values.append(pred_val)
 
-            class_dist = pohon_data['class_dist']
-            total_bs = pohon_data['n_samples']
-            proportions = {}
-            for cls, cnt in class_dist.items():
-                p = cnt / total_bs if total_bs > 0 else 0
-                proportions[cls] = {'count': cnt, 'proportion': round(p, 4)}
+            all_tree_risk_preds.append(risk_preds)
+
+            actual_risk = [d.get('tingkat_risiko', '') for d in test_data]
+            correct = sum(1 for a, p in zip(actual_risk, risk_preds) if a == p)
 
             rules_lines = [l.strip() for l in tree_info['rules_text'].split('\n') if l.strip()]
 
-            bootstrap_unique = len(set(
-                hash(str(s)) for s in pohon_data['samples']
-            ))
+            bootstrap_unique = len(set(hash(str(s)) for s in pohon_data['samples']))
 
             pohon_results.append({
                 'name': pohon_name,
-                'id': len(pohon_results) + 1,
-                'n_samples': total_bs,
+                'id': pohon_num,
+                'target_feature': target_feature,
+                'target_label': target_label,
+                'n_samples': pohon_data['n_samples'],
                 'n_unique': bootstrap_unique,
-                'n_duplicates': total_bs - bootstrap_unique,
-                'oob_pct': round((1 - bootstrap_unique / total_bs) * 100, 1) if total_bs > 0 else 0,
-                'features_used': tree_info['features_used'],
+                'n_duplicates': pohon_data['n_samples'] - bootstrap_unique,
+                'features_used': tree_info['feature_cols'],
                 'n_features': tree_info['n_features'],
                 'm_features': tree_info['m_features'],
-                'class_dist': class_dist,
-                'proportions': proportions,
                 'entropy_root_excel': round(pohon_data['entropy_root'], 4) if pohon_data['entropy_root'] else None,
                 'entropy_root_calc': tree_info['root_entropy'],
                 'best_feature': tree_info['root_feature'],
@@ -339,38 +375,70 @@ def hitung():
                 'n_leaves': tree_info['n_leaves'],
                 'max_depth': tree_info['max_depth'],
                 'rules': rules_lines,
+                'mae': tree_info['mae'],
+                'rmse': tree_info['rmse'],
+                'r2': tree_info['r2'],
+                'ss_res': tree_info['ss_res'],
+                'ss_tot': tree_info['ss_tot'],
+                'test_correct': correct,
+                'test_total': N_TEST,
+                'predicted_values': [{'actual': float(test_data[i].get(target_feature, 0)),
+                                     'predicted': predicted_values[i]}
+                                    for i in range(N_TEST)],
             })
 
-        voting_results = []
-        actual_encoded = [LABEL_ENCODE.get(d.get('tingkat_risiko'), 1) for d in data_dbd]
-        for i in range(total):
-            votes = [all_tree_preds[t][i] for t in range(len(all_tree_preds))]
-            from collections import Counter
-            vote_counts = Counter(votes)
-            final_pred = vote_counts.most_common(1)[0][0]
-            voting_results.append({
-                'no': i + 1,
-                'actual': data_dbd[i].get('tingkat_risiko', ''),
-                'actual_enc': actual_encoded[i],
-                'votes': votes,
-                'vote_labels': [LABEL_DECODE.get(v, '?') for v in votes],
-                'final_pred_enc': final_pred,
-                'final_pred': LABEL_DECODE.get(final_pred, '?'),
-                'correct': actual_encoded[i] == final_pred,
-            })
+        best_tree_idx = 4
+        best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
 
-        correct_count = sum(1 for v in voting_results if v['correct'])
-        accuracy = round(correct_count / total, 4) if total > 0 else 0
+        test_results = []
+        if best_tree:
+            for i in range(N_TEST):
+                actual_risk = test_data[i].get('tingkat_risiko', '')
+                predicted_risk = all_tree_risk_preds[best_tree_idx][i]
+                test_results.append({
+                    'no': i + 1,
+                    'actual': actual_risk,
+                    'actual_enc': LABEL_ENCODE.get(actual_risk, 0),
+                    'predicted': predicted_risk,
+                    'predicted_enc': LABEL_ENCODE.get(predicted_risk, 0),
+                    'correct': actual_risk == predicted_risk,
+                })
 
-        final_pred_encoded = [v['final_pred_enc'] for v in voting_results]
-        eval_voting = _compute_eval(actual_encoded, final_pred_encoded)
+        correct_count = sum(1 for t in test_results if t['correct'])
+        accuracy = round(correct_count / N_TEST, 4) if N_TEST > 0 else 0
 
-        per_tree_eval = []
-        for t_idx, preds in enumerate(all_tree_preds):
-            ev = _compute_eval(actual_encoded, preds)
-            per_tree_eval.append({
+        actual_enc = [t['actual_enc'] for t in test_results]
+        pred_enc = [t['predicted_enc'] for t in test_results]
+        actual_arr = np.array(actual_enc, dtype=float)
+        pred_arr = np.array(pred_enc, dtype=float)
+
+        abs_err = np.abs(actual_arr - pred_arr)
+        sq_err = (actual_arr - pred_arr) ** 2
+        mae_final = round(float(np.mean(abs_err)), 4)
+        rmse_final = round(float(math.sqrt(np.mean(sq_err))), 4)
+        y_mean = float(np.mean(actual_arr))
+        ss_res_final = float(np.sum(sq_err))
+        ss_tot_final = float(np.sum((actual_arr - y_mean) ** 2))
+        r2_final = round(1 - ss_res_final / ss_tot_final, 4) if ss_tot_final > 0 else 0.0
+
+        per_tree_test_eval = []
+        for t_idx, preds in enumerate(all_tree_risk_preds):
+            p = preds[:N_TEST]
+            pe_enc = [LABEL_ENCODE.get(pr, 0) for pr in p]
+            ae = [LABEL_ENCODE.get(test_data[i].get('tingkat_risiko', ''), 0) for i in range(N_TEST)]
+            pe_arr = np.array(pe_enc, dtype=float)
+            ae_arr = np.array(ae, dtype=float)
+            pe_mae = round(float(np.mean(np.abs(ae_arr - pe_arr))), 4)
+            pe_rmse = round(float(math.sqrt(np.mean((ae_arr - pe_arr) ** 2))), 4)
+            pe_y_mean = float(np.mean(ae_arr))
+            pe_ss_res = float(np.sum((ae_arr - pe_arr) ** 2))
+            pe_ss_tot = float(np.sum((ae_arr - pe_y_mean) ** 2))
+            pe_r2 = round(1 - pe_ss_res / pe_ss_tot, 4) if pe_ss_tot > 0 else 0.0
+            pe_correct = sum(1 for a, pr in zip(ae, pe_enc) if a == pr)
+            per_tree_test_eval.append({
                 'name': pohon_results[t_idx]['name'] if t_idx < len(pohon_results) else f'Pohon {t_idx+1}',
-                **ev,
+                'mae': pe_mae, 'rmse': pe_rmse, 'r2': pe_r2,
+                'correct': pe_correct, 'total': N_TEST,
             })
 
         return jsonify({
@@ -378,20 +446,21 @@ def hitung():
             'step1': {
                 'data': step1_data,
                 'total': total,
-                'features': ['Usia (X1)', 'Lama Rawat Inap (X2)', 'Jumlah Kasus (X3)', 'Jenis Kelamin (X4)'],
+                'n_train': len(train_data),
+                'n_test': N_TEST,
+                'features': ['Usia (X1)', 'Lama Rawat Inap (X2)', 'Jenis Kelamin (X3)', 'Jumlah Kasus Perbulan (X4)'],
                 'label_counts': label_counts,
-                'encoding': {'Rendah': 0, 'Sedang': 1, 'Tinggi': 2},
+                'encoding': {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3},
             },
             'step2': {
-                'note': 'Data diambil dari file Excel — encoding sudah dilakukan di Excel',
                 'encoding_table': [
-                    {'fitur': 'Jenis Kelamin', 'nilai_asli': 'L / P', 'nilai_encoding': '1 / 0'},
-                    {'fitur': 'Tingkat Resiko', 'nilai_asli': 'Rendah / Sedang / Tinggi', 'nilai_encoding': '0 / 1 / 2'},
+                    {'fitur': 'Jenis Kelamin (X3)', 'nilai_asli': 'Laki-laki (L) / Perempuan (P)', 'nilai_encoding': '1 / 0'},
+                    {'fitur': 'Tingkat Resiko (Target)', 'nilai_asli': 'Rendah / Sedang / Tinggi', 'nilai_encoding': '1 / 2 / 3'},
                 ],
                 'grouping_table': [
-                    {'rentang': 'Kasus ≤ 8', 'risiko': 'Rendah', 'label': 0},
-                    {'rentang': 'Kasus 9–15', 'risiko': 'Sedang', 'label': 1},
-                    {'rentang': 'Kasus > 15', 'risiko': 'Tinggi', 'label': 2},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '1 – 10', 'risiko': 'Rendah', 'label': 1},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '11 – 20', 'risiko': 'Sedang', 'label': 2},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '> 20', 'risiko': 'Tinggi', 'label': 3},
                 ],
             },
             'step3': {
@@ -400,22 +469,33 @@ def hitung():
                 'n_trees': len(pohon_results),
                 'criterion': 'Entropy',
                 'n_features_total': n_features_all,
-                'formula_entropy': 'E(S) = -Σ pᵢ × log₂(pᵢ)',
-                'formula_ig': 'IG(S,A) = E(S) - Σ (|Sᵥ|/|S|) × E(Sᵥ)',
             },
             'step4': {
                 'trees': pohon_results,
-                'best_tree_id': max(range(len(pohon_results)), key=lambda i: pohon_results[i]['ig']) + 1 if pohon_results else None,
+                'best_tree_name': best_tree['name'] if best_tree else None,
+                'best_tree_id': best_tree['id'] if best_tree else None,
             },
-            'step7': {
-                'voting_results': voting_results,
+            'step5': {
+                'best_tree': best_tree,
+                'test_data': [{
+                    'no': t['no'],
+                    'actual': t['actual'],
+                    'predicted': t['predicted'],
+                    'correct': t['correct'],
+                } for t in test_results],
                 'accuracy': accuracy,
                 'correct_count': correct_count,
-                'total': total,
+                'total_test': N_TEST,
             },
-            'step8': {
-                'voting_eval': eval_voting,
-                'per_tree_eval': per_tree_eval,
+            'step6': {
+                'mae': mae_final,
+                'rmse': rmse_final,
+                'r2': r2_final,
+                'ss_res': round(ss_res_final, 4),
+                'ss_tot': round(ss_tot_final, 4),
+                'y_mean': round(y_mean, 4),
+                'n_test': N_TEST,
+                'per_tree_eval': per_tree_test_eval,
             },
         })
 

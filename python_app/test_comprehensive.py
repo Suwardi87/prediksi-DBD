@@ -607,8 +607,8 @@ def test_perhitungan_hitung():
         assert data['status'] == 'success'
         assert 'step1' in data
         assert 'step4' in data
-        assert 'step7' in data
-        assert 'step8' in data
+        assert 'step5' in data
+        assert 'step6' in data
 run_test("POST /perhitungan/hitung returns calculation", test_perhitungan_hitung)
 
 def test_prediksi_predict():
