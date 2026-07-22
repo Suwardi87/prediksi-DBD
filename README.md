@@ -42,7 +42,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
-pip install -r python_app/requirements.txt openpyxl
+pip install -r python_app/requirements.txt
 
 # Buat database
 mysql -u root -e "CREATE DATABASE db_prediksi_dbd"
@@ -68,11 +68,10 @@ Buka browser: `http://127.0.0.1:5000`
 
 ```
 prediksi-DBD/
-├── db_prediksi_dbd.sql          # Database schema + data
+├── db_prediksi_dbd.sql          # Database schema + data (163 pasien)
 ├── Data DBD 15 Sampel.xlsx      # Data Excel untuk training
+├── requirements.txt (di python_app/)
 ├── Dokumen/                     # Dokumen & diagram UML
-│   ├── BAB_IV_ANALISIS_DAN_PERANCANGAN.md
-│   └── UML/
 └── python_app/                  # Aplikasi Flask
     ├── run.py                   # Entry point
     ├── requirements.txt
@@ -81,8 +80,7 @@ prediksi-DBD/
         ├── models.py            # Database models
         ├── ml_model.py          # Random Forest logic
         ├── routes/              # Halaman-halaman web
-        ├── templates/           # HTML templates
-        └── models/              # Model .pkl tersimpan
+        └── templates/           # HTML templates
 ```
 
 ## Database
