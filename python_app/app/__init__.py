@@ -19,12 +19,29 @@ def create_app():
     
     # Configuration
     app.config['SECRET_KEY'] = 'dbd-prediction-secret-key-2025'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_prediksi_dbd'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_recycle': 300,
-        'pool_pre_ping': True
-    }
+
+    # Database: env var > MySQL > SQLite fallback
+    db_url = os.environ.get('DATABASE_URL', '')
+    if not db_url:
+        try:
+            import pymysql
+            conn = pymysql.connect(host='localhost', user='root', password='')
+            conn.close()
+            db_url = 'mysql+pymysql://root:@localhost/db_prediksi_dbd'
+        except Exception:
+            db_path = os.path.join(os.path.dirname(__file__), '..', 'db.sqlite3')
+            db_url = f'sqlite:///{os.path.abspath(db_path)}'
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
+    if 'mysql' in db_url:
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_recycle': 300,
+            'pool_pre_ping': True
+        }
+    else:
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {}
     
     # Initialize extensions
     db.init_app(app)
