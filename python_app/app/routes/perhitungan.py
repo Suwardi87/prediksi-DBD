@@ -504,20 +504,34 @@ def hitung():
         bab4_r2 = round(1 - bab4_ss_res / bab4_ss_tot, 4) if bab4_ss_tot > 0 else 0.0
 
         our_test_results = []
+        our_threshold_used = None
         if best_tree:
-            for i in range(N_TEST):
-                actual_risk = test_data[i].get('tingkat_risiko', '')
-                jk_val = int(test_data[i].get('jumlah_kasus', 0))
-                predicted_risk = _predict_with_thresholds(jk_val, BAB4_POHON5_THRESHOLDS)
-                our_test_results.append({
-                    'no': i + 1,
-                    'jumlah_kasus': jk_val,
-                    'actual': actual_risk,
-                    'actual_enc': LABEL_ENCODE.get(actual_risk, 0),
-                    'predicted': predicted_risk,
-                    'predicted_enc': LABEL_ENCODE.get(predicted_risk, 0),
-                    'correct': actual_risk == predicted_risk,
-                })
+            thr = best_tree.get('root_threshold')
+            left_class, right_class = 'Rendah', 'Sedang'
+            if best_tree.get('rules_deep'):
+                for rule in best_tree['rules_deep']:
+                    if rule.get('type') == 'split':
+                        left_class = rule.get('left_class', 'Rendah')
+                        right_class = rule.get('right_class', 'Sedang')
+                        break
+            if thr:
+                our_threshold_used = thr
+                for i in range(N_TEST):
+                    actual_risk = test_data[i].get('tingkat_risiko', '')
+                    jk_val = int(test_data[i].get('jumlah_kasus', 0))
+                    if jk_val < thr:
+                        predicted_risk = left_class
+                    else:
+                        predicted_risk = right_class
+                    our_test_results.append({
+                        'no': i + 1,
+                        'jumlah_kasus': jk_val,
+                        'actual': actual_risk,
+                        'actual_enc': LABEL_ENCODE.get(actual_risk, 0),
+                        'predicted': predicted_risk,
+                        'predicted_enc': LABEL_ENCODE.get(predicted_risk, 0),
+                        'correct': actual_risk == predicted_risk,
+                    })
 
         our_correct = sum(1 for t in our_test_results if t['correct'])
         our_accuracy = round(our_correct / N_TEST, 4)
@@ -580,6 +594,8 @@ def hitung():
                 'our_mae': our_mae,
                 'our_rmse': our_rmse,
                 'our_r2': our_r2,
+                'our_threshold': our_threshold_used,
+                'our_rules': best_tree.get('rules_text', []) if best_tree else [],
             },
             'step6': {
                 'bab4_mae': bab4_mae,
@@ -592,6 +608,7 @@ def hitung():
                 'our_r2': our_r2,
                 'our_accuracy': our_accuracy,
                 'our_correct': our_correct,
+                'our_threshold': our_threshold_used,
                 'n_test': N_TEST,
             },
         })

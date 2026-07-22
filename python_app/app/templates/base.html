@@ -782,6 +782,13 @@
             </li>
             
             <li class="nav-item">
+                <a href="{{ url_for('perhitungan.index') }}" class="nav-link {% if 'perhitungan' in request.endpoint %}active{% endif %}">
+                    <i class='bx bx-calculator' style="color: #f472b6;"></i>
+                    <span>Perhitungan Manual</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
                 <a href="{{ url_for('laporan.index') }}" class="nav-link {% if 'laporan' in request.endpoint %}active{% endif %}">
                     <i class='bx bx-clipboard' style="color: #fdba74;"></i>
                     <span>Laporan</span>

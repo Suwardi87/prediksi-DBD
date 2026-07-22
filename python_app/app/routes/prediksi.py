@@ -80,7 +80,7 @@ def history():
     predictions = HasilPrediksi.query.order_by(HasilPrediksi.tanggal_prediksi.desc()).limit(50).all()
     return render_template('prediksi/history.html', predictions=predictions)
 
-@prediksi_bp.route('/batch', methods=['GET'])
+@prediksi_bp.route('/batch', methods=['GET', 'POST'])
 @login_required
 def batch_predict():
     """Jalankan prediksi untuk 10 data pasien terakhir untuk halaman Prediksi Risiko"""

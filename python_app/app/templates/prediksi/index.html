@@ -41,7 +41,7 @@
         <div class="table-responsive">
             <table class="table table-dark-header">
                 <thead>
-                    <tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th><th>Hasil 5 Pohon</th><th>Hasil Akhir</th></tr>
+                    <tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th><th>Hasil 5 Pohon</th><th>Hasil Akhir</th><th>Aktual</th><th>Status</th></tr>
                 </thead>
                 <tbody id="votingBody"></tbody>
             </table>
@@ -69,27 +69,31 @@ function renderTag(label) {
 
 async function jalankanPrediksi() {
     try {
-        const resp = await fetch('/prediksi/batch_predict', { method: 'POST' });
+        const resp = await fetch('/prediksi/batch', { method: 'POST' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         if (data.status === 'error') throw new Error(data.message);
 
         document.getElementById('alertSuccess').style.display = 'block';
-        document.getElementById('alertSuccess').textContent = `Prediksi berhasil untuk ${data.total} data uji`;
+        document.getElementById('alertSuccess').textContent = `Prediksi berhasil untuk ${data.data.length} data uji`;
         document.getElementById('cardVoting').style.display = 'block';
         document.getElementById('cardAccuracy').style.display = 'block';
 
         let tbody = '';
-        data.predictions.forEach(p => {
-            const votes = p.individual_predictions.map(v => renderTag(v)).join(' ');
-            tbody += `<tr><td>${p.no}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(p.final_prediction)}</td></tr>`;
+        let correct = 0;
+        data.data.forEach(p => {
+            const votes = p.tree_votes.map(v => renderTag(v)).join(' ');
+            tbody += `<tr><td>${p.id}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td><td style="font-size:0.72rem;">${votes}</td><td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td>${p.status_prediksi}</td></tr>`;
+            if (p.status_prediksi === 'Benar') correct++;
         });
         document.getElementById('votingBody').innerHTML = tbody;
 
-        document.getElementById('accValue').textContent = data.accuracy;
-        document.getElementById('correctCount').textContent = data.correct_count;
-        document.getElementById('wrongCount').textContent = data.total - data.correct_count;
-        document.getElementById('totalCount').textContent = data.total;
+        const total = data.data.length;
+        const acc = ((correct / total) * 100).toFixed(1) + '%';
+        document.getElementById('accValue').textContent = acc;
+        document.getElementById('correctCount').textContent = correct;
+        document.getElementById('wrongCount').textContent = total - correct;
+        document.getElementById('totalCount').textContent = total;
     } catch (err) {
         alert('Gagal: ' + err.message);
     }
