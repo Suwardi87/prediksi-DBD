@@ -32,30 +32,33 @@ Aplikasi web ini dibangun untuk RSUD Lubuk Basung, Kabupaten Agam. Sistem ini me
 
 ### Setup
 
+**Linux / macOS:**
 ```bash
-# Clone repo
 git clone https://github.com/Suwardi87/prediksi-DBD.git
 cd prediksi-DBD
-
-# Buat virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install dependencies
 pip install -r python_app/requirements.txt
-
-# Buat database
-mysql -u root -e "CREATE DATABASE db_prediksi_dbd"
-
-# Import schema + data
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS db_prediksi_dbd"
 mysql -u root db_prediksi_dbd < db_prediksi_dbd.sql
-
-# Jalankan aplikasi
 cd python_app
 python run.py
 ```
 
-Buka browser: `http://127.0.0.1:5000`
+**Windows:**
+```powershell
+git clone https://github.com/Suwardi87/prediksi-DBD.git
+cd prediksi-DBD
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r python_app\requirements.txt
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS db_prediksi_dbd"
+mysql -u root db_prediksi_dbd < db_prediksi_dbd.sql
+cd python_app
+python run.py
+```
+
+Buka browser: `http://127.0.0.1:5000` (otomatis terbuka)
 
 ### Login
 
