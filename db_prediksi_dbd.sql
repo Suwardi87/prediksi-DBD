@@ -216,7 +216,7 @@ CREATE TABLE `log_aktivitas` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `log_aktivitas_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -331,7 +331,8 @@ INSERT INTO `log_aktivitas` VALUES
 (102,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:36:48'),
 (103,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:40:55'),
 (104,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:41:06'),
-(105,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:41:17');
+(105,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:41:17'),
+(106,1,'Login','Login berhasil','127.0.0.1','2026-07-22 04:41:37');
 /*!40000 ALTER TABLE `log_aktivitas` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -361,7 +362,7 @@ CREATE TABLE `model_evaluasi` (
   `model_path` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -491,7 +492,10 @@ INSERT INTO `model_evaluasi` VALUES
 (117,'2026-07-22 09:19:41',0.8272,0.8221,0.8272,0.8214,0.1728,0.4121,-0.0903,5,NULL,'[[20, 20, 0], [15, 148, 0], [0, 0, 0]]','{\"Usia\": 0.4274588462566583, \"Lama Rawat Inap\": 0.1254081821297206, \"Jenis Kelamin\": 0.4471329716136211}','models/random_forest_model.pkl','2026-07-22 02:19:41'),
 (118,'2026-07-22 09:48:22',0.8272,0.8221,0.8272,0.8214,0.1728,0.4121,-0.0903,5,NULL,'[[20, 20, 0], [15, 148, 0], [0, 0, 0]]','{\"Usia\": 0.4274588462566583, \"Lama Rawat Inap\": 0.1254081821297206, \"Jenis Kelamin\": 0.4471329716136211}','models/random_forest_model.pkl','2026-07-22 02:48:22'),
 (119,'2026-07-22 09:48:24',0.8272,0.8221,0.8272,0.8214,0.1728,0.4121,-0.0903,5,NULL,'[[20, 20, 0], [15, 148, 0], [0, 0, 0]]','{\"Usia\": 0.4274588462566583, \"Lama Rawat Inap\": 0.1254081821297206, \"Jenis Kelamin\": 0.4471329716136211}','models/random_forest_model.pkl','2026-07-22 02:48:24'),
-(120,'2026-07-22 11:40:55',0.4903,0.5092,0.4903,0.4865,0.6138,0.9039,-1.0699,5,NULL,'[[2, 5, 7], [4, 44, 29], [10, 28, 34]]','{\"Usia\": 0.745592765353872, \"Lama Rawat Inap\": 0.2013848431729006, \"Jenis Kelamin\": 0.053022391473227425}','models/random_forest_model.pkl','2026-07-22 04:40:55');
+(120,'2026-07-22 11:40:55',0.4903,0.5092,0.4903,0.4865,0.6138,0.9039,-1.0699,5,NULL,'[[2, 5, 7], [4, 44, 29], [10, 28, 34]]','{\"Usia\": 0.745592765353872, \"Lama Rawat Inap\": 0.2013848431729006, \"Jenis Kelamin\": 0.053022391473227425}','models/random_forest_model.pkl','2026-07-22 04:40:55'),
+(121,'2026-07-22 11:42:04',0.4903,0.5092,0.4903,0.4865,0.6138,0.9039,-1.0699,5,NULL,'[[2, 5, 7], [4, 44, 29], [10, 28, 34]]','{\"Usia\": 0.745592765353872, \"Lama Rawat Inap\": 0.2013848431729006, \"Jenis Kelamin\": 0.053022391473227425}','models/random_forest_model.pkl','2026-07-22 04:42:04'),
+(122,'2026-07-22 11:42:19',0.5028,0.5085,0.5028,0.4886,0.5890,0.8769,-0.9426,15,NULL,'[[1, 4, 9], [3, 45, 29], [6, 30, 36]]','{\"Usia\": 0.7488597529351263, \"Lama Rawat Inap\": 0.2042517854935396, \"Jenis Kelamin\": 0.04688846157133409}','models/random_forest_model.pkl','2026-07-22 04:42:19'),
+(123,'2026-07-22 11:48:33',0.5028,0.5085,0.5028,0.4886,0.5890,0.8769,-0.9426,15,NULL,'[[1, 4, 9], [3, 45, 29], [6, 30, 36]]','{\"Usia\": 0.7488597529351263, \"Lama Rawat Inap\": 0.2042517854935396, \"Jenis Kelamin\": 0.04688846157133409}','models/random_forest_model.pkl','2026-07-22 04:48:33');
 /*!40000 ALTER TABLE `model_evaluasi` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -731,7 +735,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1,'admin','scrypt:32768:8:1$dW2jNJLFDi0i6UfL$6aff2348914b68f4a8d36743bfd852f7e98a34695a41e0651051c440db69d93fbb37db31cd4bea8cd10d00a64fea9ca9f941ecbcf47f5fbf959c1f222f449f99','V2 Modified','mod@test.com','admin','default.png','aktif','2026-07-22 11:41:17','2026-01-29 01:23:33','2026-07-22 04:41:17'),
+(1,'admin','scrypt:32768:8:1$dW2jNJLFDi0i6UfL$6aff2348914b68f4a8d36743bfd852f7e98a34695a41e0651051c440db69d93fbb37db31cd4bea8cd10d00a64fea9ca9f941ecbcf47f5fbf959c1f222f449f99','V2 Modified','mod@test.com','admin','default.png','aktif','2026-07-22 11:41:37','2026-01-29 01:23:33','2026-07-22 04:41:37'),
 (2,'petugas','scrypt:32768:8:1$MoAKZkKxMSYIu5qx$dcdeabaec18385a91044114ea168f07368742ef20ac72b718395b8be66b7edc1f642b74022b7617eef8be5dbf81fdc4c145a8a8d50484c9b0e6a7937f36a3e1c','Petugas Kesehatan','petugas@rsud.go.id','petugas','default.png','aktif','2026-07-21 23:12:32','2026-02-05 10:56:16','2026-07-22 04:14:14');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -747,4 +751,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-07-22 11:41:28
+-- Dump completed on 2026-07-22 13:56:07
