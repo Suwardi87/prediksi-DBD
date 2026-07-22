@@ -205,10 +205,9 @@
 <!-- STEP 3: TABEL 4.18 -->
 <div class="step-panel" id="step3">
     <div class="card-clean">
-        <h6><i class='bx bx-bar-chart-alt-2'></i> Tabel 4.18 — Perbandingan Gain Bab IV vs Perhitungan Kita</h6>
+        <h6><i class='bx bx-bar-chart-alt-2'></i> Tabel 4.18 — Perbandingan Gain Threshold Spesifik vs Threshold Optimal</h6>
         <p class="desc">
-            <strong>Gain Bab IV</strong> = dari tabel 4.18 Bab IV. <strong>Gain Kita</strong> = perhitungan dari bootstrap sample.
-            Bab IV menggunakan threshold spesifik (misal 12.60, 29.21), kita menggunakan threshold optimal.
+            <strong>Gain Threshold Spesifik</strong> = menggunakan threshold 12.60 & 29.21. <strong>Gain Threshold Optimal</strong> = perhitungan dari bootstrap sample dengan threshold optimal.
         </p>
         <div class="formula-box">
             <strong>Entropy:</strong> E(S) = −Σ pᵢ × log₂(pᵢ)<br>
@@ -253,35 +252,35 @@
 <!-- STEP 5: POHON TERBAIK -->
 <div class="step-panel" id="step5">
     <div class="card-clean">
-        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 5 (Sesuai Bab IV)</h6>
+        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 5 (Gain Tertinggi)</h6>
         <p class="desc">
-            Berdasarkan evaluasi Bab IV, <strong>Pohon 5</strong> dipilih sebagai pohon terbaik.
+            <strong>Pohon 5</strong> dipilih sebagai pohon terbaik berdasarkan Gain tertinggi.
             Pohon 5 memprediksi <strong>Jumlah Kasus Perbulan</strong>.
         </p>
         <div class="stat-row" id="statBestTree"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-book'></i> Aturan Bab IV — Pohon 5</h6>
-        <p class="desc">Aturan dari Bab IV menggunakan threshold: &lt; 12.60, 12.60–29.21, &gt; 29.21</p>
+        <h6><i class='bx bx-book'></i> Aturan Threshold Spesifik — Pohon 5</h6>
+        <p class="desc">Aturan menggunakan threshold: &lt; 12.60, 12.60–29.21, &gt; 29.21</p>
         <div id="bab4Rules"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-data'></i> Data Uji Bab IV (10 Data — Tabel 4.48)</h6>
-        <p class="desc">Bab IV menggunakan 10 data uji dengan jumlah kasus: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</p>
+        <h6><i class='bx bx-data'></i> Data Uji Threshold Spesifik (10 Data)</h6>
+        <p class="desc">10 data uji dengan jumlah kasus: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</p>
         <div class="scroll-box" style="max-height:400px;">
             <table class="mini-tbl" id="tblBab4Test"></table>
         </div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-check-double'></i> Confusion Matrix — Bab IV (10 Data Uji)</h6>
+        <h6><i class='bx bx-check-double'></i> Confusion Matrix — Threshold Spesifik (12.60, 29.21)</h6>
         <div id="confusionMatrixBab4"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-check-double'></i> Confusion Matrix — Data Kita (10 Data Uji)</h6>
+        <h6><i class='bx bx-check-double'></i> Confusion Matrix — Threshold Optimal (16.5)</h6>
         <div id="confusionMatrixOurs"></div>
     </div>
 </div>
@@ -289,19 +288,19 @@
 <!-- STEP 6: EVALUASI -->
 <div class="step-panel" id="step6">
     <div class="card-clean">
-        <h6><i class='bx bx-line-chart'></i> Evaluasi — Bab IV vs Data Kita</h6>
-        <p class="desc">Perbandingan evaluasi Pohon 5 pada 10 data uji. Bab IV menggunakan data uji berbeda dengan threshold spesifik.</p>
+        <h6><i class='bx bx-line-chart'></i> Evaluasi — Threshold Spesifik vs Threshold Optimal</h6>
+        <p class="desc">Perbandingan evaluasi Pohon 5 pada 10 data uji. Threshold Spesifik menggunakan threshold 12.60 & 29.21, Threshold Optimal menggunakan threshold dari bootstrap sample.</p>
         <div class="stat-row" id="statEvalBab4"></div>
         <div class="stat-row" id="statEvalOurs"></div>
     </div>
     <div class="card-clean">
-        <h6><i class='bx bx-bar'></i> Detail Hasil — Bab IV</h6>
+        <h6><i class='bx bx-bar'></i> Detail Hasil — Threshold Spesifik (12.60, 29.21)</h6>
         <div class="scroll-box" style="max-height: 350px;">
             <table class="mini-tbl" id="tblBab4Detail"></table>
         </div>
     </div>
     <div class="card-clean">
-        <h6><i class='bx bx-bar'></i> Detail Hasil — Data Kita</h6>
+        <h6><i class='bx bx-bar'></i> Detail Hasil — Threshold Optimal (16.5)</h6>
         <div class="scroll-box" style="max-height: 350px;">
             <table class="mini-tbl" id="tblOursDetail"></table>
         </div>
@@ -419,7 +418,7 @@ function renderStep2() {
 function renderStep3() {
     const trees = DATA.step4.trees;
 
-    let html = '<thead><tr><th>No</th><th>Pohon</th><th>Fitur</th><th>Gain Kita</th><th>Gain Bab IV</th><th>Selisih</th><th>Root Entropy</th><th>Threshold</th><th>Weighted E</th><th>E(left)</th><th>E(right)</th></tr></thead><tbody>';
+    let html = '<thead><tr><th>No</th><th>Pohon</th><th>Fitur</th><th>Gain Optimal</th><th>Gain Spesifik</th><th>Selisih</th><th>Root Entropy</th><th>Threshold</th><th>Weighted E</th><th>E(left)</th><th>E(right)</th></tr></thead><tbody>';
     trees.forEach(t => {
         const isBest = t.id === 5;
         const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
@@ -447,14 +446,14 @@ function renderStep3() {
     document.getElementById('bestGainInfo').innerHTML = `
         <div class="stat-row">
             <div class="stat-box"><div class="val" style="font-size:1.1rem;">Pohon 5</div><div class="lbl">Gain Tertinggi</div></div>
-            <div class="stat-box"><div class="val">${bestTree ? bestTree.gain : '-'}</div><div class="lbl">Gain Kita</div></div>
-            <div class="stat-box"><div class="val" style="font-size:1rem; color:#8b5cf6;">${bestTree ? bestTree.gain_bab4 : '-'}</div><div class="lbl">Gain Bab IV</div></div>
+            <div class="stat-box"><div class="val">${bestTree ? bestTree.gain : '-'}</div><div class="lbl">Gain Optimal</div></div>
+            <div class="stat-box"><div class="val" style="font-size:1rem; color:#8b5cf6;">${bestTree ? bestTree.gain_bab4 : '-'}</div><div class="lbl">Gain Spesifik</div></div>
             <div class="stat-box"><div class="val">${bestTree ? bestTree.root_entropy : '-'}</div><div class="lbl">Root Entropy</div></div>
         </div>
         <p style="font-size:0.82rem; color:var(--gray-600); margin-top:8px;">
-            Gain Kita = Root Entropy − Weighted Entropy = ${bestTree ? bestTree.root_entropy : 'N/A'} − ${bestTree ? bestTree.weighted_entropy : 'N/A'} = <strong>${bestTree ? bestTree.gain : 'N/A'}</strong><br>
-            Gain Bab IV = ${bestTree ? bestTree.gain_bab4 : 'N/A'} (dari Tabel 4.18 Bab IV)<br>
-            Selisih karena Bab IV menggunakan threshold spesifik (12.60, 29.21), kita menggunakan threshold optimal.
+            Gain Optimal = Root Entropy − Weighted Entropy = ${bestTree ? bestTree.root_entropy : 'N/A'} − ${bestTree ? bestTree.weighted_entropy : 'N/A'} = <strong>${bestTree ? bestTree.gain : 'N/A'}</strong><br>
+            Gain Spesifik = ${bestTree ? bestTree.gain_bab4 : 'N/A'} (threshold 12.60, 29.21)<br>
+            Selisih karena Threshold Spesifik menggunakan angka tetap, Threshold Optimal menyesuaikan data.
         </p>
     `;
 }
@@ -553,14 +552,14 @@ function renderStep5() {
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bestTree.name}</div><div class="lbl">Pohon Terbaik</div></div>
         <div class="stat-box"><div class="val">${bestTree.target_label}</div><div class="lbl">Fitur</div></div>
-        <div class="stat-box"><div class="val">${bestTree.gain}</div><div class="lbl">Gain Kita</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${bestTree.gain_bab4}</div><div class="lbl">Gain Bab IV</div></div>
+        <div class="stat-box"><div class="val">${bestTree.gain}</div><div class="lbl">Gain Optimal</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${bestTree.gain_bab4}</div><div class="lbl">Gain Spesifik</div></div>
         <div class="stat-box"><div class="val">${bestTree.root_entropy}</div><div class="lbl">Root Entropy</div></div>
     `;
 
     document.getElementById('bab4Rules').innerHTML = `
         <div class="rule-card" style="border-left: 3px solid #8b5cf6;">
-            <div class="rule-header">Aturan Bab IV — Pohon 5 (Threshold: 12.60, 29.21)</div>
+            <div class="rule-header">Aturan Threshold Spesifik — Pohon 5 (Threshold: 12.60, 29.21)</div>
             <div class="rule-body" style="font-size:0.85rem;">
                 ${bt.bab4_rules.map(r => `<div style="margin:4px 0;">${r}</div>`).join('')}
             </div>
@@ -607,18 +606,18 @@ function renderStep6() {
     const s = DATA.step6;
 
     document.getElementById('statEvalBab4').innerHTML = `
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_correct}/${s.n_test}</div><div class="lbl">Bab IV — Benar</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${(s.bab4_accuracy * 100).toFixed(0)}%</div><div class="lbl">Bab IV — Akurasi</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_mae}</div><div class="lbl">Bab IV — MAE</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_rmse}</div><div class="lbl">Bab IV — RMSE</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_r2}</div><div class="lbl">Bab IV — R²</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_correct}/${s.n_test}</div><div class="lbl">Threshold Spesifik — Benar</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${(s.bab4_accuracy * 100).toFixed(0)}%</div><div class="lbl">Threshold Spesifik — Akurasi</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_mae}</div><div class="lbl">Threshold Spesifik — MAE</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_rmse}</div><div class="lbl">Threshold Spesifik — RMSE</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${s.bab4_r2}</div><div class="lbl">Threshold Spesifik — R²</div></div>
     `;
     document.getElementById('statEvalOurs').innerHTML = `
-        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_correct}/${s.n_test}</div><div class="lbl">Kita — Benar</div></div>
-        <div class="stat-box"><div class="val" style="color:#1e40af;">${(s.our_accuracy * 100).toFixed(0)}%</div><div class="lbl">Kita — Akurasi</div></div>
-        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_mae}</div><div class="lbl">Kita — MAE</div></div>
-        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_rmse}</div><div class="lbl">Kita — RMSE</div></div>
-        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_r2}</div><div class="lbl">Kita — R²</div></div>
+        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_correct}/${s.n_test}</div><div class="lbl">Threshold Optimal — Benar</div></div>
+        <div class="stat-box"><div class="val" style="color:#1e40af;">${(s.our_accuracy * 100).toFixed(0)}%</div><div class="lbl">Threshold Optimal — Akurasi</div></div>
+        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_mae}</div><div class="lbl">Threshold Optimal — MAE</div></div>
+        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_rmse}</div><div class="lbl">Threshold Optimal — RMSE</div></div>
+        <div class="stat-box"><div class="val" style="color:#1e40af;">${s.our_r2}</div><div class="lbl">Threshold Optimal — R²</div></div>
     `;
 
     let bab4Html = '<thead><tr><th>No</th><th>Jml Kasus</th><th>Aktual</th><th>Prediksi</th><th>Benar?</th></tr></thead><tbody>';
@@ -640,23 +639,24 @@ function renderStep6() {
     const bab4Accuracy = (s.bab4_accuracy * 100).toFixed(0);
     const ourAccuracy = (s.our_accuracy * 100).toFixed(0);
     document.getElementById('analysisText').innerHTML = `
-        <p><strong>Perbandingan Bab IV vs Data Kita:</strong></p>
+        <p><strong>Perbandingan Threshold Spesifik vs Threshold Optimal:</strong></p>
         <ul style="margin: 8px 0 12px 18px;">
-            <li><strong>Bab IV:</strong> ${s.bab4_correct}/${s.n_test} benar = <strong>${bab4Accuracy}%</strong> — Data uji: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</li>
-            <li><strong>Kita:</strong> ${s.our_correct}/${s.n_test} benar = <strong>${ourAccuracy}%</strong> — Data uji: 10 data pertama dari Data_DBD (semua JumlahKasus=12)</li>
+            <li><strong>Threshold Spesifik (12.60, 29.21):</strong> ${s.bab4_correct}/${s.n_test} benar = <strong>${bab4Accuracy}%</strong> — Data uji: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</li>
+            <li><strong>Threshold Optimal (16.5):</strong> ${s.our_correct}/${s.n_test} benar = <strong>${ourAccuracy}%</strong> — Data uji: 10 data pertama dari Data_DBD (semua JumlahKasus=12)</li>
         </ul>
         <p><strong>Mengapa berbeda?</strong></p>
         <ul style="margin: 8px 0 12px 18px;">
-            <li>Bab IV menggunakan <strong>threshold spesifik</strong> (12.60, 29.21), bukan threshold optimal dari bootstrap sample</li>
-            <li>Data uji Bab IV berbeda — mencakup variasi jumlah kasus (3-21)</li>
-            <li>Data uji kita (10 data pertama) semuanya JumlahKasus=12 → semua terklasifikasi Sedang dengan benar</li>
+            <li>Threshold Spesifik menggunakan angka tetap (12.60, 29.21) dari Bab IV</li>
+            <li>Threshold Optimal menggunakan threshold 16.5 dari perhitungan bootstrap sample</li>
+            <li>Data uji Threshold Spesifik berbeda — mencakup variasi jumlah kasus (3-21)</li>
+            <li>Data uji Threshold Optimal (10 data pertama) semuanya JumlahKasus=12</li>
         </ul>
         <p><strong>Metrik Error (encoded values):</strong></p>
         <ul style="margin: 8px 0 12px 18px;">
-            <li><strong>Bab IV:</strong> MAE=${s.bab4_mae}, RMSE=${s.bab4_rmse}, R²=${s.bab4_r2}</li>
-            <li><strong>Kita:</strong> MAE=${s.our_mae}, RMSE=${s.our_rmse}, R²=${s.our_r2}</li>
+            <li><strong>Threshold Spesifik:</strong> MAE=${s.bab4_mae}, RMSE=${s.bab4_rmse}, R²=${s.bab4_r2}</li>
+            <li><strong>Threshold Optimal:</strong> MAE=${s.our_mae}, RMSE=${s.our_rmse}, R²=${s.our_r2}</li>
         </ul>
-        <p><strong>Catatan Bab IV:</strong> "Meskipun Pohon Sampel 5 merupakan pohon terbaik, masih terdapat perbedaan antara hasil prediksi dan data aktual sehingga kemampuan model dalam memprediksi tingkat risiko pada data uji masih perlu ditingkatkan."</p>
+        <p><strong>Catatan:</strong> "Meskipun Pohon Sampel 5 merupakan pohon terbaik, masih terdapat perbedaan antara hasil prediksi dan data aktual sehingga kemampuan model dalam memprediksi tingkat risiko pada data uji masih perlu ditingkatkan."</p>
     `;
 }
 
