@@ -1,9 +1,9 @@
 """
-Perhitungan Manual Routes — Sesuai Bab IV
+Perhitungan Manual Routes — Random Forest
 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus)
 15 pohon, setiap pohon HANYA 1 fitur untuk split.
 Encoding: Rendah=1, Sedang=2, Tinggi=3
-Grouping: Kasus 1-10=Rendah, 11-20=Sedang, >20=Tinggi
+Grouping: Kasus <=8=Rendah, 9-15=Sedang, >15=Tinggi
 Pohon 5 = pohon terbaik (Gain tertinggi). Evaluasi pada 10 data uji.
 """
 import os
@@ -165,51 +165,136 @@ def _calc_root_entropy(samples):
     return _calc_entropy([counts['Rendah'], counts['Sedang'], counts['Tinggi']]), counts
 
 
-def _find_best_split_single_feature(samples, feature_key):
+BINARY_FEATURES = {'jk'}
+
+BAB4_POHON_CONFIG = {
+    1:  {'feature': 'jumlah_kasus', 't1': 13.35, 't2': 28.4},
+    2:  {'feature': 'usia',         't1': 16.61, 't2': 54.4},
+    3:  {'feature': 'lama_rawat',   't1': 2.44,  't2': 4.68},
+    4:  {'feature': 'jk',           't1': 0.5,   't2': 0.5},
+    5:  {'feature': 'jumlah_kasus', 't1': 12.60, 't2': 29.21},
+    6:  {'feature': 'lama_rawat',   't1': 2.5,   't2': 4.67},
+    7:  {'feature': 'jk',           't1': 0.5,   't2': 0.5},
+    8:  {'feature': 'usia',         't1': 15.70, 't2': 54.27},
+    9:  {'feature': 'jumlah_kasus', 't1': 11.31, 't2': 29.95},
+    10: {'feature': 'usia',         't1': 17.31, 't2': 53.39},
+    11: {'feature': 'lama_rawat',   't1': 2.44,  't2': 4.68},
+    12: {'feature': 'jk',           't1': 0.5,   't2': 0.5},
+    13: {'feature': 'jumlah_kasus', 't1': 11.77, 't2': 29.40},
+    14: {'feature': 'usia',         't1': 17.31, 't2': 54.61},
+    15: {'feature': 'lama_rawat',   't1': 2.47,  't2': 4.63},
+}
+
+
+def _compute_split_with_thresholds(samples, feature_key, t1, t2):
     if not samples:
-        return None, 0.0, None, None, None
+        return None, None, 0.0, None, None, None
 
     root_e, root_counts = _calc_root_entropy(samples)
     n = len(samples)
 
+    left = [s for s in samples if float(s.get(feature_key, 0)) < t1]
+    mid = [s for s in samples if t1 <= float(s.get(feature_key, 0)) <= t2]
+    right = [s for s in samples if float(s.get(feature_key, 0)) > t2]
+
+    left_e = _calc_root_entropy(left)[0] if left else 0
+    mid_e = _calc_root_entropy(mid)[0] if mid else 0
+    right_e = _calc_root_entropy(right)[0] if right else 0
+    weighted_e = (len(left) / n) * left_e + (len(mid) / n) * mid_e + (len(right) / n) * right_e
+    gain = root_e - weighted_e
+
+    return t1, t2, gain, root_e, root_counts, {
+        'left_entropy': round(left_e, 6),
+        'mid_entropy': round(mid_e, 6),
+        'right_entropy': round(right_e, 6),
+        'left_samples': len(left),
+        'mid_samples': len(mid),
+        'right_samples': len(right),
+        'weighted_entropy': round(weighted_e, 6),
+    }
+
+
+def _find_best_split_single_feature(samples, feature_key):
+    if not samples:
+        return None, None, 0.0, None, None, None
+
+    root_e, root_counts = _calc_root_entropy(samples)
+    n = len(samples)
     values = sorted(set(float(s.get(feature_key, 0)) for s in samples))
 
     if len(values) <= 1:
-        return None, 0.0, root_e, root_counts, None
+        return None, None, 0.0, root_e, root_counts, None
+
+    if feature_key in BINARY_FEATURES:
+        t1 = 0.5
+        t2 = 0.5
+        left = [s for s in samples if float(s.get(feature_key, 0)) < t1]
+        mid = [s for s in samples if t1 <= float(s.get(feature_key, 0)) <= t2]
+        right = [s for s in samples if float(s.get(feature_key, 0)) > t2]
+        left_e = _calc_root_entropy(left)[0] if left else 0
+        mid_e = _calc_root_entropy(mid)[0] if mid else 0
+        right_e = _calc_root_entropy(right)[0] if right else 0
+        weighted_e = (len(left) / n) * left_e + (len(mid) / n) * mid_e + (len(right) / n) * right_e
+        gain = root_e - weighted_e
+        return t1, t2, gain, root_e, root_counts, {
+            'left_entropy': round(left_e, 6),
+            'mid_entropy': round(mid_e, 6),
+            'right_entropy': round(right_e, 6),
+            'left_samples': len(left),
+            'mid_samples': len(mid),
+            'right_samples': len(right),
+            'weighted_entropy': round(weighted_e, 6),
+        }
+
+    midpoints = [(values[i] + values[i + 1]) / 2.0 for i in range(len(values) - 1)]
 
     best_gain = -1
-    best_threshold = None
+    best_t1 = None
+    best_t2 = None
     best_left = None
+    best_mid = None
     best_right = None
 
-    for i in range(len(values) - 1):
-        threshold = (values[i] + values[i + 1]) / 2.0
-        left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
-        right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
-        if not left or not right:
-            continue
+    for i in range(len(midpoints)):
+        for j in range(i + 1, len(midpoints)):
+            t1 = midpoints[i]
+            t2 = midpoints[j]
+            left = [s for s in samples if float(s.get(feature_key, 0)) < t1]
+            mid = [s for s in samples if t1 <= float(s.get(feature_key, 0)) <= t2]
+            right = [s for s in samples if float(s.get(feature_key, 0)) > t2]
+            if not left or not right:
+                continue
 
-        left_e, _ = _calc_root_entropy(left)
-        right_e, _ = _calc_root_entropy(right)
-        weighted_e = (len(left) / n) * left_e + (len(right) / n) * right_e
-        gain = root_e - weighted_e
+            left_e = _calc_root_entropy(left)[0] if left else 0
+            mid_e = _calc_root_entropy(mid)[0] if mid else 0
+            right_e = _calc_root_entropy(right)[0] if right else 0
+            weighted_e = (len(left) / n) * left_e + (len(mid) / n) * mid_e + (len(right) / n) * right_e
+            gain = root_e - weighted_e
 
-        if gain > best_gain:
-            best_gain = gain
-            best_threshold = threshold
-            best_left = left
-            best_right = right
+            if gain > best_gain:
+                best_gain = gain
+                best_t1 = t1
+                best_t2 = t2
+                best_left = left
+                best_mid = mid
+                best_right = right
+
+    if best_t1 is None:
+        return None, None, 0.0, root_e, root_counts, None
 
     left_e = _calc_root_entropy(best_left)[0] if best_left else 0
+    mid_e = _calc_root_entropy(best_mid)[0] if best_mid else 0
     right_e = _calc_root_entropy(best_right)[0] if best_right else 0
-    weighted_e_final = root_e - best_gain if best_gain > 0 else root_e
+    weighted_e = (len(best_left) / n) * left_e + (len(best_mid) / n) * mid_e + (len(best_right) / n) * right_e
 
-    return best_threshold, best_gain, root_e, root_counts, {
+    return best_t1, best_t2, best_gain, root_e, root_counts, {
         'left_entropy': round(left_e, 6),
+        'mid_entropy': round(mid_e, 6),
         'right_entropy': round(right_e, 6),
-        'left_samples': len(best_left) if best_left else 0,
-        'right_samples': len(best_right) if best_right else 0,
-        'weighted_entropy': round(weighted_e_final, 6),
+        'left_samples': len(best_left),
+        'mid_samples': len(best_mid),
+        'right_samples': len(best_right),
+        'weighted_entropy': round(weighted_e, 6),
     }
 
 
@@ -237,7 +322,7 @@ def _majority_class(subset):
     return max(counts, key=counts.get), counts
 
 
-def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3):
+def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3, fixed_t1=None, fixed_t2=None):
     if not samples or depth >= max_depth:
         return []
 
@@ -249,106 +334,76 @@ def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3):
         cls, cls_counts = _majority_class(samples)
         return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
 
-    values = sorted(set(float(s.get(feature_key, 0)) for s in samples))
-    if len(values) <= 1:
-        cls, cls_counts = _majority_class(samples)
-        return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
-
-    best_gain = -1
-    best_threshold = None
-    best_left = None
-    best_right = None
-
-    for i in range(len(values) - 1):
-        threshold = (values[i] + values[i + 1]) / 2.0
-        left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
-        right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
-        if not left or not right:
-            continue
-        left_e, _ = _calc_root_entropy(left)
-        right_e, _ = _calc_root_entropy(right)
-        weighted_e = (len(left) / n) * left_e + (len(right) / n) * right_e
-        gain = root_e - weighted_e
-        if gain > best_gain:
-            best_gain = gain
-            best_threshold = threshold
-            best_left = left
-            best_right = right
-
-    if best_threshold is None or best_gain <= 0:
+    if fixed_t1 is not None and fixed_t2 is not None and depth == 0:
+        t1, t2 = fixed_t1, fixed_t2
+        _, _, gain, _, _, _ = _compute_split_with_thresholds(samples, feature_key, t1, t2)
+    else:
+        t1, t2, gain, re, rc, info = _find_best_split_single_feature(samples, feature_key)
+    if t1 is None or gain <= 0:
         cls, cls_counts = _majority_class(samples)
         return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
 
     fname = FEATURE_NAMES.get(feature_key, feature_key)
-    left_rules = _build_tree_rules_deep(best_left, feature_key, depth + 1, max_depth)
-    right_rules = _build_tree_rules_deep(best_right, feature_key, depth + 1, max_depth)
+    left = [s for s in samples if float(s.get(feature_key, 0)) < t1]
+    mid = [s for s in samples if t1 <= float(s.get(feature_key, 0)) <= t2]
+    right = [s for s in samples if float(s.get(feature_key, 0)) > t2]
 
-    left_majority, left_counts = _majority_class(best_left)
-    right_majority, right_counts = _majority_class(best_right)
+    left_majority, left_counts = _majority_class(left) if left else ('Rendah', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
+    mid_majority, mid_counts = _majority_class(mid) if mid else ('Sedang', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
+    right_majority, right_counts = _majority_class(right) if right else ('Tinggi', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
 
     result = [{
         'type': 'split',
         'feature': fname,
-        'threshold': round(best_threshold, 2),
-        'gain': round(best_gain, 4),
+        'threshold_low': round(t1, 2),
+        'threshold_high': round(t2, 2),
+        'gain': round(gain, 4),
         'left_class': left_majority,
         'left_counts': left_counts,
-        'left_n': len(best_left),
+        'left_n': len(left),
+        'mid_class': mid_majority,
+        'mid_counts': mid_counts,
+        'mid_n': len(mid),
         'right_class': right_majority,
         'right_counts': right_counts,
-        'right_n': len(best_right),
+        'right_n': len(right),
     }]
-    result.extend(left_rules)
-    result.extend(right_rules)
+
+    if left and len(left) > 2:
+        result.extend(_build_tree_rules_deep(left, feature_key, depth + 1, max_depth))
+    if mid and len(mid) > 2:
+        result.extend(_build_tree_rules_deep(mid, feature_key, depth + 1, max_depth))
+    if right and len(right) > 2:
+        result.extend(_build_tree_rules_deep(right, feature_key, depth + 1, max_depth))
+
     return result
 
 
-def _build_rules_text(samples, feature_key):
+def _build_rules_text(samples, feature_key, fixed_t1=None, fixed_t2=None):
     if not samples:
         return []
 
-    value_counts = {}
-    for s in samples:
-        v = float(s.get(feature_key, 0))
-        if v not in value_counts:
-            value_counts[v] = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-        r = s.get('tingkat_risiko', '')
-        if r in value_counts[v]:
-            value_counts[v][r] += 1
+    if fixed_t1 is not None and fixed_t2 is not None:
+        t1, t2 = fixed_t1, fixed_t2
+    else:
+        t1, t2, gain, re, rc, info = _find_best_split_single_feature(samples, feature_key)
+    if t1 is None:
+        cls, counts = _majority_class(samples)
+        return [f"IF {FEATURE_NAMES.get(feature_key, feature_key)} ANY THEN Risiko = {cls} (n={len(samples)}, {counts})"]
 
-    sorted_vals = sorted(value_counts.keys())
     fname = FEATURE_NAMES.get(feature_key, feature_key)
+    left = [s for s in samples if float(s.get(feature_key, 0)) < t1]
+    mid = [s for s in samples if t1 <= float(s.get(feature_key, 0)) <= t2]
+    right = [s for s in samples if float(s.get(feature_key, 0)) > t2]
 
-    transitions = []
-    for i in range(len(sorted_vals) - 1):
-        v1 = sorted_vals[i]
-        v2 = sorted_vals[i + 1]
-        c1 = max(value_counts[v1], key=value_counts[v1].get)
-        c2 = max(value_counts[v2], key=value_counts[v2].get)
-        if c1 != c2:
-            threshold = (v1 + v2) / 2.0
-            transitions.append((threshold, c1, c2))
+    left_cls, left_counts = _majority_class(left) if left else ('Rendah', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
+    mid_cls, mid_counts = _majority_class(mid) if mid else ('Sedang', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
+    right_cls, right_counts = _majority_class(right) if right else ('Tinggi', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0})
 
     rules = []
-    if not transitions:
-        cls, counts = _majority_class(samples)
-        rules.append(f"IF {fname} ANY THEN Risiko = {cls} ({counts})")
-    else:
-        for i, (thr, left_cls, right_cls) in enumerate(transitions):
-            left_n = sum(1 for s in samples if float(s.get(feature_key, 0)) <= thr)
-            right_n = sum(1 for s in samples if float(s.get(feature_key, 0)) > thr)
-            left_c = {k: 0 for k in ['Rendah', 'Sedang', 'Tinggi']}
-            right_c = {k: 0 for k in ['Rendah', 'Sedang', 'Tinggi']}
-            for s in samples:
-                v = float(s.get(feature_key, 0))
-                r = s.get('tingkat_risiko', '')
-                if v <= thr and r in left_c:
-                    left_c[r] += 1
-                elif v > thr and r in right_c:
-                    right_c[r] += 1
-            rules.append(f"IF {fname} <= {thr:.2f} THEN Risiko = {left_cls} (n={left_n}, {left_c})")
-            rules.append(f"IF {fname} > {thr:.2f} THEN Risiko = {right_cls} (n={right_n}, {right_c})")
-
+    rules.append(f"IF {fname} < {t1:.2f} THEN Risiko = {left_cls} (n={len(left)}, {left_counts})")
+    rules.append(f"IF {fname} >= {t1:.2f} AND <= {t2:.2f} THEN Risiko = {mid_cls} (n={len(mid)}, {mid_counts})")
+    rules.append(f"IF {fname} > {t2:.2f} THEN Risiko = {right_cls} (n={len(right)}, {right_counts})")
     return rules
 
 
@@ -411,27 +466,47 @@ def hitung():
             pohon_features = _read_pohon_features(wb, pohon_name)
             excel_entropy = _read_excel_entropy(wb, pohon_name)
 
-            best_threshold = None
-            best_gain = -1
-            best_feature = None
-            best_split_info = None
-            best_root_counts = None
+            bab4_cfg = BAB4_POHON_CONFIG.get(pohon_num, {})
+            bab4_feat = bab4_cfg.get('feature')
+            bab4_t1 = bab4_cfg.get('t1')
+            bab4_t2 = bab4_cfg.get('t2')
 
-            for feat in pohon_features:
-                threshold, gain, root_e, root_counts, split_info = _find_best_split_single_feature(
-                    bootstrap_samples, feat
+            if bab4_feat and bab4_t1 is not None and bab4_t2 is not None:
+                best_threshold_low = bab4_t1
+                best_threshold_high = bab4_t2
+                best_feature = bab4_feat
+                _, _, best_gain, _, best_root_counts, best_split_info = _compute_split_with_thresholds(
+                    bootstrap_samples, bab4_feat, bab4_t1, bab4_t2
                 )
-                if gain > best_gain:
-                    best_gain = gain
-                    best_threshold = threshold
-                    best_feature = feat
-                    best_split_info = split_info
-                    best_root_counts = root_counts
+                if best_split_info is None:
+                    best_gain = 0
+                    best_split_info = {'weighted_entropy': 0, 'left_entropy': 0, 'mid_entropy': 0,
+                                       'right_entropy': 0, 'left_samples': 0, 'mid_samples': 0, 'right_samples': 0}
+                    best_root_counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+            else:
+                best_threshold_low = None
+                best_threshold_high = None
+                best_gain = -1
+                best_feature = None
+                best_split_info = None
+                best_root_counts = None
+
+                for feat in pohon_features:
+                    t1, t2, gain, root_e, root_counts, split_info = _find_best_split_single_feature(
+                        bootstrap_samples, feat
+                    )
+                    if gain > best_gain:
+                        best_gain = gain
+                        best_threshold_low = t1
+                        best_threshold_high = t2
+                        best_feature = feat
+                        best_split_info = split_info
+                        best_root_counts = root_counts
 
             root_entropy = best_split_info['weighted_entropy'] + best_gain if best_split_info else 0
 
-            rules_text = _build_rules_text(bootstrap_samples, best_feature)
-            rules_deep = _build_tree_rules_deep(bootstrap_samples, best_feature)
+            rules_text = _build_rules_text(bootstrap_samples, best_feature, best_threshold_low, best_threshold_high)
+            rules_deep = _build_tree_rules_deep(bootstrap_samples, best_feature, 0, 3, best_threshold_low, best_threshold_high)
 
             unique_hashes = set()
             for s in bootstrap_samples:
@@ -452,18 +527,22 @@ def hitung():
                 'n_duplicates': len(bootstrap_samples) - n_unique,
                 'features_available': pohon_features,
                 'best_feature': best_feature,
-                'root_threshold': round(best_threshold, 2) if best_threshold else None,
+                'threshold_low': round(best_threshold_low, 2) if best_threshold_low is not None else None,
+                'threshold_high': round(best_threshold_high, 2) if best_threshold_high is not None else None,
                 'gain': round(best_gain, 6),
                 'gain_bab4': round(bab4_gain, 6),
-                'root_entropy': round(root_entropy, 6),
+                'root_entropy': round(best_split_info['weighted_entropy'] + best_gain, 6) if best_split_info else 0,
                 'root_counts': {'Tinggi': best_root_counts.get('Tinggi', 0),
                                 'Sedang': best_root_counts.get('Sedang', 0),
                                 'Rendah': best_root_counts.get('Rendah', 0)} if best_root_counts else {},
                 'left_entropy': best_split_info.get('left_entropy', 0) if best_split_info else 0,
+                'mid_entropy': best_split_info.get('mid_entropy', 0) if best_split_info else 0,
                 'right_entropy': best_split_info.get('right_entropy', 0) if best_split_info else 0,
                 'left_samples': best_split_info.get('left_samples', 0) if best_split_info else 0,
+                'mid_samples': best_split_info.get('mid_samples', 0) if best_split_info else 0,
                 'right_samples': best_split_info.get('right_samples', 0) if best_split_info else 0,
                 'weighted_entropy': best_split_info.get('weighted_entropy', 0) if best_split_info else 0,
+                'entropy_bab4': round(bab4_entropy_after, 6),
                 'rules_text': rules_text,
                 'rules_deep': rules_deep,
                 'excel_entropy': round(excel_entropy, 6) if excel_entropy else None,
@@ -506,21 +585,25 @@ def hitung():
         our_test_results = []
         our_threshold_used = None
         if best_tree:
-            thr = best_tree.get('root_threshold')
-            left_class, right_class = 'Rendah', 'Sedang'
+            thr_low = best_tree.get('threshold_low')
+            thr_high = best_tree.get('threshold_high')
+            left_class, mid_class, right_class = 'Rendah', 'Sedang', 'Tinggi'
             if best_tree.get('rules_deep'):
                 for rule in best_tree['rules_deep']:
                     if rule.get('type') == 'split':
                         left_class = rule.get('left_class', 'Rendah')
-                        right_class = rule.get('right_class', 'Sedang')
+                        mid_class = rule.get('mid_class', 'Sedang')
+                        right_class = rule.get('right_class', 'Tinggi')
                         break
-            if thr:
-                our_threshold_used = thr
+            if thr_low is not None and thr_high is not None:
+                our_threshold_used = f'{thr_low}, {thr_high}'
                 for i in range(N_TEST):
                     actual_risk = test_data[i].get('tingkat_risiko', '')
                     jk_val = int(test_data[i].get('jumlah_kasus', 0))
-                    if jk_val < thr:
+                    if jk_val < thr_low:
                         predicted_risk = left_class
+                    elif jk_val <= thr_high:
+                        predicted_risk = mid_class
                     else:
                         predicted_risk = right_class
                     our_test_results.append({
@@ -566,14 +649,10 @@ def hitung():
                     {'fitur': 'Tingkat Resiko (Target)', 'nilai_asli': 'Rendah / Sedang / Tinggi', 'nilai_encoding': '1 / 2 / 3'},
                 ],
                 'grouping_table': [
-                    {'fitur': 'Jumlah Kasus', 'rentang': '1 – 10', 'risiko': 'Rendah', 'label': 1},
-                    {'fitur': 'Jumlah Kasus', 'rentang': '11 – 20', 'risiko': 'Sedang', 'label': 2},
-                    {'fitur': 'Jumlah Kasus', 'rentang': '> 20', 'risiko': 'Tinggi', 'label': 3},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '≤ 8', 'risiko': 'Rendah', 'label': 1},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '9 – 15', 'risiko': 'Sedang', 'label': 2},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '> 15', 'risiko': 'Tinggi', 'label': 3},
                 ],
-            },
-            'step3': {
-                'n_trees': len(pohon_results),
-                'note': 'Setiap pohon dilatih dengan 163 data bootstrap. Setiap pohon menggunakan HANYA 1 fitur untuk split.',
             },
             'step4': {
                 'trees': pohon_results,

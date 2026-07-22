@@ -96,8 +96,8 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'[DB] Error creating tables: {e}')
 
         from app.models import User, PasienDBD, KasusBulanan
         if User.query.count() == 0:
@@ -107,7 +107,7 @@ def create_app():
 
 
 def _seed_initial_data(app):
-    """Auto-seed users + import patients from Excel on first run (SQLite)."""
+    """Auto-seed users + import patients from Excel on first run (MySQL)."""
     import os
     from app.models import User, PasienDBD, KasusBulanan
     from werkzeug.security import generate_password_hash

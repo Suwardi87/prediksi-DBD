@@ -42,7 +42,9 @@ def login():
             flash(f'Selamat datang, {user.nama_lengkap}!', 'success')
             
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.index'))
+            if not next_page or not next_page.startswith('/'):
+                next_page = url_for('main.index')
+            return redirect(next_page)
         else:
             flash('Username atau password salah!', 'danger')
     
