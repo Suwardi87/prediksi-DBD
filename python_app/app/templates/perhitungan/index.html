@@ -462,7 +462,10 @@ function renderStep4() {
     const trees = DATA.step4.trees;
 
     let html = '<thead><tr><th style="position:sticky; top:0; z-index:1;">Metrik</th>';
-    trees.forEach(t => { html += `<th style="position:sticky; top:0; z-index:1;">${t.name}</th>`; });
+    trees.forEach(t => {
+        const isBest = t.id === 5;
+        html += `<th style="position:sticky; top:0; z-index:1; text-align:center;"><div>${t.name}</div><div style="font-size:0.7rem; font-weight:400; color:var(--gray-500);">(${t.target_label})</div>${isBest ? '<div style="font-size:0.65rem; color:#16a34a; font-weight:600;">★ Terbaik</div>' : ''}</th>`;
+    });
     html += '</tr></thead><tbody>';
 
     const rows = [
