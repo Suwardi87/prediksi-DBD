@@ -21,7 +21,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'dbd-prediction-secret-key-2025'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Database: env var > MySQL > SQLite fallback
+    # Database: MySQL only (XAMPP)
     db_url = os.environ.get('DATABASE_URL', '')
     if not db_url:
         try:
@@ -30,8 +30,11 @@ def create_app():
             conn.close()
             db_url = 'mysql+pymysql://root:@localhost/db_prediksi_dbd'
         except Exception:
-            db_path = os.path.join(os.path.dirname(__file__), '..', 'db.sqlite3')
-            db_url = f'sqlite:///{os.path.abspath(db_path)}'
+            raise RuntimeError(
+                'MySQL tidak ditemukan! '
+                'Pastikan XAMPP MySQL sudah berjalan (start MySQL di XAMPP Control Panel). '
+                'Import database: mysql -u root < db_prediksi_dbd.sql'
+            )
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
