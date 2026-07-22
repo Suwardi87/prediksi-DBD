@@ -45,6 +45,7 @@
 .tag-target { background: #ede9fe; color: #5b21b6; }
 .tag-ok { background: #def7ec; color: #03543f; }
 .tag-err { background: #fde8e8; color: #9b1c1c; }
+.tag-best { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
 
 .mini-tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
 .mini-tbl th { background: var(--gray-100); padding: 6px 8px; text-align: left; font-weight: 600; }
@@ -88,16 +89,17 @@
 {% block content %}
 <div class="page-header">
     <h4><i class='bx bx-git-branch'></i> Perhitungan Manual — Random Forest</h4>
-    <p>Alur sesuai Bab IV: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), m = √4 = 2, 15 pohon, Pohon 5 = terbaik</p>
+    <p>Alur sesuai Bab IV: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, Pohon 5 = terbaik</p>
 </div>
 
 <div class="step-nav" id="stepNav">
     <div class="sn active" onclick="goStep(0)"><span class="num">1</span> Data Latih</div>
     <div class="sn" onclick="goStep(1)"><span class="num">2</span> Encoding</div>
     <div class="sn" onclick="goStep(2)"><span class="num">3</span> Bootstrap</div>
-    <div class="sn" onclick="goStep(3)"><span class="num">4</span> Pohon Keputusan</div>
-    <div class="sn" onclick="goStep(4)"><span class="num">5</span> Pohon Terbaik</div>
-    <div class="sn" onclick="goStep(5)"><span class="num">6</span> Evaluasi</div>
+    <div class="sn" onclick="goStep(3)"><span class="num">4</span> Tabel 4.18</div>
+    <div class="sn" onclick="goStep(4)"><span class="num">5</span> Pohon Keputusan</div>
+    <div class="sn" onclick="goStep(5)"><span class="num">6</span> Pohon Terbaik</div>
+    <div class="sn" onclick="goStep(6)"><span class="num">7</span> Evaluasi</div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -173,33 +175,54 @@
     <div class="card-clean">
         <h6><i class='bx bx-duplicate'></i> Bootstrap Sampling — 15 Pohon</h6>
         <p class="desc">
-            Setiap pohon dilatih dengan sampel bootstrap dari 163 data.
-            m = √4 = 2 fitur dipilih secara acak di setiap node.
-            Setiap pohon memprediksi <strong>fitur yang berbeda</strong> (sesuai Bab IV).
+            Setiap pohon dilatih dengan <strong>163 data bootstrap</strong> (sampling with replacement dari data asli).
+            Setiap pohon menggunakan <strong>HANYA 1 fitur</strong> untuk split (bukan m=2).
         </p>
         <div class="stat-row" id="statBootstrap"></div>
     </div>
     <div class="card-clean">
-        <h6><i class='bx bx-git-repo'></i> Daftar 15 Pohon & Target Prediksi</h6>
-        <p class="desc">Setiap pohon memiliki target prediksi yang berbeda sesuai Bab IV.</p>
+        <h6><i class='bx bx-git-repo'></i> Distribusi Risiko per Bootstrap Sample</h6>
+        <p class="desc">Setiap pohon memiliki distribusi Risiko yang berbeda karena bootstrap sampling.</p>
         <div class="scroll-box-lg" style="max-height:450px;">
-            <table class="mini-tbl" id="tblPohonBootstrap"></table>
+            <table class="mini-tbl" id="tblBootstrap"></table>
         </div>
     </div>
 </div>
 
-<!-- STEP 3: POHON KEPUTUSAN -->
+<!-- STEP 3: TABEL 4.18 -->
 <div class="step-panel" id="step3">
     <div class="card-clean">
-        <h6><i class='bx bx-selection'></i> Pohon Keputusan — Entropy & Information Gain</h6>
+        <h6><i class='bx bx-bar-chart-alt-2'></i> Tabel 4.18 — Hasil Tabel Perhitungan</h6>
         <p class="desc">
-            Root split setiap pohon menunjukkan fitur terbaik untuk membagi data.
-            Setiap pohon memprediksi fitur target-nya sendiri.
+            Ringkasan Information Gain dan Entropy untuk setiap pohon keputusan.
+            <strong>Gain</strong> = Root Entropy − Weighted Entropy (setelah split).
+            Pohon dengan Gain tertinggi = pohon terbaik.
         </p>
         <div class="formula-box">
             <strong>Entropy:</strong> E(S) = −Σ pᵢ × log₂(pᵢ)<br>
-            <strong>Information Gain:</strong> IG(S,A) = E(S) − Σ (|Sᵥ|/|S|) × E(Sᵥ)
+            <strong>Information Gain:</strong> IG(S,A) = E(S) − Σ (|Sᵥ|/|S|) × E(Sᵥ)<br>
+            <strong>Root Entropy</strong> = distribusi Risiko pada bootstrap sample (163 data)
         </div>
+    </div>
+    <div class="card-clean">
+        <h6>Tabel 4.18 — Gain & Entropy per Pohon</h6>
+        <div class="scroll-box-lg" style="max-height:520px;">
+            <table class="mini-tbl" id="tblGain"></table>
+        </div>
+    </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-trophy'></i> Pohon dengan Gain Tertinggi</h6>
+        <div id="bestGainInfo"></div>
+    </div>
+</div>
+
+<!-- STEP 4: POHON KEPUTUSAN -->
+<div class="step-panel" id="step4">
+    <div class="card-clean">
+        <h6><i class='bx bx-selection'></i> Pohon Keputusan — Aturan Split</h6>
+        <p class="desc">
+            Setiap pohon menggunakan 1 fitur untuk split. Berikut aturan if-then untuk setiap pohon.
+        </p>
     </div>
     <div class="card-clean">
         <h6>Root Split — Semua 15 Pohon</h6>
@@ -215,13 +238,13 @@
     </div>
 </div>
 
-<!-- STEP 4: POHON TERBAIK -->
-<div class="step-panel" id="step4">
+<!-- STEP 5: POHON TERBAIK -->
+<div class="step-panel" id="step5">
     <div class="card-clean">
         <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 5 (Sesuai Bab IV)</h6>
         <p class="desc">
-            Berdasarkan evaluasi MAE, RMSE, dan R², <strong>Pohon 5</strong> dipilih sebagai pohon terbaik.
-            Pohon 5 memprediksi <strong>Jumlah Kasus Perbulan</strong> dengan threshold: &lt;12.60=Rendah, 12.60-29.21=Sedang, &gt;29.21=Tinggi.
+            Berdasarkan evaluasi Bab IV, <strong>Pohon 5</strong> dipilih sebagai pohon terbaik.
+            Pohon 5 memprediksi <strong>Jumlah Kasus Perbulan</strong>.
         </p>
         <div class="stat-row" id="statBestTree"></div>
     </div>
@@ -238,8 +261,8 @@
     </div>
 </div>
 
-<!-- STEP 5: EVALUASI -->
-<div class="step-panel" id="step5">
+<!-- STEP 6: EVALUASI -->
+<div class="step-panel" id="step6">
     <div class="card-clean">
         <h6><i class='bx bx-line-chart'></i> Evaluasi — 10 Data Uji (Tabel 4.49 Bab IV)</h6>
         <p class="desc">Evaluasi Pohon 5 pada 10 data uji.</p>
@@ -266,7 +289,7 @@
 </div>
 
 <script>
-const STEPS = ['Data Latih', 'Encoding', 'Bootstrap', 'Pohon Keputusan', 'Pohon Terbaik', 'Evaluasi'];
+const STEPS = ['Data Latih', 'Encoding', 'Bootstrap', 'Tabel 4.18', 'Pohon Keputusan', 'Pohon Terbaik', 'Evaluasi'];
 let currentStep = 0;
 let DATA = null;
 let chartInstance = null;
@@ -336,33 +359,72 @@ function renderStep2() {
     const trees = DATA.step4.trees;
     document.getElementById('statBootstrap').innerHTML = `
         <div class="stat-box"><div class="val">${trees.length}</div><div class="lbl">Jumlah Pohon</div></div>
-        <div class="stat-box"><div class="val">163</div><div class="lbl">Data Bootstrap</div></div>
-        <div class="stat-box"><div class="val">m = 2</div><div class="lbl">Fitur / Node</div></div>
+        <div class="stat-box"><div class="val">163</div><div class="lbl">Data per Pohon</div></div>
+        <div class="stat-box"><div class="val">1</div><div class="lbl">Fitur / Pohon</div></div>
         <div class="stat-box"><div class="val">Pohon 5</div><div class="lbl">Terbaik</div></div>
     `;
-    let html = '<thead><tr><th>Pohon</th><th>Target Prediksi</th><th>Data</th><th>Unik</th><th>Duplikat</th><th>Fitur Root</th><th>Threshold</th><th>Entropy</th><th>IG</th><th>MAE</th><th>R²</th></tr></thead><tbody>';
+    let html = '<thead><tr><th>Pohon</th><th>Fitur Digunakan</th><th>Data</th><th>Unik</th><th>Duplikat</th><th>Tinggi</th><th>Sedang</th><th>Rendah</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
         const isBest = t.id === 5;
         const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
+        const rc = t.root_counts || {};
         html += `<tr${rowStyle}>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">Terbaik</span>' : ''}</td>
-            <td><span class="tag tag-target">${t.target_label}</span></td>
+            <td><span class="tag tag-feat">${t.target_label}</span></td>
             <td>${t.n_samples}</td>
             <td>${t.n_unique}</td>
             <td>${t.n_duplicates}</td>
-            <td>${t.best_feature}</td>
-            <td>≤ ${t.root_threshold}</td>
-            <td>${t.entropy_root_calc}</td>
-            <td><strong>${t.ig}</strong></td>
-            <td>${t.mae}</td>
-            <td>${t.r2}</td>
+            <td>${rc.Tinggi || 0}</td>
+            <td>${rc.Sedang || 0}</td>
+            <td>${rc.Rendah || 0}</td>
+            <td>${t.root_entropy}</td>
         </tr>`;
     });
     html += '</tbody>';
-    document.getElementById('tblPohonBootstrap').innerHTML = html;
+    document.getElementById('tblBootstrap').innerHTML = html;
 }
 
 function renderStep3() {
+    const trees = DATA.step4.trees;
+
+    let html = '<thead><tr><th>No</th><th>Pohon</th><th>Fitur</th><th>Root Entropy</th><th>Threshold</th><th>Weighted Entropy</th><th>Gain</th><th>E(left)</th><th>E(right)</th><th>N(left)</th><th>N(right)</th></tr></thead><tbody>';
+    trees.forEach(t => {
+        const isBest = t.id === 5;
+        const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
+        const gainColor = t.gain > 0.5 ? 'color:#16a34a; font-weight:700;' : t.gain < 0 ? 'color:#dc2626;' : '';
+        html += `<tr${rowStyle}>
+            <td>${t.id}</td>
+            <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-best" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td>
+            <td><span class="tag tag-feat">${t.target_label}</span></td>
+            <td>${t.root_entropy}</td>
+            <td>≤ ${t.root_threshold}</td>
+            <td>${t.weighted_entropy}</td>
+            <td style="${gainColor}">${t.gain}</td>
+            <td>${t.left_entropy}</td>
+            <td>${t.right_entropy}</td>
+            <td>${t.left_samples}</td>
+            <td>${t.right_samples}</td>
+        </tr>`;
+    });
+    html += '</tbody>';
+    document.getElementById('tblGain').innerHTML = html;
+
+    const best = DATA.step4.best_gain_tree;
+    const bestTree = trees.find(t => t.id === 5);
+    document.getElementById('bestGainInfo').innerHTML = `
+        <div class="stat-row">
+            <div class="stat-box"><div class="val" style="font-size:1.1rem;">${best}</div><div class="lbl">Pohon Gain Tertinggi</div></div>
+            <div class="stat-box"><div class="val">${bestTree ? bestTree.gain : '-'}</div><div class="lbl">Gain</div></div>
+            <div class="stat-box"><div class="val">${bestTree ? bestTree.root_entropy : '-'}</div><div class="lbl">Root Entropy</div></div>
+            <div class="stat-box"><div class="val">${bestTree ? bestTree.weighted_entropy : '-'}</div><div class="lbl">Weighted Entropy</div></div>
+        </div>
+        <p style="font-size:0.82rem; color:var(--gray-600); margin-top:8px;">
+            Gain = Root Entropy − Weighted Entropy = ${bestTree ? bestTree.root_entropy : 'N/A'} − ${bestTree ? bestTree.weighted_entropy : 'N/A'} = <strong>${bestTree ? bestTree.gain : 'N/A'}</strong>
+        </p>
+    `;
+}
+
+function renderStep4() {
     const trees = DATA.step4.trees;
 
     let html = '<thead><tr><th style="position:sticky; top:0; z-index:1;">Metrik</th>';
@@ -370,25 +432,20 @@ function renderStep3() {
     html += '</tr></thead><tbody>';
 
     const rows = [
-        { label: 'Target Prediksi', render: t => `<span class="tag tag-target">${t.target_label}</span>` },
-        { label: 'Jumlah Data', key: 'n_samples' },
-        { label: 'Data Unik', key: 'n_unique' },
+        { label: 'Fitur Digunakan', render: t => `<span class="tag tag-feat">${t.target_label}</span>` },
+        { label: 'Gain', render: t => {
+            const color = t.gain > 0.5 ? 'color:#16a34a;' : t.gain < 0 ? 'color:#dc2626;' : '';
+            return `<strong style="${color}">${t.gain}</strong>`;
+        }},
+        { label: 'Root Entropy', key: 'root_entropy' },
+        { label: 'Threshold', render: t => t.root_threshold ? `≤ ${t.root_threshold}` : '-' },
+        { label: 'N Data', key: 'n_samples' },
+        { label: 'N Unik', key: 'n_unique' },
         { label: 'Duplikat', key: 'n_duplicates' },
-        { label: 'Fitur Digunakan', render: t => t.features_used.map(f => `<span class="tag tag-feat">${f.replace('_',' ')}</span>`).join(' ') },
-        { label: 'Jumlah Fitur', key: 'n_features' },
-        { label: 'm (sqrt)', key: 'm_features' },
-        { label: 'Entropy Root', key: 'entropy_root_calc' },
-        { label: 'Root Fitur', key: 'best_feature' },
-        { label: 'Root Threshold', key: 'root_threshold', prefix: '≤ ' },
         { label: 'E(left)', key: 'left_entropy' },
         { label: 'E(right)', key: 'right_entropy' },
         { label: 'N left', key: 'left_samples' },
         { label: 'N right', key: 'right_samples' },
-        { label: 'IG', render: t => `<strong style="color:var(--primary);">${t.ig}</strong>` },
-        { label: 'Max Depth', key: 'max_depth' },
-        { label: 'Jumlah Daun', key: 'n_leaves' },
-        { label: 'MAE (eval)', key: 'mae' },
-        { label: 'R² (eval)', key: 'r2' },
     ];
 
     rows.forEach(row => {
@@ -396,7 +453,7 @@ function renderStep3() {
         trees.forEach(t => {
             let val;
             if (row.render) { val = row.render(t); }
-            else { val = (row.prefix || '') + t[row.key] + (row.suffix || ''); }
+            else { val = (row.prefix || '') + (t[row.key] !== undefined ? t[row.key] : '-') + (row.suffix || ''); }
             html += `<td>${val}</td>`;
         });
         html += '</tr>';
@@ -418,32 +475,31 @@ function showRuleDetail(idx) {
     panel.className = 'detail-panel show';
     let rulesHtml = '';
     if (t.rules && t.rules.length) {
-        rulesHtml = `<pre style="font-size:0.78rem; background:var(--gray-50); padding:12px; border-radius:6px; overflow-x:auto; border:1px solid var(--gray-200); max-height:300px; overflow-y:auto;">${t.rules.join('\n')}</pre>`;
+        rulesHtml = `<pre style="font-size:0.82rem; background:var(--gray-50); padding:12px; border-radius:6px; overflow-x:auto; border:1px solid var(--gray-200); max-height:300px; overflow-y:auto;">${t.rules.join('\n')}</pre>`;
     }
     panel.innerHTML = `
         <div style="margin-bottom:10px;">
-            <strong>${t.name}</strong> — Target: <span class="tag tag-target">${t.target_label}</span> | Data: ${t.n_samples} | Fitur: ${t.features_used.map(f=>f.replace('_',' ')).join(', ')}
+            <strong>${t.name}</strong> — Fitur: <span class="tag tag-feat">${t.target_label}</span> | Threshold: ≤ ${t.root_threshold} | Gain: <strong>${t.gain}</strong>
         </div>
         <div class="grid-2">
             <div>${rulesHtml || '<p style="color:var(--gray-400);">Tidak ada aturan</p>'}</div>
             <div>
-                <h6 style="font-size:0.82rem; margin-bottom:6px;">Predicted Values (10 data uji)</h6>
-                <table class="mini-tbl"><thead><tr><th>No</th><th>Aktual</th><th>Prediksi</th></tr></thead><tbody>
-                ${t.predicted_values.map(p => `<tr><td>${t.predicted_values.indexOf(p)+1}</td><td>${p.actual}</td><td>${p.predicted}</td></tr>`).join('')}
+                <h6 style="font-size:0.82rem; margin-bottom:6px;">Prediksi pada 10 Data Uji</h6>
+                <table class="mini-tbl"><thead><tr><th>No</th><th>Aktual</th><th>Prediksi</th><th></th></tr></thead><tbody>
+                ${t.predicted_values.map((p, i) => `<tr><td>${i+1}</td><td>${tag(p.actual)}</td><td>${tag(p.predicted)}</td><td>${p.actual === p.predicted ? '<span class="tag tag-ok">✓</span>' : '<span class="tag tag-err">✗</span>'}</td></tr>`).join('')}
                 </tbody></table>
             </div>
         </div>
     `;
 }
 
-function renderStep4() {
+function renderStep5() {
     const bt = DATA.step5.best_tree;
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bt.name}</div><div class="lbl">Pohon Terbaik</div></div>
-        <div class="stat-box"><div class="val">${bt.target_label}</div><div class="lbl">Target Prediksi</div></div>
-        <div class="stat-box"><div class="val">${bt.mae}</div><div class="lbl">MAE</div></div>
-        <div class="stat-box"><div class="val">${bt.rmse}</div><div class="lbl">RMSE</div></div>
-        <div class="stat-box"><div class="val">${bt.r2}</div><div class="lbl">R²</div></div>
+        <div class="stat-box"><div class="val">${bt.target_label}</div><div class="lbl">Fitur</div></div>
+        <div class="stat-box"><div class="val">${bt.gain}</div><div class="lbl">Gain</div></div>
+        <div class="stat-box"><div class="val">${bt.root_entropy}</div><div class="lbl">Root Entropy</div></div>
     `;
 
     let html = '<thead><tr><th>No</th><th>Aktual (Resiko)</th><th>Prediksi (Resiko)</th><th>Keterangan</th></tr></thead><tbody>';
@@ -478,7 +534,7 @@ function renderStep4() {
     document.getElementById('confusionMatrix').innerHTML = cmHtml;
 }
 
-function renderStep5() {
+function renderStep6() {
     const ev = DATA.step6;
     const bt = DATA.step5;
     document.getElementById('statEval').innerHTML = `
@@ -489,29 +545,23 @@ function renderStep5() {
         <div class="stat-box"><div class="val">${ev.r2}</div><div class="lbl">R²</div></div>
     `;
 
-    let html = '<thead><tr><th>Pohon</th><th>Target</th><th>MAE</th><th>RMSE</th><th>R²</th><th>Benar</th></tr></thead><tbody>';
+    let html = '<thead><tr><th>Pohon</th><th>Fitur</th><th>MAE</th><th>RMSE</th><th>R²</th><th>Benar</th></tr></thead><tbody>';
     ev.per_tree_eval.forEach((p, i) => {
         const t = DATA.step4.trees[i];
         const cls = p.r2 < 0 ? 'style="color:var(--danger);"' : (p.r2 > 0.5 ? 'style="color:var(--success);"' : '');
-        html += `<tr><td>${p.name}</td><td><span class="tag tag-target">${t ? t.target_label : '-'}</span></td><td>${p.mae}</td><td>${p.rmse}</td><td ${cls}><strong>${p.r2}</strong></td><td>${p.correct}/${p.total}</td></tr>`;
+        html += `<tr><td>${p.name}</td><td><span class="tag tag-feat">${t ? t.target_label : '-'}</span></td><td>${p.mae}</td><td>${p.rmse}</td><td ${cls}><strong>${p.r2}</strong></td><td>${p.correct}/${p.total}</td></tr>`;
     });
     html += '</tbody>';
     document.getElementById('tblTreeEval').innerHTML = html;
 
     const bestTree = DATA.step4.trees.find(t => t.id === 5);
     document.getElementById('analysisText').innerHTML = `
-        <p><strong>Pohon Terbaik: Pohon 5</strong> (Target: Jumlah Kasus Perbulan)</p>
+        <p><strong>Pohon Terbaik: Pohon 5</strong> (Fitur: ${bestTree ? bestTree.target_label : '-'}, Gain: ${bestTree ? bestTree.gain : '-'})</p>
         <ul style="margin: 8px 0 12px 18px;">
-            <li><strong>MAE:</strong> ${ev.mae} — rata-rata kesalahan prediksi</li>
+            <li><strong>MAE:</strong> ${ev.mae} — rata-rata kesalahan prediksi (encoded values)</li>
             <li><strong>RMSE:</strong> ${ev.rmse} — penalti lebih besar untuk kesalahan besar</li>
             <li><strong>R²:</strong> ${ev.r2} — proporsi varians yang dijelaskan model (max = 1.0)</li>
             <li><strong>Akurasi:</strong> ${bt.correct_count}/${bt.total_test} = ${(bt.accuracy * 100).toFixed(0)}% data uji benar</li>
-        </ul>
-        <p><strong>Aturan Pohon 5:</strong></p>
-        <ul style="margin: 8px 0 12px 18px;">
-            <li>Jika Jumlah Kasus &lt; 12.60 → <span class="tag tag-rendah">Rendah</span></li>
-            <li>Jika 12.60 ≤ Jumlah Kasus ≤ 29.21 → <span class="tag tag-sedang">Sedang</span></li>
-            <li>Jika Jumlah Kasus &gt; 29.21 → <span class="tag tag-tinggi">Tinggi</span></li>
         </ul>
         <p><strong>Catatan Bab IV:</strong> "Meskipun Pohon Sampel 5 merupakan pohon terbaik, masih terdapat perbedaan antara hasil prediksi dan data aktual sehingga kemampuan model dalam memprediksi tingkat risiko pada data uji masih perlu ditingkatkan."</p>
     `;
@@ -534,6 +584,7 @@ async function jalankanPerhitungan() {
         renderStep3();
         renderStep4();
         renderStep5();
+        renderStep6();
 
         overlay.style.display = 'none';
         ready.style.display = 'block';

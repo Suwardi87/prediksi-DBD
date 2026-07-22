@@ -1,16 +1,16 @@
 """
 Perhitungan Manual Routes — Sesuai Bab IV
 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus)
-m=√4=2, 15 pohon, Encoding: Rendah=1, Sedang=2, Tinggi=3
+15 pohon, setiap pohon HANYA 1 fitur untuk split.
+Encoding: Rendah=1, Sedang=2, Tinggi=3
 Grouping: Kasus 1-10=Rendah, 11-20=Sedang, >20=Tinggi
-Pohon 5 = pohon terbaik. Evaluasi pada 10 data uji.
+Pohon 5 = pohon terbaik (Gain tertinggi). Evaluasi pada 10 data uji.
 """
 import os
 import math
 import numpy as np
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required
-from sklearn.tree import DecisionTreeClassifier, export_text
 
 perhitungan_bp = Blueprint('perhitungan', __name__)
 
@@ -37,27 +37,6 @@ POHON_NAMES = [
     'Pohon 11', 'Pohon 12', 'Pohon 13', 'Pohon 14', 'Pohon 15',
 ]
 
-POHON_TARGET = {
-    1: 'jumlah_kasus', 5: 'jumlah_kasus', 9: 'jumlah_kasus', 13: 'jumlah_kasus',
-    2: 'usia', 8: 'usia', 10: 'usia', 14: 'usia',
-    3: 'lama_rawat', 6: 'lama_rawat', 11: 'lama_rawat', 15: 'lama_rawat',
-    4: 'jk', 7: 'jk', 12: 'jk',
-}
-
-POHON_TARGET_LABEL = {
-    'jumlah_kasus': 'Jumlah Kasus Perbulan',
-    'usia': 'Usia',
-    'lama_rawat': 'Lama Rawat Inap',
-    'jk': 'Jenis Kelamin',
-}
-
-GROUPING_RULES = {
-    'jumlah_kasus': [(1, 10, 'Rendah'), (11, 20, 'Sedang'), (21, 999, 'Tinggi')],
-    'usia': [(0, 17, 'Anak-anak'), (18, 59, 'Dewasa'), (60, 150, 'Lansia')],
-    'lama_rawat': [(1, 2, 'Singkat'), (3, 4, 'Sedang'), (5, 99, 'Lama')],
-    'jk': [(0, 0, 'Perempuan'), (1, 1, 'Laki-laki')],
-}
-
 N_TEST = 10
 
 
@@ -75,24 +54,14 @@ def _read_data_dbd(wb):
     return data
 
 
-def _find_right_table(ws):
+def _read_bootstrap_from_sheet(wb, pohon_name):
+    ws = wb[pohon_name]
     headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
     nos = [i for i, h in enumerate(headers) if h == 'No']
-    if len(nos) >= 2:
-        return nos[1]
-    for i, h in enumerate(headers):
-        if i >= 7 and h == 'No':
-            return i
-    return None
-
-
-def _read_pohon(wb, pohon_name):
-    ws = wb[pohon_name]
-    rs = _find_right_table(ws)
+    rs = nos[1] if len(nos) >= 2 else None
     if rs is None:
-        return None
+        return []
 
-    headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
     right_headers = []
     for i in range(rs, len(headers)):
         h = headers[i]
@@ -111,27 +80,34 @@ def _read_pohon(wb, pohon_name):
             sample[feat_name] = ws.cell(row=r, column=col_idx + 1).value
         if 'tingkat_risiko' in sample and sample['tingkat_risiko'] in LABEL_ENCODE:
             samples.append(sample)
-        if len(samples) >= 163:
-            break
+    return samples
 
-    entropy_root = None
+
+def _read_excel_entropy(wb, pohon_name):
+    ws = wb[pohon_name]
     for r in range(1, min(ws.max_row + 1, 20)):
         for c in range(1, min(ws.max_column + 1, 25)):
             v = ws.cell(row=r, column=c).value
             if v and isinstance(v, str) and 'entropy root' in v.lower():
-                entropy_root = ws.cell(row=r, column=c + 1).value
-                break
-        if entropy_root is not None:
+                return ws.cell(row=r, column=c + 1).value
+    return None
+
+
+def _read_pohon_features(wb, pohon_name):
+    ws = wb[pohon_name]
+    headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
+    nos = [i for i, h in enumerate(headers) if h == 'No']
+    rs = nos[1] if len(nos) >= 2 else None
+    if rs is None:
+        return []
+    features = []
+    for i in range(rs, len(headers)):
+        h = headers[i]
+        if h and h in COL_MAP and COL_MAP[h] != 'tingkat_risiko':
+            features.append(COL_MAP[h])
+        elif h == 'Perhitungan root':
             break
-
-    features_used = [fn for _, fn in right_headers if fn != 'tingkat_risiko']
-
-    return {
-        'samples': samples,
-        'entropy_root': entropy_root,
-        'features_used': features_used,
-        'n_samples': len(samples),
-    }
+    return features
 
 
 def _calc_entropy(counts):
@@ -146,133 +122,102 @@ def _calc_entropy(counts):
     return ent
 
 
-def _classify_value(value, feature_key):
-    rules = GROUPING_RULES.get(feature_key, [])
-    for lo, hi, label in rules:
-        if lo <= value <= hi:
-            return label
-    return rules[-1][2] if rules else 'Tidak Diketahui'
-
-
-def _predict_risk_from_value(predicted_value, feature_key):
-    label = _classify_value(predicted_value, feature_key)
-    if feature_key == 'jumlah_kasus':
-        return label
-    return label
-
-
-def _train_tree_regression(samples, features_used, target_feature):
-    if not samples or not features_used:
-        return None
-
-    feature_cols = [f for f in features_used if f != target_feature]
-    if not feature_cols:
-        feature_cols = features_used[:]
-
-    X = []
-    y = []
+def _calc_root_entropy(samples):
+    counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
     for s in samples:
-        row = [float(s.get(f, 0)) for f in feature_cols]
-        X.append(row)
-        y.append(float(s.get(target_feature, 0)))
+        r = s.get('tingkat_risiko', '')
+        if r in counts:
+            counts[r] += 1
+    return _calc_entropy([counts['Rendah'], counts['Sedang'], counts['Tinggi']]), counts
 
-    X = np.array(X)
-    y = np.array(y)
 
-    n_features = len(feature_cols)
-    m_features = max(1, int(math.sqrt(n_features)))
+def _find_best_split_single_feature(samples, feature_key):
+    if not samples:
+        return None, 0.0, None, None, None
 
-    clf = DecisionTreeClassifier(
-        criterion='entropy',
-        max_features=m_features,
-        random_state=42
-    )
-    clf.fit(X, y)
+    root_e, root_counts = _calc_root_entropy(samples)
+    n = len(samples)
 
-    tree = clf.tree_
-    feature_names = [f.replace('_', ' ').title() for f in feature_cols]
+    values = sorted(set(float(s.get(feature_key, 0)) for s in samples))
 
-    root_counts = tree.value[0].flatten()
-    total_w = float(tree.weighted_n_node_samples[0])
-    root_counts_abs = (root_counts * total_w).astype(float)
-    root_entropy = _calc_entropy(root_counts_abs.tolist())
+    if len(values) <= 1:
+        return None, 0.0, root_e, root_counts, None
 
-    feat_idx = tree.feature[0]
-    root_ig = 0.0
-    root_feature = None
-    root_threshold = None
-    left_entropy = 0.0
-    right_entropy = 0.0
-    left_samples = 0
-    right_samples = 0
+    best_gain = -1
+    best_threshold = None
+    best_left = None
+    best_right = None
 
-    if feat_idx >= 0 and tree.children_left[0] >= 0 and tree.children_right[0] >= 0:
-        root_feature = feature_names[feat_idx]
-        root_threshold = round(float(tree.threshold[0]), 4)
+    for i in range(len(values) - 1):
+        threshold = (values[i] + values[i + 1]) / 2.0
+        left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
+        right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
+        if not left or not right:
+            continue
 
-        left_w = float(tree.weighted_n_node_samples[tree.children_left[0]])
-        right_w = float(tree.weighted_n_node_samples[tree.children_right[0]])
-        left_counts = (tree.value[tree.children_left[0]].flatten() * left_w).astype(float)
-        right_counts = (tree.value[tree.children_right[0]].flatten() * right_w).astype(float)
-        left_entropy = _calc_entropy(left_counts.tolist())
-        right_entropy = _calc_entropy(right_counts.tolist())
-        left_samples = int(round(left_counts.sum()))
-        right_samples = int(round(right_counts.sum()))
-        total_s = left_samples + right_samples
-        if total_s > 0:
-            root_ig = root_entropy - (left_samples / total_s * left_entropy + right_samples / total_s * right_entropy)
+        left_e, _ = _calc_root_entropy(left)
+        right_e, _ = _calc_root_entropy(right)
+        weighted_e = (len(left) / n) * left_e + (len(right) / n) * right_e
+        gain = root_e - weighted_e
 
-    rules_text = export_text(clf, feature_names=feature_names)
+        if gain > best_gain:
+            best_gain = gain
+            best_threshold = threshold
+            best_left = left
+            best_right = right
 
-    n_leaves = int(tree.n_leaves)
-    max_depth = int(tree.max_depth)
+    left_e = _calc_root_entropy(best_left)[0] if best_left else 0
+    right_e = _calc_root_entropy(best_right)[0] if best_right else 0
+    weighted_e_final = root_e - best_gain if best_gain > 0 else root_e
 
-    predicted_values = []
-    for s in samples:
-        row = [float(s.get(f, 0)) for f in feature_cols]
-        pred = clf.predict([row])[0]
-        predicted_values.append(pred)
-
-    actual_values = [float(s.get(target_feature, 0)) for s in samples]
-    mae = float(np.mean(np.abs(np.array(actual_values) - np.array(predicted_values))))
-    rmse = float(math.sqrt(np.mean((np.array(actual_values) - np.array(predicted_values)) ** 2)))
-    y_mean = float(np.mean(actual_values))
-    ss_res = float(np.sum((np.array(actual_values) - np.array(predicted_values)) ** 2))
-    ss_tot = float(np.sum((np.array(actual_values) - y_mean) ** 2))
-    r2 = round(1 - ss_res / ss_tot, 4) if ss_tot > 0 else 0.0
-
-    return {
-        'clf': clf,
-        'feature_cols': feature_cols,
-        'target_feature': target_feature,
-        'feature_names': feature_names,
-        'root_entropy': round(root_entropy, 4),
-        'root_ig': round(root_ig, 4),
-        'root_feature': root_feature,
-        'root_threshold': root_threshold,
-        'left_entropy': round(left_entropy, 4),
-        'right_entropy': round(right_entropy, 4),
-        'left_samples': left_samples,
-        'right_samples': right_samples,
-        'n_leaves': n_leaves,
-        'max_depth': max_depth,
-        'rules_text': rules_text,
-        'n_samples': len(samples),
-        'n_features': n_features,
-        'm_features': m_features,
-        'mae': round(mae, 4),
-        'rmse': round(rmse, 4),
-        'r2': round(r2, 4),
-        'ss_res': round(ss_res, 4),
-        'ss_tot': round(ss_tot, 4),
+    return best_threshold, best_gain, root_e, root_counts, {
+        'left_entropy': round(left_e, 6),
+        'right_entropy': round(right_e, 6),
+        'left_samples': len(best_left) if best_left else 0,
+        'right_samples': len(best_right) if best_right else 0,
+        'weighted_entropy': round(weighted_e_final, 6),
     }
 
 
-def _predict_risk(clf, feature_cols, target_feature, data_point):
-    row = [float(data_point.get(f, 0)) for f in feature_cols]
-    predicted_value = clf.predict([row])[0]
-    risk_label = _classify_value(predicted_value, target_feature)
-    return risk_label, predicted_value
+FEATURE_NAMES = {
+    'usia': 'Usia',
+    'lama_rawat': 'Lama Rawat Inap',
+    'jk': 'Jenis Kelamin',
+    'jumlah_kasus': 'Jumlah Kasus Perbulan',
+}
+
+FEATURE_DISPLAY = {
+    'usia': 'Usia (X1)',
+    'lama_rawat': 'Lama Rawat Inap (X2)',
+    'jk': 'Jenis Kelamin (X3)',
+    'jumlah_kasus': 'Jumlah Kasus Perbulan (X4)',
+}
+
+
+def _build_tree_rules(samples, feature_key, threshold):
+    if not samples or threshold is None:
+        return []
+
+    left = [s for s in samples if float(s.get(feature_key, 0)) <= threshold]
+    right = [s for s in samples if float(s.get(feature_key, 0)) > threshold]
+
+    def majority_class(subset):
+        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+        for s in subset:
+            r = s.get('tingkat_risiko', '')
+            if r in counts:
+                counts[r] += 1
+        return max(counts, key=counts.get)
+
+    left_class = majority_class(left)
+    right_class = majority_class(right)
+
+    fname = FEATURE_NAMES.get(feature_key, feature_key)
+    rules = [
+        f"IF {fname} <= {threshold:.2f} THEN Risiko = {left_class}",
+        f"IF {fname} > {threshold:.2f} THEN Risiko = {right_class}",
+    ]
+    return rules
 
 
 @perhitungan_bp.route('/')
@@ -290,8 +235,6 @@ def hitung():
 
         data_dbd = _read_data_dbd(wb)
         total = len(data_dbd)
-        n_features_all = 4
-        m_features = int(math.sqrt(n_features_all))
 
         label_counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
         for d in data_dbd:
@@ -321,70 +264,101 @@ def hitung():
 
         for pohon_idx, pohon_name in enumerate(POHON_NAMES):
             pohon_num = pohon_idx + 1
-            pohon_data = _read_pohon(wb, pohon_name)
-            if pohon_data is None or pohon_data['n_samples'] == 0:
+            bootstrap_samples = _read_bootstrap_from_sheet(wb, pohon_name)
+            if not bootstrap_samples:
                 continue
 
-            target_feature = POHON_TARGET.get(pohon_num, 'jumlah_kasus')
-            target_label = POHON_TARGET_LABEL.get(target_feature, target_feature)
+            pohon_features = _read_pohon_features(wb, pohon_name)
+            excel_entropy = _read_excel_entropy(wb, pohon_name)
 
-            tree_info = _train_tree_regression(
-                pohon_data['samples'], pohon_data['features_used'], target_feature
-            )
-            if tree_info is None:
-                continue
+            best_threshold = None
+            best_gain = -1
+            best_feature = None
+            best_split_info = None
+            best_root_counts = None
+
+            for feat in pohon_features:
+                threshold, gain, root_e, root_counts, split_info = _find_best_split_single_feature(
+                    bootstrap_samples, feat
+                )
+                if gain > best_gain:
+                    best_gain = gain
+                    best_threshold = threshold
+                    best_feature = feat
+                    best_split_info = split_info
+                    best_root_counts = root_counts
+
+            root_entropy = best_split_info['weighted_entropy'] + best_gain if best_split_info else 0
 
             risk_preds = []
-            predicted_values = []
             for d in test_data:
-                risk_label, pred_val = _predict_risk(
-                    tree_info['clf'], tree_info['feature_cols'], target_feature, d
-                )
-                risk_preds.append(risk_label)
-                predicted_values.append(pred_val)
+                if best_feature and best_threshold is not None:
+                    val = float(d.get(best_feature, 0))
+                    if val <= best_threshold:
+                        left = [s for s in bootstrap_samples if float(s.get(best_feature, 0)) <= best_threshold]
+                        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+                        for s in left:
+                            r = s.get('tingkat_risiko', '')
+                            if r in counts:
+                                counts[r] += 1
+                        pred = max(counts, key=counts.get)
+                    else:
+                        right = [s for s in bootstrap_samples if float(s.get(best_feature, 0)) > best_threshold]
+                        counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+                        for s in right:
+                            r = s.get('tingkat_risiko', '')
+                            if r in counts:
+                                counts[r] += 1
+                        pred = max(counts, key=counts.get)
+                else:
+                    counts = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
+                    for s in bootstrap_samples:
+                        r = s.get('tingkat_risiko', '')
+                        if r in counts:
+                            counts[r] += 1
+                    pred = max(counts, key=counts.get)
+                risk_preds.append(pred)
 
             all_tree_risk_preds.append(risk_preds)
 
             actual_risk = [d.get('tingkat_risiko', '') for d in test_data]
             correct = sum(1 for a, p in zip(actual_risk, risk_preds) if a == p)
 
-            rules_lines = [l.strip() for l in tree_info['rules_text'].split('\n') if l.strip()]
+            rules = _build_tree_rules(bootstrap_samples, best_feature, best_threshold)
 
-            bootstrap_unique = len(set(hash(str(s)) for s in pohon_data['samples']))
+            unique_hashes = set()
+            for s in bootstrap_samples:
+                unique_hashes.add(str(sorted(s.items())))
+            n_unique = len(unique_hashes)
 
             pohon_results.append({
                 'name': pohon_name,
                 'id': pohon_num,
-                'target_feature': target_feature,
-                'target_label': target_label,
-                'n_samples': pohon_data['n_samples'],
-                'n_unique': bootstrap_unique,
-                'n_duplicates': pohon_data['n_samples'] - bootstrap_unique,
-                'features_used': tree_info['feature_cols'],
-                'n_features': tree_info['n_features'],
-                'm_features': tree_info['m_features'],
-                'entropy_root_excel': round(pohon_data['entropy_root'], 4) if pohon_data['entropy_root'] else None,
-                'entropy_root_calc': tree_info['root_entropy'],
-                'best_feature': tree_info['root_feature'],
-                'root_threshold': tree_info['root_threshold'],
-                'ig': tree_info['root_ig'],
-                'left_entropy': tree_info['left_entropy'],
-                'right_entropy': tree_info['right_entropy'],
-                'left_samples': tree_info['left_samples'],
-                'right_samples': tree_info['right_samples'],
-                'n_leaves': tree_info['n_leaves'],
-                'max_depth': tree_info['max_depth'],
-                'rules': rules_lines,
-                'mae': tree_info['mae'],
-                'rmse': tree_info['rmse'],
-                'r2': tree_info['r2'],
-                'ss_res': tree_info['ss_res'],
-                'ss_tot': tree_info['ss_tot'],
+                'target_feature': best_feature,
+                'target_label': FEATURE_NAMES.get(best_feature, best_feature),
+                'target_display': FEATURE_DISPLAY.get(best_feature, best_feature),
+                'n_samples': len(bootstrap_samples),
+                'n_unique': n_unique,
+                'n_duplicates': len(bootstrap_samples) - n_unique,
+                'features_available': pohon_features,
+                'best_feature': best_feature,
+                'root_threshold': round(best_threshold, 2) if best_threshold else None,
+                'gain': round(best_gain, 6),
+                'root_entropy': round(root_entropy, 6),
+                'root_counts': {'Tinggi': best_root_counts.get('Tinggi', 0),
+                                'Sedang': best_root_counts.get('Sedang', 0),
+                                'Rendah': best_root_counts.get('Rendah', 0)} if best_root_counts else {},
+                'left_entropy': best_split_info.get('left_entropy', 0) if best_split_info else 0,
+                'right_entropy': best_split_info.get('right_entropy', 0) if best_split_info else 0,
+                'left_samples': best_split_info.get('left_samples', 0) if best_split_info else 0,
+                'right_samples': best_split_info.get('right_samples', 0) if best_split_info else 0,
+                'weighted_entropy': best_split_info.get('weighted_entropy', 0) if best_split_info else 0,
+                'rules': rules,
+                'excel_entropy': round(excel_entropy, 6) if excel_entropy else None,
                 'test_correct': correct,
                 'test_total': N_TEST,
-                'predicted_values': [{'actual': float(test_data[i].get(target_feature, 0)),
-                                     'predicted': predicted_values[i]}
-                                    for i in range(N_TEST)],
+                'predicted_values': [{'actual': actual_risk[i], 'predicted': risk_preds[i]}
+                                     for i in range(N_TEST)],
             })
 
         best_tree_idx = 4
@@ -441,6 +415,8 @@ def hitung():
                 'correct': pe_correct, 'total': N_TEST,
             })
 
+        best_gain_tree = max(pohon_results, key=lambda t: t['gain']) if pohon_results else None
+
         return jsonify({
             'status': 'success',
             'step1': {
@@ -464,23 +440,21 @@ def hitung():
                 ],
             },
             'step3': {
-                'n': total,
-                'm': m_features,
                 'n_trees': len(pohon_results),
-                'criterion': 'Entropy',
-                'n_features_total': n_features_all,
+                'note': 'Setiap pohon dilatih dengan 163 data bootstrap. Setiap pohon menggunakan HANYA 1 fitur untuk split.',
             },
             'step4': {
                 'trees': pohon_results,
-                'best_tree_name': best_tree['name'] if best_tree else None,
-                'best_tree_id': best_tree['id'] if best_tree else None,
+                'best_gain_tree': best_gain_tree['name'] if best_gain_tree else None,
             },
             'step5': {
                 'best_tree': best_tree,
                 'test_data': [{
                     'no': t['no'],
                     'actual': t['actual'],
+                    'actual_enc': t['actual_enc'],
                     'predicted': t['predicted'],
+                    'predicted_enc': t['predicted_enc'],
                     'correct': t['correct'],
                 } for t in test_results],
                 'accuracy': accuracy,
