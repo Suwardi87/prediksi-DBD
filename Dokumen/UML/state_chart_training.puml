@@ -43,7 +43,7 @@ SplitData : exit / encoding label (1,2,3)
 state "Training Random Forest (25 Pohon)" as Training <<purple>> {
 }
 Training : entry / init RF(criterion='entropy',
-Training :       max_features=2, bootstrap=True)
+Training :       max_features=None, bootstrap=True)
 Training : do / fit(X_train, y_train)
 Training :       bootstrap sampling → bangun
 Training :       25 pohon keputusan
@@ -74,7 +74,7 @@ SimpanModel --> [*] : model tersimpan
 
 note right of Training
   Aktor: Petugas
-  Algoritma: Random Forest (25 pohon, entropy, m=2)
+  Algoritma: Random Forest (25 pohon, entropy, max_features=None)
   Fitur: Usia, Lama Rawat Inap, Jenis Kelamin
   Label: Rendah(1), Sedang(2), Tinggi(3)
 end note

@@ -736,31 +736,33 @@
                 </a>
             </li>
             
-            {% if current_user.role == 'admin' %}
+            {% if current_user.role in ['admin', 'petugas'] %}
             <li class="nav-item">
-                <a href="{{ url_for('data.index') }}" class="nav-link {% if 'data' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('data.index') }}" class="nav-link {% if request.endpoint == 'data.index' %}active{% endif %}">
                     <i class='bx bxs-group' style="color: #a855f7;"></i>
                     <span>Kelola Data Pasien</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ url_for('data.import_excel') }}" class="nav-link {% if request.path == url_for('data.import_excel') %}active{% endif %}">
+                <a href="{{ url_for('data.import_excel') }}" class="nav-link {% if request.endpoint == 'data.import_excel' %}active{% endif %}">
                     <i class='bx bxs-folder-open' style="color: #facc15;"></i>
                     <span>Import Data Excel</span>
                 </a>
             </li>
             {% endif %}
             
+            {% if current_user.role in ['admin', 'petugas'] %}
             <li class="nav-item">
-                <a href="{{ url_for('data_uji.index') }}" class="nav-link {% if 'data_uji' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('data_uji.index') }}" class="nav-link {% if request.endpoint == 'data_uji.index' %}active{% endif %}">
                     <i class='bx bx-test-tube' style="color: #4ade80;"></i>
                     <span>Data Uji</span>
                 </a>
             </li>
+            {% endif %}
             
             {% if current_user.role in ['admin', 'petugas'] %}
             <li class="nav-item">
-                <a href="{{ url_for('training.index') }}" class="nav-link {% if 'training' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('training.index') }}" class="nav-link {% if request.endpoint and 'training' in request.endpoint %}active{% endif %}">
                     <i class='bx bxs-tree' style="color: #22c55e;"></i>
                     <span>Training Model</span>
                 </a>
@@ -781,15 +783,17 @@
                 </a>
             </li>
             
+            {% if current_user.role in ['admin', 'petugas'] %}
             <li class="nav-item">
-                <a href="{{ url_for('perhitungan.index') }}" class="nav-link {% if 'perhitungan' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('perhitungan.index') }}" class="nav-link {% if request.endpoint and 'perhitungan' in request.endpoint %}active{% endif %}">
                     <i class='bx bx-calculator' style="color: #f472b6;"></i>
                     <span>Perhitungan Manual</span>
                 </a>
             </li>
+            {% endif %}
             
             <li class="nav-item">
-                <a href="{{ url_for('laporan.index') }}" class="nav-link {% if 'laporan' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('laporan.index') }}" class="nav-link {% if request.endpoint and 'laporan' in request.endpoint %}active{% endif %}">
                     <i class='bx bx-clipboard' style="color: #fdba74;"></i>
                     <span>Laporan</span>
                 </a>

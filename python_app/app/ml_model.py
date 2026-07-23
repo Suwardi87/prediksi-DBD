@@ -50,11 +50,9 @@ def get_risk_level(jumlah_kasus):
 
 
 def get_usia_category(usia):
-    """Kategori usia pasien"""
-    if usia <= 12:
+    """Kategori usia pasien (threshold: 17 tahun sesuai Bab IV Tabel 4.24)"""
+    if usia <= 17:
         return 'Anak-anak'
-    elif usia <= 19:
-        return 'Remaja'
     elif usia <= 59:
         return 'Dewasa'
     else:
@@ -220,24 +218,23 @@ def create_manual_rf():
             
             if 'Tingkat Resiko.1' in df.columns:
                 y_col = df['Tingkat Resiko.1'].dropna()
-                # Hanya ambil baris yang isinya 'Rendah', 'Sedang', atau 'Tinggi'
                 valid_labels = ['Rendah', 'Sedang', 'Tinggi']
                 y_col = y_col[y_col.isin(valid_labels)]
+
+                all_cols = [c for c in features_order if c in df.columns]
+                synced = df[all_cols + ['Tingkat Resiko.1']].dropna()
+                synced = synced[synced['Tingkat Resiko.1'].isin(valid_labels)]
+
+                y_col = synced['Tingkat Resiko.1']
                 n_samples = len(y_col)
-                
+
                 X_boot = np.zeros((n_samples, 3))
-                
+
                 for col_idx, col_name in enumerate(features_order):
-                    if col_name in df.columns:
-                        # Konversi ke numerik, ubah teks jadi NaN, lalu drop
-                        vals = pd.to_numeric(df[col_name], errors='coerce').dropna().values
-                        if len(vals) >= n_samples:
-                            X_boot[:, col_idx] = vals[:n_samples]
-                        else:
-                            # Jika kurang dari n_samples (misal karena ada nilai nol/kosong di Excel)
-                            # pad dengan 0
-                            limit = min(len(vals), n_samples)
-                            X_boot[:limit, col_idx] = vals[:limit]
+                    if col_name in synced.columns:
+                        vals = pd.to_numeric(synced[col_name], errors='coerce').values
+                        limit = min(len(vals), n_samples)
+                        X_boot[:limit, col_idx] = vals[:limit]
                             
                 y_boot_labels = y_col.values
                 # Encode ke label asli (1, 2, 3)
@@ -320,7 +317,7 @@ def extract_all_trees_details(model, X_test, y_test,
     from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score as sklearn_r2_score
     
     if feature_names is None:
-        feature_names = ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin', 'Jumlah Kasus']
+        feature_names = ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin']
     
     trees_details = []
     
@@ -831,10 +828,11 @@ def predict_batch_with_trees(pasien_list):
         # Batasi penampilan maksimal 5 pohon pertama untuk UI (walau n_estimators > 5)
         trees_to_show = model.estimators_[:5]
         for tree in trees_to_show:
-            # Tree prediction mengembalikan kelas asli (bukan array probabilitas),
-            # jadi langsung pakai tanpa np.argmax
-            pred_class = int(tree.predict(X)[0])
-            tree_votes.append(inverse_label_map.get(pred_class, 'Sedang'))
+            # tree.predict() returns sklearn internal class indices (0,1,2),
+            # map to actual class labels via model.classes_ first
+            raw_pred = int(tree.predict(X)[0])
+            actual_label = model.classes_[raw_pred] if raw_pred < len(model.classes_) else raw_pred
+            tree_votes.append(inverse_label_map.get(actual_label, 'Sedang'))
             
         # Get final prediction
         final_pred_idx = model.predict(X)[0]

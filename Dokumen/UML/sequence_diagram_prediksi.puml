@@ -17,7 +17,7 @@ activate Page
 
 Page --> User : Tampilkan form input prediksi
 
-User -> Page : Input parameter:\n- Bulan\n- Jumlah Kasus\n- Rata-rata Usia\n- Jenis Kelamin\n- Lama Rawat
+User -> Page : Input parameter:\n- Usia\n- Lama Rawat\n- Jenis Kelamin
 
 User -> Page : Klik tombol Prediksi
 Page -> Page : Validasi input
@@ -25,7 +25,7 @@ Page -> Page : Validasi input
 Page -> Controller : Submit data prediksi
 activate Controller
 
-Controller -> API : POST /predict\n{bulan, jumlah_kasus, usia, jk, lama_rawat}
+Controller -> API : POST /predict\n{usia, lama_rawat, jk}
 activate API
 
 API -> API : Load model dari file\n(random_forest_model.pkl)

@@ -17,28 +17,35 @@ activate Page
 
 Page --> User : Tampilkan form konfigurasi
 
-User -> Page : Atur parameter\n(n_estimators, max_depth, test_size)
+User -> Page : Atur parameter\n(n_estimators)
 User -> Page : Klik tombol Mulai Training
 
 Page -> Controller : Submit parameter training
 activate Controller
 
-Controller -> API : POST /train\n{n_estimators, max_depth, test_size}
+Controller -> API : POST /train\n{n_estimators}
 activate API
 
 API -> API : Load data dari Excel
 API -> API : Preprocessing data\n(cleaning, encoding)
-API -> API : Split data\n(training & testing)
+API -> API : Select 3 fitur:\nUsia, Lama Rawat,\nJenis Kelamin
 
-API -> Model : Inisialisasi RandomForestClassifier
+API -> API : 5-Fold Cross Validation
+
+loop Untuk setiap fold (k=1..5)
+    API -> Model : Inisialisasi RandomForestClassifier\n(max_features=None)
+    activate Model
+    API -> Model : fit(X_train, y_train)
+    API -> Model : predict(X_test)
+    API -> Model : Calculate metrics\n(accuracy, precision, recall, f1)
+    deactivate Model
+end
+
+API -> API : Hitung rata-rata metrics\n dari 5 fold
+
+API -> Model : Train final model\n dengan seluruh data
 activate Model
-
-Model -> Model : fit(X_train, y_train)
-Model -> Model : predict(X_test)
-Model -> Model : Calculate metrics\n(accuracy, precision, recall, f1)
-Model -> Model : Calculate feature importance
-
-Model --> API : Return trained model
+Model --> API : Trained model
 deactivate Model
 
 API -> API : Save model to file\n(random_forest_model.pkl)

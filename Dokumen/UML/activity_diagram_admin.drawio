@@ -78,11 +78,11 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         
-        <!-- Kelola Wilayah -->
-        <mxCell id="wilayah" value="Kelola&#xa;Wilayah" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+        <!-- Log Aktivitas -->
+        <mxCell id="log-aktivitas" value="Log&#xa;Aktivitas" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
           <mxGeometry x="320" y="590" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="edge-wilayah" edge="1" parent="1" source="menu" target="wilayah">
+        <mxCell id="edge-log" edge="1" parent="1" source="menu" target="log-aktivitas">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         
@@ -120,7 +120,7 @@
         <mxCell id="edge-m2" edge="1" parent="1" source="users" target="merge">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-m3" edge="1" parent="1" source="wilayah" target="merge">
+        <mxCell id="edge-m3" edge="1" parent="1" source="log-aktivitas" target="merge">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge-m4" edge="1" parent="1" source="training" target="merge">

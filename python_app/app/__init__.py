@@ -2,6 +2,7 @@
 Flask Application Factory
 """
 import os
+import secrets
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -18,7 +19,7 @@ def create_app():
                 static_folder='static')
     
     # Configuration
-    app.config['SECRET_KEY'] = 'dbd-prediction-secret-key-2025'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Database: MySQL only (XAMPP)

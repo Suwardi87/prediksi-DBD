@@ -86,7 +86,7 @@
         </mxCell>
         
         <!-- Tables list -->
-        <mxCell id="tables" value="Tables:&#xa;• users&#xa;• pasien_dbd&#xa;• wilayah&#xa;• hasil_prediksi&#xa;• log_aktivitas" style="text;html=1;strokeColor=#CC0000;fillColor=#FFE6E6;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=9" vertex="1" parent="1">
+        <mxCell id="tables" value="Tables:&#xa;• users&#xa;• pasien_dbd&#xa;• kasus_bulanan&#xa;• hasil_prediksi&#xa;• log_aktivitas" style="text;html=1;strokeColor=#CC0000;fillColor=#FFE6E6;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=9" vertex="1" parent="1">
           <mxGeometry x="850" y="260" width="190" height="80" as="geometry" />
         </mxCell>
         

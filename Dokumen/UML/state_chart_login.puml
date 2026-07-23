@@ -56,7 +56,7 @@ SetSession --> Dashboard : session aktif
 Dashboard --> [*] : login berhasil
 
 note right of Validasi
-  Aktor: Pengguna (Admin / Petugas / Pimpinan)
+  Aktor: Pengguna (Admin / Petugas)
   Objek: Login Page → Auth Controller → Database
 end note
 

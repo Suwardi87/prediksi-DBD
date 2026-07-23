@@ -16,7 +16,7 @@
         </mxCell>
 
         <!-- S1: Konfigurasi Parameter Training -->
-        <mxCell id="s1" value="Konfigurasi Parameter Training&#xa;&#xa;entry / tampilkan form konfigurasi&#xa;do / atur n_estimators (default=25),&#xa;       max_depth, test_size (0.2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+        <mxCell id="s1" value="Konfigurasi Parameter Training&#xa;&#xa;entry / tampilkan form konfigurasi&#xa;do / atur n_estimators (konfigurabel),&#xa;       max_features=None, 5-fold CV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
           <mxGeometry x="390" y="160" width="310" height="95" as="geometry" />
         </mxCell>
         <mxCell id="e1" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="initial" target="s1">
@@ -55,7 +55,7 @@
         </mxCell>
 
         <!-- S4: Training Random Forest -->
-        <mxCell id="s4" value="Training Random Forest (25 Pohon)&#xa;&#xa;entry / init RF(criterion='entropy',&#xa;       max_features=2, bootstrap=True)&#xa;do / fit(X_train, y_train)&#xa;       bootstrap sampling → bangun&#xa;       25 pohon keputusan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+        <mxCell id="s4" value="Training Random Forest&#xa;&#xa;entry / init RF(n_estimators=config,&#xa;       max_features=None, bootstrap=True,&#xa;       cv=5)&#xa;do / fit(X_train, y_train)&#xa;       cross-validation 5-fold" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
           <mxGeometry x="390" y="605" width="310" height="115" as="geometry" />
         </mxCell>
         <mxCell id="e4" value="data siap" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s3" target="s4">
@@ -90,7 +90,7 @@
         </mxCell>
 
         <!-- Note -->
-        <mxCell id="note" value="Aktor: Petugas&#xa;Algoritma: Random Forest (25 pohon, entropy, m=2)&#xa;Fitur: Usia, Lama Rawat Inap, Jenis Kelamin&#xa;Label: Rendah(1), Sedang(2), Tinggi(3)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
+        <mxCell id="note" value="Aktor: Admin / Petugas&#xa;Algoritma: Random Forest (n_estimators konfigurabel,&#xa;  max_features=None, 5-fold CV)&#xa;Fitur: Usia, Lama Rawat, Jenis Kelamin (3 fitur)&#xa;Label: Rendah(≤8), Sedang(9-15), Tinggi(&gt;15)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
           <mxGeometry x="780" y="500" width="290" height="75" as="geometry" />
         </mxCell>
 

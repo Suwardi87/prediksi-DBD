@@ -26,7 +26,6 @@ state "Memilih Filter Laporan" as MemilihFilter <<blue>> {
 }
 MemilihFilter : entry / form filter aktif
 MemilihFilter : do / pilih tahun, jenis laporan
-MemilihFilter :       (per bulan / per wilayah)
 
 state "Query & Hitung Statistik" as QueryData <<yellow>> {
 }
@@ -42,25 +41,16 @@ TampilkanLaporan : do / tampilkan tabel detail data,
 TampilkanLaporan :       statistik ringkasan,
 TampilkanLaporan :       grafik batang / line
 
-state "Export Laporan (PDF / Excel)" as ExportLaporan <<purple>> {
-}
-ExportLaporan : entry / generate file export
-ExportLaporan : do / format data ke PDF/Excel
-ExportLaporan : exit / download file ke pengguna
-
 HalamanLaporan --> MemilihFilter : klik filter
 MemilihFilter --> QueryData : submit filter
 QueryData --> TampilkanLaporan : data siap
 TampilkanLaporan --> MemilihFilter : ganti filter
-TampilkanLaporan --> ExportLaporan : klik Export
-ExportLaporan --> TampilkanLaporan : export selesai
 TampilkanLaporan --> [*] : keluar halaman
 
 note right of QueryData
-  Aktor: Pengguna (Admin / Petugas / Pimpinan)
-  Jenis Laporan: Per Bulan, Per Wilayah
+  Aktor: Admin / Petugas
+  Jenis Laporan: Per Bulan
   Visualisasi: Chart.js (bar / line chart)
-  Export: PDF dan Excel
 end note
 
 @enduml

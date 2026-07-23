@@ -18,6 +18,12 @@ if (Validasi Login?) then (Valid)
         :Pilih Menu;
         
         switch (Menu yang dipilih?)
+        case (Dashboard)
+            :Tampilkan Total Kasus;
+            :Tampilkan Grafik Trend;
+            :Tampilkan Distribusi Risiko;
+            :Tampilkan Status Model;
+            
         case (Kelola Data Pasien)
             :Tampilkan Daftar Pasien;
             if (Aksi?) then (Tambah)
@@ -44,6 +50,12 @@ if (Validasi Login?) then (Valid)
                 :Tampilkan Error;
             endif
             
+        case (Data Uji)
+            :Pilih Dataset Uji;
+            :Atur Parameter Uji;
+            :Jalankan Uji Model;
+            :Tampilkan Hasil Uji;
+            
         case (Training Model)
             :Atur Parameter;
             :n_estimators, max_depth, test_size;
@@ -51,17 +63,23 @@ if (Validasi Login?) then (Valid)
             :Tunggu Proses;
             :Tampilkan Metrik Evaluasi;
             
-        case (Prediksi Risiko)
-            :Input Parameter Prediksi;
-            :Bulan, Jumlah Kasus, Usia, dll;
-            :Kirim ke API Python;
-            :Terima Hasil Prediksi;
-            :Tampilkan Tingkat Risiko;
+        case (Perhitungan Manual)
+            :Input Data Manual;
+            :Pilih Metode Perhitungan;
+            :Jalankan Perhitungan;
+            :Tampilkan Hasil Perhitungan;
             
-        case (Lihat Laporan)
-            :Filter Periode;
-            :Query Data;
-            :Tampilkan Grafik dan Tabel;
+        case (Evaluasi Model)
+            :Tampilkan Metrik Evaluasi;
+            :Accuracy, Precision, Recall;
+            :Tampilkan Confusion Matrix;
+            :Tampilkan Feature Importance;
+            
+        case (Laporan)
+            :Pilih Filter Periode;
+            :Pilih Jenis Laporan;
+            :Tampilkan Laporan;
+            :Cetak/Export Laporan;
             
         endswitch
         
@@ -71,6 +89,7 @@ if (Validasi Login?) then (Valid)
     
 else (Tidak Valid)
     :Tampilkan Pesan Error;
+    :Kembali ke Form Login;
 endif
 
 stop

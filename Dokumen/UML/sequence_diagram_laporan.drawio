@@ -60,11 +60,11 @@
           <mxGeometry x="45" y="410" width="10" height="100" as="geometry" />
         </mxCell>
         
-        <!-- PDF/Excel Library -->
-        <mxCell id="pdf" value="PDF/Excel&#xa;Library" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+        <!-- Report Renderer -->
+        <mxCell id="report-renderer" value="Report&#xa;Renderer" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
           <mxGeometry x="940" y="100" width="100" height="700" as="geometry" />
         </mxCell>
-        <mxCell id="pdf-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pdf">
+        <mxCell id="renderer-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="report-renderer">
           <mxGeometry x="45" y="450" width="10" height="40" as="geometry" />
         </mxCell>
         
@@ -118,7 +118,7 @@
         </mxCell>
         
         <!-- 7. User selects filter -->
-        <mxCell id="msg7" value="7: Pilih periode dan format (PDF/Excel)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <mxCell id="msg7" value="7: Pilih periode laporan" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="100" y="390" as="sourcePoint" />
             <mxPoint x="265" y="390" as="targetPoint" />
@@ -157,8 +157,8 @@
           </mxGeometry>
         </mxCell>
         
-        <!-- 12. Create document -->
-        <mxCell id="msg12" value="12: create_pdf() / create_excel()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <!-- 12. Render report -->
+        <mxCell id="msg12" value="12: render_report(data, format)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="815" y="540" as="sourcePoint" />
             <mxPoint x="985" y="540" as="targetPoint" />
@@ -201,7 +201,7 @@
         <mxCell id="note1" value="Note: Laporan berisi data&#xa;pasien, prediksi, dan evaluasi" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
           <mxGeometry x="80" y="450" width="140" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="note2" value="Note: Format dapat PDF&#xa;atau Excel (.xlsx)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+        <mxCell id="note2" value="Note: Laporan ditampilkan&#xa;di halaman web" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
           <mxGeometry x="80" y="520" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="note3" value="Note: Filter berdasarkan&#xa;periode waktu (bulan/tahun)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">

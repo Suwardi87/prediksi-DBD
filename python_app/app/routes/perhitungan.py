@@ -75,6 +75,8 @@ BAB4_POHON5_RULES = [
 
 
 def _read_data_dbd(wb):
+    if 'Data_DBD' not in wb.sheetnames:
+        return []
     ws = wb['Data_DBD']
     headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
     data = []
@@ -89,6 +91,8 @@ def _read_data_dbd(wb):
 
 
 def _read_bootstrap_from_sheet(wb, pohon_name):
+    if pohon_name not in wb.sheetnames:
+        return []
     ws = wb[pohon_name]
     headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
     nos = [i for i, h in enumerate(headers) if h == 'No']
@@ -108,7 +112,7 @@ def _read_bootstrap_from_sheet(wb, pohon_name):
     for r in range(2, ws.max_row + 1):
         no_val = ws.cell(row=r, column=rs + 1).value
         if no_val is None or not isinstance(no_val, (int, float)):
-            break
+            continue
         sample = {}
         for col_idx, feat_name in right_headers:
             sample[feat_name] = ws.cell(row=r, column=col_idx + 1).value
@@ -119,8 +123,8 @@ def _read_bootstrap_from_sheet(wb, pohon_name):
 
 def _read_excel_entropy(wb, pohon_name):
     ws = wb[pohon_name]
-    for r in range(1, min(ws.max_row + 1, 20)):
-        for c in range(1, min(ws.max_column + 1, 25)):
+    for r in range(1, min(ws.max_row + 1, 100)):
+        for c in range(1, min(ws.max_column + 1, 100)):
             v = ws.cell(row=r, column=c).value
             if v and isinstance(v, str) and 'entropy root' in v.lower():
                 return ws.cell(row=r, column=c + 1).value
@@ -338,7 +342,7 @@ def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3, fixed_t1=
         t1, t2 = fixed_t1, fixed_t2
         _, _, gain, _, _, _ = _compute_split_with_thresholds(samples, feature_key, t1, t2)
     else:
-        t1, t2, gain, re, rc, info = _find_best_split_single_feature(samples, feature_key)
+        t1, t2, gain, re_tmp, rc, info = _find_best_split_single_feature(samples, feature_key)
     if t1 is None or gain <= 0:
         cls, cls_counts = _majority_class(samples)
         return [{'type': 'leaf', 'class': cls, 'counts': cls_counts, 'n': n}]
@@ -443,11 +447,11 @@ def hitung():
             step1_data.append({
                 'no': i + 1,
                 'nama': d.get('nama', ''),
-                'usia': int(d.get('usia', 0)),
-                'lama_rawat': int(d.get('lama_rawat', 0)),
-                'jk': int(d.get('jk', 0)),
+                'usia': float(d.get('usia') or 0),
+                'lama_rawat': float(d.get('lama_rawat') or 0),
+                'jk': float(d.get('jk') or 0),
                 'jk_label': 'L' if d.get('jk') == 1 else 'P',
-                'jumlah_kasus': int(d.get('jumlah_kasus', 0)),
+                'jumlah_kasus': float(d.get('jumlah_kasus') or 0),
                 'tingkat_risiko': d.get('tingkat_risiko', ''),
                 'tingkat_risiko_encoded': LABEL_ENCODE.get(d.get('tingkat_risiko'), 0),
             })
@@ -545,11 +549,14 @@ def hitung():
                 'entropy_bab4': round(bab4_entropy_after, 6),
                 'rules_text': rules_text,
                 'rules_deep': rules_deep,
-                'excel_entropy': round(excel_entropy, 6) if excel_entropy else None,
+                'excel_entropy': round(excel_entropy, 6) if excel_entropy is not None else None,
             })
 
         best_tree_idx = 4
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
+        if pohon_results:
+            best_tree_idx = max(range(len(pohon_results)), key=lambda i: pohon_results[i].get('gain', 0))
+            best_tree = pohon_results[best_tree_idx]
 
         bab4_test_results = []
         for i, td in enumerate(BAB4_TEST_DATA):
@@ -597,18 +604,20 @@ def hitung():
                         break
             if thr_low is not None and thr_high is not None:
                 our_threshold_used = f'{thr_low}, {thr_high}'
+                target_feat = best_tree.get('target_feature', 'jumlah_kasus') if best_tree else 'jumlah_kasus'
                 for i in range(N_TEST):
                     actual_risk = test_data[i].get('tingkat_risiko', '')
-                    jk_val = int(test_data[i].get('jumlah_kasus', 0))
-                    if jk_val < thr_low:
+                    feature_val = float(test_data[i].get(target_feat, 0))
+                    if feature_val < thr_low:
                         predicted_risk = left_class
-                    elif jk_val <= thr_high:
+                    elif feature_val <= thr_high:
                         predicted_risk = mid_class
                     else:
                         predicted_risk = right_class
                     our_test_results.append({
                         'no': i + 1,
-                        'jumlah_kasus': jk_val,
+                        'feature_name': FEATURE_NAMES.get(target_feat, target_feat),
+                        'feature_val': feature_val,
                         'actual': actual_risk,
                         'actual_enc': LABEL_ENCODE.get(actual_risk, 0),
                         'predicted': predicted_risk,
@@ -696,6 +705,5 @@ def hitung():
         import traceback
         return jsonify({
             'status': 'error',
-            'message': str(e),
-            'trace': traceback.format_exc(),
+            'message': 'Terjadi kesalahan saat menghitung perhitungan manual.',
         }), 500

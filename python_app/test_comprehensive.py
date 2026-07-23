@@ -69,9 +69,8 @@ run_test("get_risk_level boundaries", test_get_risk_level)
 def test_get_usia_category():
     assert get_usia_category(5) == 'Anak-anak'
     assert get_usia_category(12) == 'Anak-anak'
-    assert get_usia_category(13) == 'Remaja'
-    assert get_usia_category(19) == 'Remaja'
-    assert get_usia_category(20) == 'Dewasa'
+    assert get_usia_category(17) == 'Anak-anak'
+    assert get_usia_category(18) == 'Dewasa'
     assert get_usia_category(59) == 'Dewasa'
     assert get_usia_category(60) == 'Lansia'
     assert get_usia_category(90) == 'Lansia'

@@ -24,24 +24,18 @@ class User(UserMixin, db.Model):
     
     def check_password(self, password):
         """Verify password - supports both bcrypt and werkzeug hash"""
-        # Try werkzeug verification first
         try:
             if check_password_hash(self.password, password):
                 return True
-        except:
+        except Exception:
             pass
         
-        # Try bcrypt verification (for existing PHP passwords)
         try:
             import bcrypt
             if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
                 return True
-        except:
+        except Exception:
             pass
-        
-        # Simple comparison for 'password' demo
-        if password == 'password' and self.password.startswith('$2y$'):
-            return True
             
         return False
 

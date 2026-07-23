@@ -13,9 +13,9 @@ class User {
     -password: string
     -nama_lengkap: string
     -email: string
-    -role: enum
+    -role: enum('admin', 'petugas')
     -foto: string
-    -status: enum
+    -status: enum('aktif', 'nonaktif')
     -last_login: datetime
     --
     +login(): boolean
@@ -30,35 +30,19 @@ class PasienDBD {
     -no_rm: string
     -nama_pasien: string
     -usia: int
-    -jenis_kelamin: enum
+    -jenis_kelamin: enum('L', 'P')
     -alamat: text
-    -id_wilayah: int
     -tanggal_masuk: date
     -tanggal_keluar: date
     -lama_rawat: int
     -bulan: string
     -tahun: int
-    -status_pasien: enum
     --
     +create(): boolean
     +read(): array
     +update(): boolean
     +delete(): boolean
     +getByBulan(): array
-}
-
-class Wilayah {
-    -id: int
-    -nama_wilayah: string
-    -kecamatan: string
-    -latitude: decimal
-    -longitude: decimal
-    -populasi: int
-    --
-    +create(): boolean
-    +read(): array
-    +update(): boolean
-    +delete(): boolean
 }
 
 class KasusBulanan {
@@ -133,7 +117,6 @@ class RandomForestModel {
 }
 
 ' Relationships
-PasienDBD "many" --> "1" Wilayah : berasal dari
 HasilPrediksi "many" --> "1" User : dibuat oleh
 LogAktivitas "many" --> "1" User : dilakukan oleh
 RandomForestModel ..> ModelEvaluasi : generates

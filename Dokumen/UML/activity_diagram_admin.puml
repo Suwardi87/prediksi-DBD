@@ -18,46 +18,67 @@ if (Validasi Login?) then (Valid)
         :Pilih Menu;
         
         switch (Menu yang dipilih?)
-        case (Kelola Pengguna)
-            :Tampilkan Daftar Pengguna;
-            if (Aksi?) then (Tambah/Edit)
-                :Input Data Pengguna;
-                :Simpan ke Database;
-            else (Hapus)
-                :Konfirmasi Hapus;
-                :Hapus dari Database;
-            endif
+        case (Dashboard)
+            :Tampilkan Total Kasus;
+            :Tampilkan Grafik Trend;
+            :Tampilkan Distribusi Risiko;
+            :Tampilkan Status Model;
             
         case (Kelola Data Pasien)
             :Tampilkan Daftar Pasien;
             if (Aksi?) then (Tambah/Edit)
                 :Input Data Pasien;
                 :Simpan ke Database;
-            else (Import)
-                :Pilih File Excel;
-                :Proses Import;
+            else (Hapus)
+                :Konfirmasi Hapus;
+                :Hapus dari Database;
             endif
+            
+        case (Import Data Excel)
+            :Pilih File Excel;
+            :Upload File;
+            :Validasi Format;
+            if (Format Valid?) then (Ya)
+                :Proses Import Data;
+                :Tampilkan Hasil Import;
+            else (Tidak)
+                :Tampilkan Error;
+            endif
+            
+        case (Data Uji)
+            :Pilih Dataset Uji;
+            :Atur Parameter Uji;
+            :Jalankan Uji Model;
+            :Tampilkan Hasil Uji;
             
         case (Training Model)
             :Atur Parameter Model;
+            :n_estimators, max_depth, test_size;
             :Mulai Training;
-            :Tampilkan Hasil Evaluasi;
+            :Tunggu Proses;
+            :Tampilkan Metrik Evaluasi;
             
-        case (Prediksi Risiko)
-            :Input Data Prediksi;
-            :Proses Prediksi;
-            :Tampilkan Hasil dan Rekomendasi;
+        case (Perhitungan Manual)
+            :Input Data Manual;
+            :Pilih Metode Perhitungan;
+            :Jalankan Perhitungan;
+            :Tampilkan Hasil Perhitungan;
             
-        case (Lihat Laporan)
+        case (Evaluasi Model)
+            :Tampilkan Metrik Evaluasi;
+            :Accuracy, Precision, Recall;
+            :Tampilkan Confusion Matrix;
+            :Tampilkan Feature Importance;
+            
+        case (Laporan)
             :Pilih Filter Periode;
+            :Pilih Jenis Laporan;
             :Tampilkan Laporan;
-            
-        case (Kelola Wilayah)
-            :Tampilkan Daftar Wilayah;
-            :Tambah/Edit/Hapus Wilayah;
+            :Cetak/Export Laporan;
             
         case (Log Aktivitas)
             :Tampilkan Riwayat Aktivitas;
+            :Filter Berdasarkan Waktu;
             
         endswitch
         

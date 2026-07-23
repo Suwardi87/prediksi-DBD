@@ -5,7 +5,7 @@ skinparam sequenceMessageAlign center
 
 title Sequence Diagram Kelola Data Pasien\nSistem Prediksi Penyebaran DBD
 
-actor "Petugas" as User
+actor "Admin / Petugas" as User
 participant "Halaman\nData Pasien" as Page
 participant "Controller\nPasien" as Controller
 database "Database" as DB

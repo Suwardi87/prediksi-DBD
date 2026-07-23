@@ -3,7 +3,15 @@
 skinparam backgroundColor #FEFEFE
 skinparam activityFontSize 11
 
-title Activity Diagram Pimpinan\nSistem Prediksi Penyebaran DBD
+title Activity Diagram Pimpinan (DEPRECATED)\nSistem Prediksi Penyebaran DBD
+
+note right
+  Role "Pimpinan" tidak ada dalam kode.
+  Fitur yang sebelumnya milik pimpinan
+  (Kelola Wilayah, Laporan Per Wilayah)
+  sudah tidak tersedia.
+  Diagram ini hanya untuk referensi historis.
+end note
 
 start
 
@@ -13,7 +21,6 @@ start
 
 if (Validasi Login?) then (Valid)
     :Masuk ke Dashboard;
-    :Lihat Statistik Ringkasan;
     
     repeat
         :Pilih Menu;
@@ -25,28 +32,9 @@ if (Validasi Login?) then (Valid)
             :Tampilkan Distribusi Risiko;
             :Tampilkan Status Model;
             
-        case (Prediksi Risiko)
-            :Input Data Prediksi;
-            :Proses Prediksi;
-            :Lihat Tingkat Risiko;
-            :Lihat Confidence Score;
-            :Lihat Rekomendasi Tindakan;
-            
-        case (Evaluasi Model)
-            :Tampilkan Metrik Evaluasi;
-            :Accuracy, Precision, Recall;
-            :Tampilkan Confusion Matrix;
-            :Tampilkan Feature Importance;
-            
         case (Lihat Laporan)
-            :Pilih Jenis Laporan;
-            if (Jenis?) then (Per Bulan)
-                :Filter Tahun;
-                :Tampilkan Trend Bulanan;
-            else (Per Wilayah)
-                :Filter Periode;
-                :Tampilkan Distribusi Wilayah;
-            endif
+            :Pilih Filter Periode;
+            :Tampilkan Laporan;
             :Cetak/Export Laporan;
             
         endswitch
@@ -57,7 +45,7 @@ if (Validasi Login?) then (Valid)
     
 else (Tidak Valid)
     :Tampilkan Pesan Error;
-    :Kembali ke Login;
+    :Kembali ke Form Login;
 endif
 
 stop

@@ -47,26 +47,35 @@
           <mxGeometry x="45" y="550" width="10" height="80" as="geometry" />
         </mxCell>
         
-        <!-- Wilayah Model -->
-        <mxCell id="wilayah" value="Wilayah&#xa;Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+        <!-- PasienDBD Model -->
+        <mxCell id="pasien" value="PasienDBD&#xa;Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
           <mxGeometry x="580" y="100" width="100" height="750" as="geometry" />
         </mxCell>
-        <mxCell id="wilayah-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="wilayah">
-          <mxGeometry x="45" y="280" width="10" height="30" as="geometry" />
-        </mxCell>
-        
-        <!-- PasienDBD Model -->
-        <mxCell id="pasien" value="PasienDBD&#xa;Model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
-          <mxGeometry x="760" y="100" width="100" height="750" as="geometry" />
-        </mxCell>
-        <mxCell id="pasien-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+        <mxCell id="pasien-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="pasien">
           <mxGeometry x="45" y="320" width="10" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="pasien-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+        <mxCell id="pasien-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="pasien">
           <mxGeometry x="45" y="450" width="10" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="pasien-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="pasien">
+        <mxCell id="pasien-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="pasien">
           <mxGeometry x="45" y="580" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;(MySQL)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="760" y="100" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="150" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="340" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="470" width="10" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="600" width="10" height="30" as="geometry" />
         </mxCell>
         
         <!-- Database -->
@@ -136,16 +145,16 @@
           </mxGeometry>
         </mxCell>
         
-        <!-- 2.2 Get wilayah list -->
-        <mxCell id="msg2-2" value="2.2: get_wilayah_list()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <!-- 2.2 Validate data -->
+        <mxCell id="msg2-2" value="2.2: validate_pasien_data()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="455" y="390" as="sourcePoint" />
             <mxPoint x="625" y="390" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
-        <!-- 2.3 Return wilayah -->
-        <mxCell id="msg2-3" value="2.3: return list wilayah" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+        <!-- 2.3 Return validation -->
+        <mxCell id="msg2-3" value="2.3: return is_valid" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="625" y="420" as="sourcePoint" />
             <mxPoint x="455" y="420" as="targetPoint" />
@@ -164,22 +173,22 @@
         <mxCell id="msg2-5" value="2.5: INSERT INTO pasien_dbd" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="455" y="480" as="sourcePoint" />
-            <mxPoint x="805" y="480" as="targetPoint" />
+            <mxPoint x="625" y="480" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
         <!-- 2.6 Save to DB -->
-        <mxCell id="msg2-6" value="2.6: db.session.add() & commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <mxCell id="msg2-6" value="2.6: db.session.add() &amp; commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="815" y="510" as="sourcePoint" />
-            <mxPoint x="985" y="510" as="targetPoint" />
+            <mxPoint x="635" y="510" as="sourcePoint" />
+            <mxPoint x="805" y="510" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
         <!-- 2.7 Return success -->
         <mxCell id="msg2-7" value="2.7: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="985" y="540" as="sourcePoint" />
+            <mxPoint x="805" y="540" as="sourcePoint" />
             <mxPoint x="455" y="540" as="targetPoint" />
           </mxGeometry>
         </mxCell>
@@ -201,22 +210,22 @@
         <mxCell id="msg3-2" value="3.2: UPDATE pasien_dbd SET ..." style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="455" y="640" as="sourcePoint" />
-            <mxPoint x="805" y="640" as="targetPoint" />
+            <mxPoint x="625" y="640" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
         <!-- 3.3 DB commit -->
         <mxCell id="msg3-3" value="3.3: db.session.commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="815" y="670" as="sourcePoint" />
-            <mxPoint x="985" y="670" as="targetPoint" />
+            <mxPoint x="635" y="670" as="sourcePoint" />
+            <mxPoint x="805" y="670" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
         <!-- 3.4 Return success -->
         <mxCell id="msg3-4" value="3.4: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="985" y="700" as="sourcePoint" />
+            <mxPoint x="805" y="700" as="sourcePoint" />
             <mxPoint x="455" y="700" as="targetPoint" />
           </mxGeometry>
         </mxCell>
@@ -238,14 +247,14 @@
         <mxCell id="msg4-2" value="4.2: DELETE FROM pasien_dbd WHERE id=?" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="455" y="800" as="sourcePoint" />
-            <mxPoint x="985" y="800" as="targetPoint" />
+            <mxPoint x="625" y="800" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         
         <!-- 4.3 Return success -->
         <mxCell id="msg4-3" value="4.3: return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="985" y="830" as="sourcePoint" />
+            <mxPoint x="625" y="830" as="sourcePoint" />
             <mxPoint x="275" y="830" as="targetPoint" />
           </mxGeometry>
         </mxCell>

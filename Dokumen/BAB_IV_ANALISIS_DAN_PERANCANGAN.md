@@ -7,14 +7,15 @@ Analisa sistem merupakan tahap awal yang penting dalam pengembangan sistem infor
 
 Berdasarkan analisa yang telah dilakukan, sistem ini memiliki beberapa kebutuhan fungsional sebagai berikut:
 
-1. Sistem dapat mengelola data pengguna dengan hak akses berbeda (Admin, Petugas, Pimpinan)
+1. Sistem dapat mengelola data pengguna dengan hak akses berbeda (Admin, Petugas)
 2. Sistem dapat mengelola data pasien DBD (tambah, ubah, hapus, lihat)
 3. Sistem dapat melakukan import data pasien dari file Excel
 4. Sistem dapat melakukan training model Random Forest dengan parameter yang dapat dikonfigurasi
 5. Sistem dapat melakukan prediksi tingkat risiko penyebaran DBD
 6. Sistem dapat menampilkan evaluasi model (accuracy, precision, recall, F1-score)
-7. Sistem dapat menampilkan laporan dan visualisasi data kasus DBD
-8. Sistem dapat mencatat log aktivitas pengguna
+7. Sistem dapat menampilkan perhitungan manual Random Forest step-by-step
+8. Sistem dapat menampilkan laporan dan visualisasi data kasus DBD
+9. Sistem dapat mencatat log aktivitas pengguna
 
 Adapun aktor yang terlibat dalam sistem ini adalah:
 
@@ -23,8 +24,7 @@ Adapun aktor yang terlibat dalam sistem ini adalah:
 | No | Aktor | Deskripsi |
 |----|-------|-----------|
 | 1 | Admin | Pengguna dengan hak akses penuh untuk mengelola seluruh fitur sistem termasuk manajemen pengguna |
-| 2 | Petugas | Pengguna yang bertugas mengelola data pasien, melakukan training model, dan prediksi |
-| 3 | Pimpinan | Pengguna yang dapat melihat dashboard, laporan, dan hasil prediksi |
+| 2 | Petugas | Pengguna yang bertugas mengelola data pasien, melakukan training model, prediksi, dan perhitungan manual |
 
 ## 4.2 Perancangan Sistem Menggunakan UML
 
@@ -38,24 +38,25 @@ Use Case Diagram menggambarkan interaksi antara aktor dengan sistem. Diagram ini
 
 *(Lihat file: Dokumen/UML/use_case_diagram.puml)*
 
-Gambar 4.1 menunjukkan use case diagram sistem yang terdiri dari tiga aktor utama yaitu Admin, Petugas, dan Pimpinan. Masing-masing aktor memiliki hak akses yang berbeda terhadap use case yang tersedia dalam sistem.
+Gambar 4.1 menunjukkan use case diagram sistem yang terdiri dari dua aktor utama yaitu Admin dan Petugas. Masing-masing aktor memiliki hak akses yang berbeda terhadap use case yang tersedia dalam sistem.
 
 **Tabel 4.2 Deskripsi Use Case**
 
 | No | Use Case | Aktor | Deskripsi |
 |----|----------|-------|-----------|
-| 1 | Login | Admin, Petugas, Pimpinan | Proses autentikasi untuk masuk ke sistem menggunakan username dan password |
-| 2 | Logout | Admin, Petugas, Pimpinan | Proses keluar dari sistem dan mengakhiri sesi pengguna |
+| 1 | Login | Admin, Petugas | Proses autentikasi untuk masuk ke sistem menggunakan username dan password |
+| 2 | Logout | Admin, Petugas | Proses keluar dari sistem dan mengakhiri sesi pengguna |
 | 3 | Kelola Pengguna | Admin | Menambah, mengubah, dan menghapus data pengguna sistem |
 | 4 | Kelola Data Pasien | Admin, Petugas | Menambah, mengubah, menghapus, dan melihat data pasien DBD |
 | 5 | Import Data Excel | Admin, Petugas | Mengimport data pasien dari file Excel (.xlsx) |
-| 6 | Training Model | Admin, Petugas | Melatih model Random Forest dengan data yang tersedia |
-| 7 | Prediksi Risiko | Admin, Petugas, Pimpinan | Melakukan prediksi tingkat risiko penyebaran DBD |
-| 8 | Lihat Evaluasi Model | Admin, Petugas, Pimpinan | Melihat metrik evaluasi model (accuracy, precision, dll) |
-| 9 | Lihat Dashboard | Admin, Petugas, Pimpinan | Melihat ringkasan statistik dan grafik |
-| 10 | Lihat Laporan | Admin, Petugas, Pimpinan | Melihat laporan kasus DBD per bulan/wilayah |
-| 11 | Kelola Wilayah | Admin | Mengelola data wilayah/kecamatan |
-| 12 | Lihat Log Aktivitas | Admin | Melihat riwayat aktivitas pengguna dalam sistem |
+| 6 | Data Uji | Admin, Petugas | Melihat dan mengelola data uji untuk evaluasi model |
+| 7 | Training Model | Admin, Petugas | Melatih model Random Forest dengan data yang tersedia |
+| 8 | Prediksi Risiko | Admin, Petugas | Melakukan prediksi tingkat risiko penyebaran DBD |
+| 9 | Evaluasi Model | Admin, Petugas | Melihat metrik evaluasi model (accuracy, precision, dll) |
+| 10 | Perhitungan Manual | Admin, Petugas | Melihat perhitungan manual Random Forest step-by-step sesuai Bab IV |
+| 11 | Lihat Dashboard | Admin, Petugas | Melihat ringkasan statistik dan grafik |
+| 12 | Lihat Laporan | Admin, Petugas | Melihat laporan kasus DBD per bulan |
+| 13 | Lihat Log Aktivitas | Admin | Melihat riwayat aktivitas pengguna dalam sistem |
 
 ### 4.2.2 Class Diagram
 
@@ -65,7 +66,7 @@ Class Diagram menggambarkan struktur statis dari sistem yang menunjukkan kelas-k
 
 *(Lihat file: Dokumen/UML/class_diagram.puml)*
 
-Gambar 4.2 menunjukkan class diagram sistem yang terdiri dari 9 kelas utama. Setiap kelas memiliki atribut dan method yang sesuai dengan fungsinya dalam sistem. Relasi antar kelas ditunjukkan dengan garis penghubung yang menjelaskan jenis hubungan seperti association dan dependency.
+Gambar 4.2 menunjukkan class diagram sistem yang terdiri dari kelas-kelas utama. Setiap kelas memiliki atribut dan method yang sesuai dengan fungsinya dalam sistem. Relasi antar kelas ditunjukkan dengan garis penghubung yang menjelaskan jenis hubungan seperti association dan dependency.
 
 **Tabel 4.3 Deskripsi Kelas**
 
@@ -73,13 +74,10 @@ Gambar 4.2 menunjukkan class diagram sistem yang terdiri dari 9 kelas utama. Set
 |----|------------|-----------|
 | 1 | User | Kelas untuk mengelola data pengguna sistem (login, logout, CRUD user) |
 | 2 | PasienDBD | Kelas untuk mengelola data pasien DBD |
-| 3 | Wilayah | Kelas untuk mengelola data wilayah/kecamatan |
-| 4 | KasusBulanan | Kelas untuk menyimpan agregat kasus per bulan |
-| 5 | DataTraining | Kelas untuk menyiapkan data training model |
-| 6 | HasilPrediksi | Kelas untuk menyimpan hasil prediksi |
-| 7 | ModelEvaluasi | Kelas untuk menyimpan metrik evaluasi model |
-| 8 | LogAktivitas | Kelas untuk mencatat aktivitas pengguna |
-| 9 | RandomForestModel | Kelas untuk mengelola model machine learning |
+| 3 | KasusBulanan | Kelas untuk menyimpan agregat kasus per bulan |
+| 4 | HasilPrediksi | Kelas untuk menyimpan hasil prediksi |
+| 5 | ModelEvaluasi | Kelas untuk menyimpan metrik evaluasi model |
+| 6 | LogAktivitas | Kelas untuk mencatat aktivitas pengguna |
 
 ### 4.2.3 Activity Diagram
 
@@ -94,10 +92,13 @@ Activity Diagram menggambarkan alur aktivitas dalam sistem dari awal hingga akhi
 Gambar 4.3 menunjukkan alur aktivitas Admin dalam menggunakan sistem. Admin memiliki akses penuh ke seluruh fitur sistem termasuk:
 - Mengelola pengguna (tambah, edit, hapus)
 - Mengelola data pasien DBD
+- Import data dari file Excel
+- Melihat data uji
 - Melakukan training model Random Forest
 - Melakukan prediksi risiko DBD
+- Melihat perhitungan manual Random Forest
+- Melihat evaluasi model
 - Melihat laporan
-- Mengelola wilayah
 - Melihat log aktivitas
 
 Alur dimulai dari proses login, kemudian Admin dapat memilih menu yang diinginkan dan melakukan berbagai aktivitas sesuai kebutuhan. Setelah selesai, Admin dapat logout dari sistem.
@@ -111,25 +112,28 @@ Alur dimulai dari proses login, kemudian Admin dapat memilih menu yang diinginka
 Gambar 4.4 menunjukkan alur aktivitas Petugas dalam menggunakan sistem. Petugas memiliki akses untuk:
 - Mengelola data pasien DBD (CRUD)
 - Mengimport data dari file Excel
+- Melihat data uji
 - Melakukan training model
 - Melakukan prediksi risiko
+- Melihat perhitungan manual Random Forest
+- Melihat evaluasi model
 - Melihat laporan
 
 Petugas tidak memiliki akses untuk mengelola pengguna dan melihat log aktivitas. Aktivitas yang dapat dilakukan Petugas difokuskan pada pengelolaan data operasional dan analisis prediksi.
 
-#### 4.2.3.3 Activity Diagram Pimpinan
+#### 4.2.3.3 Activity Diagram Perhitungan Manual
 
-**[Gambar 4.5 Activity Diagram Pimpinan]**
+**[Gambar 4.5 Activity Diagram Perhitungan Manual]**
 
 *(Lihat file: Dokumen/UML/activity_diagram_pimpinan.puml)*
 
-Gambar 4.5 menunjukkan alur aktivitas Pimpinan dalam menggunakan sistem. Pimpinan memiliki akses terbatas yang berfokus pada:
-- Melihat dashboard dan statistik
-- Melakukan prediksi risiko
-- Melihat evaluasi model
-- Melihat dan mencetak laporan
-
-Pimpinan tidak memiliki akses untuk mengelola data atau melakukan training model. Akses Pimpinan difokuskan pada monitoring dan pengambilan keputusan berdasarkan informasi yang disediakan sistem.
+Gambar 4.5 menunjukkan alur aktivitas halaman Perhitungan Manual. Fitur ini menampilkan perhitungan Random Forest secara step-by-step sesuai Bab IV, meliputi:
+- Menampilkan data 163 pasien dari database
+- Encoding fitur kategorikal
+- Pembagian data bootstrap per pohon
+- Perhitungan entropy, gain, dan threshold
+- Pohon keputusan terbaik (Pohon 5)
+- Evaluasi pada data uji
 
 ### 4.2.4 Sequence Diagram
 
@@ -170,12 +174,12 @@ Gambar 4.8 menunjukkan alur proses import data dari file Excel. Pengguna memilih
 *(Lihat file: Dokumen/UML/sequence_diagram_training.puml)*
 
 Gambar 4.9 menunjukkan alur proses training model Random Forest. Proses ini meliputi:
-1. Pengguna mengatur parameter (n_estimators, max_depth, test_size)
+1. Pengguna mengatur parameter (n_estimators, random_state)
 2. Sistem mengirim request ke Python API
-3. API memuat dan memproses data dari Excel
-4. Model Random Forest dilatih dengan data training
-5. Model dievaluasi dengan data testing
-6. Metrik evaluasi (accuracy, precision, recall, F1) dihitung
+3. API memuat data dari database dan mempersiapkan fitur
+4. Fitur yang digunakan: Usia, Lama Rawat Inap, Jenis Kelamin (3 fitur)
+5. Model Random Forest dilatih dengan 5-Fold Stratified Cross-Validation
+6. Metrik evaluasi (accuracy, precision, recall, F1, MAE, RMSE, R²) dihitung
 7. Model dan hasil evaluasi disimpan
 8. Hasil ditampilkan ke pengguna
 
@@ -185,7 +189,7 @@ Gambar 4.9 menunjukkan alur proses training model Random Forest. Proses ini meli
 
 *(Lihat file: Dokumen/UML/sequence_diagram_prediksi.puml)*
 
-Gambar 4.10 menunjukkan alur proses prediksi risiko DBD. Pengguna memasukkan parameter prediksi (bulan, jumlah kasus, usia, jenis kelamin, lama rawat). Sistem mengirim data ke Python API yang memuat model terlatih dan melakukan prediksi. Hasil prediksi berupa tingkat risiko (Tinggi/Sedang/Rendah), confidence score, dan rekomendasi tindakan ditampilkan ke pengguna.
+Gambar 4.10 menunjukkan alur proses prediksi risiko DBD. Pengguna memasukkan parameter prediksi (usia, jenis kelamin, lama rawat). Sistem mengirim data ke Python API yang memuat model terlatih dan melakukan prediksi. Hasil prediksi berupa tingkat risiko (Tinggi/Sedang/Rendah), confidence score, dan rekomendasi tindakan ditampilkan ke pengguna.
 
 #### 4.2.4.6 Sequence Diagram Lihat Laporan
 
@@ -193,7 +197,7 @@ Gambar 4.10 menunjukkan alur proses prediksi risiko DBD. Pengguna memasukkan par
 
 *(Lihat file: Dokumen/UML/sequence_diagram_laporan.puml)*
 
-Gambar 4.11 menunjukkan alur proses melihat laporan. Pengguna dapat memfilter laporan berdasarkan tahun dan jenis laporan (per bulan/per wilayah). Sistem mengambil data dari database, menghitung statistik, dan menampilkan dalam bentuk grafik dan tabel. Pengguna juga dapat mengexport laporan ke format PDF atau Excel.
+Gambar 4.11 menunjukkan alur proses melihat laporan. Pengguna dapat memfilter laporan berdasarkan tahun. Sistem mengambil data dari database, menghitung statistik, dan menampilkan dalam bentuk grafik dan tabel.
 
 #### 4.2.4.7 Sequence Diagram Kelola Pengguna
 
@@ -243,13 +247,11 @@ Gambar 4.14 menunjukkan rancangan form input data pasien DBD. Form ini digunakan
 | 3 | Usia | Number Input | Usia pasien dalam tahun (1-100) |
 | 4 | Jenis Kelamin | Select | Pilihan: Laki-laki / Perempuan |
 | 5 | Alamat | Textarea | Alamat lengkap pasien |
-| 6 | Wilayah | Select | Pilihan wilayah dari database |
-| 7 | Tanggal Masuk | Date Picker | Tanggal pasien masuk RS |
-| 8 | Tanggal Keluar | Date Picker | Tanggal pasien keluar RS |
-| 9 | Lama Rawat | Number Input | Lama rawat dalam hari (otomatis/manual) |
-| 10 | Status Pasien | Select | Pilihan: Rawat Inap/Rawat Jalan/Sembuh/Meninggal |
-| 11 | Tombol Simpan | Button | Menyimpan data ke database |
-| 12 | Tombol Batal | Button | Membatalkan input dan kembali |
+| 6 | Tanggal Masuk | Date Picker | Tanggal pasien masuk RS |
+| 7 | Tanggal Keluar | Date Picker | Tanggal pasien keluar RS |
+| 8 | Lama Rawat | Number Input | Lama rawat dalam hari (otomatis/manual) |
+| 9 | Tombol Simpan | Button | Menyimpan data ke database |
+| 10 | Tombol Batal | Button | Membatalkan input dan kembali |
 
 #### 4.3.1.3 Desain Halaman Import Data Excel
 
@@ -278,13 +280,12 @@ Gambar 4.16 menunjukkan rancangan halaman training model Random Forest. Pengguna
 
 | No | Komponen | Tipe | Keterangan |
 |----|----------|------|------------|
-| 1 | n_estimators | Number Input | Jumlah pohon keputusan (10-500, default: 100) |
+| 1 | n_estimators | Number Input | Jumlah pohon keputusan (1-100, default: 5) |
 | 2 | max_depth | Select | Kedalaman maksimum pohon (Auto/5/10/15/20) |
-| 3 | test_size | Range Slider | Proporsi data testing (10%-40%, default: 20%) |
-| 4 | random_state | Number Input | Seed untuk reproducibility (default: 42) |
-| 5 | Tombol Training | Button | Memulai proses training |
-| 6 | Progress Card | Card | Menampilkan progress dan status training |
-| 7 | Hasil Card | Card | Menampilkan hasil evaluasi model |
+| 3 | random_state | Number Input | Seed untuk reproducibility (default: 42) |
+| 4 | Tombol Training | Button | Memulai proses training |
+| 5 | Progress Card | Card | Menampilkan progress dan status training |
+| 6 | Hasil Card | Card | Menampilkan hasil evaluasi model |
 
 #### 4.3.1.5 Desain Halaman Input Prediksi
 
@@ -296,13 +297,11 @@ Gambar 4.17 menunjukkan rancangan halaman input untuk prediksi risiko DBD. Pengg
 
 | No | Komponen | Tipe | Keterangan |
 |----|----------|------|------------|
-| 1 | Bulan | Select | Pilihan bulan (Januari-Desember) |
-| 2 | Jumlah Kasus | Number Input | Perkiraan jumlah kasus DBD |
-| 3 | Rata-rata Usia | Number Input | Rata-rata usia pasien (default: 25) |
-| 4 | Jenis Kelamin | Select | Mayoritas jenis kelamin (L/P) |
-| 5 | Lama Rawat | Number Input | Rata-rata lama rawat inap (default: 3) |
-| 6 | Tombol Prediksi | Button | Memulai proses prediksi |
-| 7 | Panduan | Card | Penjelasan klasifikasi tingkat risiko |
+| 1 | Usia | Number Input | Rata-rata usia pasien |
+| 2 | Lama Rawat | Number Input | Rata-rata lama rawat inap (hari) |
+| 3 | Jenis Kelamin | Select | Mayoritas jenis kelamin (L/P) |
+| 4 | Tombol Prediksi | Button | Memulai proses prediksi |
+| 5 | Panduan | Card | Penjelasan klasifikasi tingkat risiko |
 
 #### 4.3.1.6 Desain Halaman Input Pengguna
 
@@ -319,26 +318,10 @@ Gambar 4.18 menunjukkan rancangan form input untuk menambah atau mengubah data p
 | 3 | Konfirmasi Password | Password Input | Konfirmasi password |
 | 4 | Nama Lengkap | Text Input | Nama lengkap pengguna |
 | 5 | Email | Email Input | Alamat email |
-| 6 | Role | Select | Pilihan: Admin/Petugas/Pimpinan |
+| 6 | Role | Select | Pilihan: Admin/Petugas |
 | 7 | Status | Select | Pilihan: Aktif/Nonaktif |
 | 8 | Foto | File Input | Upload foto profil (opsional) |
 | 9 | Tombol Simpan | Button | Menyimpan data pengguna |
-
-#### 4.3.1.7 Desain Halaman Input Wilayah
-
-**[Gambar 4.19 Desain Halaman Input Wilayah]**
-
-Gambar 4.19 menunjukkan rancangan form input untuk mengelola data wilayah.
-
-**Tabel 4.10 Komponen Form Input Wilayah**
-
-| No | Komponen | Tipe | Keterangan |
-|----|----------|------|------------|
-| 1 | Nama Wilayah | Text Input | Nama desa/kelurahan |
-| 2 | Kecamatan | Text Input | Nama kecamatan |
-| 3 | Populasi | Number Input | Jumlah penduduk |
-| 4 | Tombol Simpan | Button | Menyimpan data wilayah |
-| 5 | Tombol Batal | Button | Membatalkan input |
 
 ### 4.3.2 Desain Output
 
@@ -379,10 +362,8 @@ Gambar 4.21 menunjukkan rancangan tampilan hasil prediksi risiko DBD.
 | 3 | Progress Bar Tinggi | Progress bar probabilitas risiko Tinggi |
 | 4 | Progress Bar Sedang | Progress bar probabilitas risiko Sedang |
 | 5 | Progress Bar Rendah | Progress bar probabilitas risiko Rendah |
-| 6 | Data Input | Ringkasan data yang dimasukkan pengguna |
-| 7 | Rekomendasi | Daftar rekomendasi tindakan berdasarkan tingkat risiko |
-| 8 | Tombol Prediksi Ulang | Untuk melakukan prediksi dengan data baru |
-| 9 | Tombol Riwayat | Untuk melihat riwayat prediksi |
+| 7 | Tombol Prediksi Ulang | Untuk melakukan prediksi dengan data baru |
+| 8 | Tombol Riwayat | Untuk melihat riwayat prediksi |
 
 #### 4.3.2.3 Desain Output Evaluasi Model
 
@@ -404,7 +385,24 @@ Gambar 4.22 menunjukkan rancangan tampilan evaluasi model machine learning.
 | 8 | Feature Importance | Diagram batang pentingnya setiap fitur |
 | 9 | Parameter Model | Informasi konfigurasi parameter yang digunakan |
 
-#### 4.3.2.4 Desain Output Laporan Per Bulan
+#### 4.3.2.4 Desain Output Perhitungan Manual
+
+**[Gambar 4.23 Desain Output Perhitungan Manual]**
+
+Gambar 4.23 menunjukkan rancangan tampilan perhitungan manual Random Forest. Halaman ini menampilkan walkthrough step-by-step sesuai Bab IV Skripsi.
+
+**Tabel 4.14 Komponen Output Perhitungan Manual**
+
+| No | Komponen | Keterangan |
+|----|----------|------------|
+| 1 | Step 1: Data Mentah | Tabel 163 data pasien dari database dengan encoding |
+| 2 | Step 2: Encoding | Tabel encoding fitur kategorikal (JK, Tingkat Resiko) |
+| 3 | Step 3: Analisis Pohon | Tabel Tabel 4.18 — Root Entropy, Entropy After, Gain per pohon |
+| 4 | Step 4: Pohon Terbaik | Detail Pohon 5 — aturan keputusan, threshold, gain, statistik |
+| 5 | Step 5: Evaluasi | Perbandingan hasil prediksi pada data uji (BAB4 vs kode) |
+| 6 | Tombol Hitung | Tombol untuk menjalankan perhitungan |
+
+#### 4.3.2.5 Desain Output Laporan Per Bulan
 
 **[Gambar 4.23 Desain Output Laporan Per Bulan]**
 
@@ -420,23 +418,6 @@ Gambar 4.23 menunjukkan rancangan tampilan laporan kasus DBD per bulan.
 | 4 | Kartu Tertinggi | Bulan dengan kasus tertinggi |
 | 5 | Grafik Trend | Visualisasi grafik trend bulanan |
 | 6 | Tabel Detail | Tabel bulan, jumlah kasus, tingkat risiko, trend |
-| 7 | Tombol Export PDF | Untuk export laporan ke PDF |
-| 8 | Tombol Export Excel | Untuk export laporan ke Excel |
-
-#### 4.3.2.5 Desain Output Laporan Per Wilayah
-
-**[Gambar 4.24 Desain Output Laporan Per Wilayah]**
-
-Gambar 4.24 menunjukkan rancangan tampilan laporan distribusi kasus per wilayah.
-
-**Tabel 4.15 Komponen Output Laporan Per Wilayah**
-
-| No | Komponen | Keterangan |
-|----|----------|------------|
-| 1 | Filter Periode | Pilihan rentang waktu laporan |
-| 2 | Diagram Wilayah | Diagram batang distribusi kasus per wilayah |
-| 3 | Tabel Wilayah | Nama wilayah, jumlah kasus, persentase |
-| 4 | Tombol Cetak | Untuk mencetak laporan |
 
 #### 4.3.2.6 Desain Output Daftar Data Pasien
 
@@ -472,28 +453,14 @@ Desain file atau database menggambarkan struktur tabel yang digunakan untuk meny
 | 3 | password | VARCHAR | 255 | Password terenkripsi (bcrypt) |
 | 4 | nama_lengkap | VARCHAR | 100 | Nama lengkap pengguna |
 | 5 | email | VARCHAR | 100 | Alamat email pengguna |
-| 6 | role | ENUM | - | admin, petugas, pimpinan |
+| 6 | role | ENUM | - | admin, petugas |
 | 7 | foto | VARCHAR | 255 | Nama file foto profil |
 | 8 | status | ENUM | - | aktif, nonaktif |
 | 9 | last_login | DATETIME | - | Waktu login terakhir |
 | 10 | created_at | TIMESTAMP | - | Waktu data dibuat |
 | 11 | updated_at | TIMESTAMP | - | Waktu data diupdate |
 
-#### 4.3.3.2 Tabel Wilayah
-
-**Tabel 4.18 Struktur Tabel wilayah**
-
-| No | Field | Tipe Data | Size | Keterangan |
-|----|-------|-----------|------|------------|
-| 1 | id | INT | 11 | Primary Key, Auto Increment |
-| 2 | nama_wilayah | VARCHAR | 100 | Nama desa/kelurahan |
-| 3 | kecamatan | VARCHAR | 100 | Nama kecamatan |
-| 4 | latitude | DECIMAL | 10,8 | Koordinat latitude |
-| 5 | longitude | DECIMAL | 11,8 | Koordinat longitude |
-| 6 | populasi | INT | 11 | Jumlah penduduk |
-| 7 | created_at | TIMESTAMP | - | Waktu data dibuat |
-
-#### 4.3.3.3 Tabel Pasien DBD
+#### 4.3.3.2 Tabel Pasien DBD
 
 **Tabel 4.19 Struktur Tabel pasien_dbd**
 
@@ -505,15 +472,13 @@ Desain file atau database menggambarkan struktur tabel yang digunakan untuk meny
 | 4 | usia | INT | 11 | Usia pasien dalam tahun |
 | 5 | jenis_kelamin | ENUM | - | L (Laki-laki), P (Perempuan) |
 | 6 | alamat | TEXT | - | Alamat lengkap pasien |
-| 7 | id_wilayah | INT | 11 | Foreign Key ke tabel wilayah |
-| 8 | tanggal_masuk | DATE | - | Tanggal pasien masuk RS |
-| 9 | tanggal_keluar | DATE | - | Tanggal pasien keluar RS |
-| 10 | lama_rawat | INT | 11 | Durasi rawat inap (hari) |
-| 11 | bulan | VARCHAR | 20 | Nama bulan (Januari-Desember) |
-| 12 | tahun | INT | 4 | Tahun kasus |
-| 13 | status_pasien | ENUM | - | rawat_inap, rawat_jalan, sembuh, meninggal |
-| 14 | created_at | TIMESTAMP | - | Waktu data dibuat |
-| 15 | updated_at | TIMESTAMP | - | Waktu data diupdate |
+| 7 | tanggal_masuk | DATE | - | Tanggal pasien masuk RS |
+| 8 | tanggal_keluar | DATE | - | Tanggal pasien keluar RS |
+| 9 | lama_rawat | INT | 11 | Durasi rawat inap (hari) |
+| 10 | bulan | VARCHAR | 20 | Nama bulan (Januari-Desember) |
+| 11 | tahun | INT | 4 | Tahun kasus |
+| 12 | created_at | TIMESTAMP | - | Waktu data dibuat |
+| 13 | updated_at | TIMESTAMP | - | Waktu data diupdate |
 
 #### 4.3.3.4 Tabel Kasus Bulanan
 
@@ -592,8 +557,8 @@ Gambar 4.26 menunjukkan relasi antar tabel dalam database sistem. Berikut adalah
 
 | No | Tabel | Foreign Key | Referensi | Tipe Relasi | Keterangan |
 |----|-------|-------------|-----------|-------------|------------|
-| 1 | pasien_dbd | id_wilayah | wilayah(id) | Many to One | Setiap pasien berasal dari satu wilayah |
+| 1 | pasien_dbd | — | — | — | Tabel utama data pasien DBD |
 | 2 | hasil_prediksi | created_by | users(id) | Many to One | Setiap prediksi dibuat oleh satu user |
 | 3 | log_aktivitas | user_id | users(id) | Many to One | Setiap log aktivitas dilakukan oleh satu user |
 
-Relasi antar tabel menggunakan foreign key untuk menjaga integritas data. Aksi ON DELETE SET NULL digunakan agar data tidak hilang jika data referensi dihapus.
+Relasi antar tabel menggunakan foreign key untuk menjaga integritas data.

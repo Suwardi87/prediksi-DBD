@@ -24,7 +24,7 @@
         </mxCell>
 
         <!-- S2: Memilih Filter Laporan -->
-        <mxCell id="s2" value="Memilih Filter Laporan&#xa;&#xa;entry / form filter aktif&#xa;do / pilih tahun, jenis laporan&#xa;       (per bulan / per wilayah)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+        <mxCell id="s2" value="Memilih Filter Laporan&#xa;&#xa;entry / form filter aktif&#xa;do / pilih tahun, jenis laporan&#xa;       (per bulan)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
           <mxGeometry x="400" y="310" width="290" height="95" as="geometry" />
         </mxCell>
         <mxCell id="e2" value="klik filter" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s1" target="s2">
@@ -58,7 +58,7 @@
         </mxCell>
 
         <!-- S5: Export Laporan -->
-        <mxCell id="s5" value="Export Laporan (PDF / Excel)&#xa;&#xa;entry / generate file export&#xa;do / format data ke PDF/Excel&#xa;exit / download file ke pengguna" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
+        <mxCell id="s5" value="Tampilkan Detail Laporan&#xa;&#xa;entry / load detail data per bulan&#xa;do / tampilkan grafik &amp; tabel detail,&#xa;       statistik ringkasan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=top;spacingTop=5" vertex="1" parent="1">
           <mxGeometry x="140" y="620" width="210" height="95" as="geometry" />
         </mxCell>
         <mxCell id="e5" value="klik Export" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="s4" target="s5">
@@ -89,7 +89,7 @@
         </mxCell>
 
         <!-- Note -->
-        <mxCell id="note" value="Aktor: Pengguna (Admin / Petugas / Pimpinan)&#xa;Jenis Laporan: Per Bulan, Per Wilayah&#xa;Visualisasi: Chart.js (bar / line chart)&#xa;Export: PDF dan Excel" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
+        <mxCell id="note" value="Aktor: Pengguna (Admin / Petugas)&#xa;Jenis Laporan: Per Bulan&#xa;Visualisasi: Chart.js (bar / line chart)&#xa;Filter: Tahun (default 2024)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;align=left;spacingLeft=5" vertex="1" parent="1">
           <mxGeometry x="140" y="500" width="300" height="75" as="geometry" />
         </mxCell>
 

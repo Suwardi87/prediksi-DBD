@@ -154,7 +154,7 @@
         </mxCell>
         
         <!-- 2.4 Save to DB -->
-        <mxCell id="msg2-4" value="2.4: db.session.add() & commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <mxCell id="msg2-4" value="2.4: db.session.add() &amp; commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="615" y="510" as="sourcePoint" />
             <mxPoint x="965" y="510" as="targetPoint" />

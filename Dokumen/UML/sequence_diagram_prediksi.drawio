@@ -204,7 +204,7 @@
         </mxCell>
         
         <!-- Notes -->
-        <mxCell id="note1" value="Note: Model Random Forest&#xa;menggunakan 25 trees" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+        <mxCell id="note1" value="Note: Model Random Forest&#xa;dengan n_estimators konfigurabel" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
           <mxGeometry x="80" y="400" width="140" height="50" as="geometry" />
         </mxCell>
         <mxCell id="note2" value="Note: Hasil disimpan ke&#xa;tabel hasil_prediksi" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">

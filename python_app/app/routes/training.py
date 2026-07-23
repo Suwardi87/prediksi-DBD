@@ -34,9 +34,8 @@ def start_training():
     try:
         # Get parameters from request — default 5 pohon
         data = request.get_json() or {}
-        n_estimators = data.get('n_estimators', 5)
+        n_estimators = max(1, min(data.get('n_estimators', 5), 100))
         
-        # Random state: tetap 42 agar hasil konsisten & reproducible
         random_state = data.get('random_state', 42)
         
         # ── Data dari PasienDBD ──
@@ -72,6 +71,7 @@ def start_training():
         result = train_model(
             df,
             n_estimators=n_estimators,
+            max_depth=data.get('max_depth'),
             random_state=random_state
         )
         

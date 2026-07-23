@@ -12,23 +12,12 @@ entity "users" as users {
     * password : VARCHAR(255)
     * nama_lengkap : VARCHAR(100)
     email : VARCHAR(100)
-    * role : ENUM
+    * role : ENUM('admin', 'petugas')
     foto : VARCHAR(255)
-    * status : ENUM
+    * status : ENUM('aktif', 'nonaktif')
     last_login : DATETIME
     created_at : TIMESTAMP
     updated_at : TIMESTAMP
-}
-
-entity "wilayah" as wilayah {
-    * id : INT <<PK>>
-    --
-    * nama_wilayah : VARCHAR(100)
-    kecamatan : VARCHAR(100)
-    latitude : DECIMAL(10,8)
-    longitude : DECIMAL(11,8)
-    populasi : INT
-    created_at : TIMESTAMP
 }
 
 entity "pasien_dbd" as pasien {
@@ -37,15 +26,13 @@ entity "pasien_dbd" as pasien {
     no_rm : VARCHAR(20) <<UNIQUE>>
     * nama_pasien : VARCHAR(100)
     * usia : INT
-    * jenis_kelamin : ENUM
+    * jenis_kelamin : ENUM('L', 'P')
     alamat : TEXT
-    id_wilayah : INT <<FK>>
     * tanggal_masuk : DATE
     tanggal_keluar : DATE
     lama_rawat : INT
     bulan : VARCHAR(20)
     tahun : INT
-    status_pasien : ENUM
     created_at : TIMESTAMP
     updated_at : TIMESTAMP
 }
@@ -58,21 +45,7 @@ entity "kasus_bulanan" as kasus {
     * jumlah_kasus : INT
     jumlah_sembuh : INT
     jumlah_meninggal : INT
-    tingkat_risiko : ENUM
-    created_at : TIMESTAMP
-}
-
-entity "data_training" as training {
-    * id : INT <<PK>>
-    --
-    * bulan : INT
-    * tahun : INT
-    * jumlah_kasus : INT
-    rata_rata_usia : DECIMAL(5,2)
-    jumlah_laki : INT
-    jumlah_perempuan : INT
-    rata_rata_lama_rawat : DECIMAL(5,2)
-    * tingkat_risiko : ENUM
+    tingkat_risiko : ENUM('Rendah', 'Sedang', 'Tinggi')
     created_at : TIMESTAMP
 }
 
@@ -83,7 +56,7 @@ entity "hasil_prediksi" as prediksi {
     * bulan_prediksi : VARCHAR(20)
     * tahun_prediksi : INT
     jumlah_kasus_prediksi : INT
-    tingkat_risiko_prediksi : ENUM
+    tingkat_risiko_prediksi : ENUM('Rendah', 'Sedang', 'Tinggi')
     confidence_score : DECIMAL(5,2)
     model_version : VARCHAR(50)
     created_by : INT <<FK>>
@@ -120,8 +93,7 @@ entity "log_aktivitas" as log {
 }
 
 ' Relationships
-wilayah ||--o{ pasien : "memiliki"
-users ||--o{ prediksi : "membuat"
+ users ||--o{ prediksi : "membuat"
 users ||--o{ log : "melakukan"
 
 @enduml

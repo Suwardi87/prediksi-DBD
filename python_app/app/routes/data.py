@@ -1,6 +1,7 @@
 """
 Data Management Routes
 """
+import uuid
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app.models import PasienDBD, KasusBulanan
@@ -24,10 +25,11 @@ def index():
     query = PasienDBD.query
     
     if search:
+        safe_search = search.replace('%', '\\%').replace('_', '\\_')
         query = query.filter(
             db.or_(
-                PasienDBD.nama_pasien.ilike(f'%{search}%'),
-                PasienDBD.no_rm.ilike(f'%{search}%')
+                PasienDBD.nama_pasien.ilike(f'%{safe_search}%'),
+                PasienDBD.no_rm.ilike(f'%{safe_search}%')
             )
         )
     
@@ -52,6 +54,8 @@ def create():
             if request.form.get('tanggal_keluar'):
                 tanggal_keluar = datetime.strptime(request.form['tanggal_keluar'], '%Y-%m-%d').date()
                 lama_rawat = (tanggal_keluar - tanggal_masuk).days
+                if lama_rawat < 0:
+                    lama_rawat = 0
             
             pasien = PasienDBD(
                 no_rm=request.form.get('no_rm'),
@@ -83,7 +87,7 @@ def create():
 @admin_or_petugas_required
 def edit(id):
     """Edit data pasien"""
-    pasien = PasienDBD.query.get_or_404(id)
+    pasien = db.get_or_404(PasienDBD, id)
     
     if request.method == 'POST':
         try:
@@ -94,6 +98,8 @@ def edit(id):
             if request.form.get('tanggal_keluar'):
                 tanggal_keluar = datetime.strptime(request.form['tanggal_keluar'], '%Y-%m-%d').date()
                 lama_rawat = (tanggal_keluar - tanggal_masuk).days
+                if lama_rawat < 0:
+                    lama_rawat = 0
             
             pasien.no_rm = request.form.get('no_rm')
             pasien.nama_pasien = request.form['nama_pasien']
@@ -122,7 +128,7 @@ def edit(id):
 @admin_or_petugas_required
 def delete(id):
     """Hapus data pasien"""
-    pasien = PasienDBD.query.get_or_404(id)
+    pasien = db.get_or_404(PasienDBD, id)
     
     try:
         db.session.delete(pasien)
@@ -190,10 +196,8 @@ def import_excel():
             # Proses setiap baris
             success_count = 0
             
-            # Setup distribution for 2025
-            bulan_list = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-            tahun_import = 2025
+            bulan_list = BULAN_NAMES
+            tahun_import = 2024
             
             # Reset kasus bulanan for this year to avoid duplicates if re-importing
             # Actually we can just update it below
@@ -223,7 +227,6 @@ def import_excel():
                     if col_no and not pd.isna(row[col_no]):
                         no_rm_val = f"RM-{str(int(row[col_no])).zfill(4)}"
                     else:
-                        import uuid
                         short_uuid = uuid.uuid4().hex[:6].upper()
                         no_rm_val = f"RM-I-{idx}-{short_uuid}"
                     
@@ -233,7 +236,6 @@ def import_excel():
                     # Cek apakah pasien sudah ada berdasarkan No RM (untuk menghindari duplikasi)
                     existing = PasienDBD.query.filter_by(no_rm=no_rm_val).first()
                     if existing:
-                        import uuid
                         no_rm_val = f"RM-{uuid.uuid4().hex[:8].upper()}"
                         
                     pasien = PasienDBD(
@@ -252,17 +254,14 @@ def import_excel():
                     # Lewati baris yang bermasalah
                     continue
                     
-            db.session.commit()
+            db.session.flush()
             
             # Sync KasusBulanan for dashboard
-            from app.models import KasusBulanan
             from sqlalchemy import func
             from app.ml_model import get_risk_level
             
-            # Clear existing for this year
             KasusBulanan.query.filter_by(tahun=tahun_import).delete()
             
-            # Aggregate from PasienDBD
             agg = db.session.query(
                 PasienDBD.bulan, 
                 func.count(PasienDBD.id).label('total')
@@ -280,9 +279,6 @@ def import_excel():
                 )
                 db.session.add(kb)
                 
-            db.session.commit()
-            
-            # Catat log
             log = LogAktivitas(
                 user_id=current_user.id,
                 aksi="Import Data Excel",
@@ -311,7 +307,9 @@ def delete_all():
         from app.models import LogAktivitas, KasusBulanan
         count = PasienDBD.query.count()
         
-        # Delete all records
+        from app.models import HasilPrediksi, ModelEvaluasi
+        db.session.query(HasilPrediksi).delete()
+        db.session.query(ModelEvaluasi).delete()
         db.session.query(PasienDBD).delete()
         db.session.query(KasusBulanan).delete()
         

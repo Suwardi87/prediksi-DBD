@@ -39,11 +39,14 @@
         <mxCell id="uc3" value="Kelola&#xa;Pengguna" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="system">
           <mxGeometry x="430" y="270" width="120" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="uc6" value="Kelola&#xa;Wilayah" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="system">
+        <mxCell id="uc12" value="Log Aktivitas" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="system">
           <mxGeometry x="430" y="340" width="120" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="uc12" value="Log Aktivitas" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="system">
+        <mxCell id="uc6" value="Perhitungan&#xa;Manual" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="system">
           <mxGeometry x="430" y="410" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc13" value="Data Uji" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="system">
+          <mxGeometry x="430" y="480" width="120" height="50" as="geometry" />
         </mxCell>
         
         <!-- Machine Learning - Admin & Petugas -->
@@ -70,11 +73,6 @@
           <mxGeometry x="150" y="400" width="60" height="120" as="geometry" />
         </mxCell>
         
-        <!-- Pimpinan -->
-        <mxCell id="pimpinan" value="Pimpinan" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#FFFFCC;strokeColor=#CCCC00" vertex="1" parent="1">
-          <mxGeometry x="150" y="600" width="60" height="120" as="geometry" />
-        </mxCell>
-        
         <!-- Admin Connections -->
         <mxCell id="link1" edge="1" parent="1" source="admin" target="uc1">
           <mxGeometry relative="1" as="geometry" />
@@ -94,10 +92,13 @@
         <mxCell id="link6" edge="1" parent="1" source="admin" target="uc3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="link8" edge="1" parent="1" source="admin" target="uc12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="link7" edge="1" parent="1" source="admin" target="uc6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="link8" edge="1" parent="1" source="admin" target="uc12">
+        <mxCell id="link25" edge="1" parent="1" source="admin" target="uc13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="link9" edge="1" parent="1" source="admin" target="uc7">
@@ -132,24 +133,10 @@
         <mxCell id="link18" edge="1" parent="1" source="petugas" target="uc9">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        
-        <!-- Pimpinan Connections -->
-        <mxCell id="link19" edge="1" parent="1" source="pimpinan" target="uc1">
+        <mxCell id="link26" edge="1" parent="1" source="petugas" target="uc6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="link20" edge="1" parent="1" source="pimpinan" target="uc2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link21" edge="1" parent="1" source="pimpinan" target="uc10">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link22" edge="1" parent="1" source="pimpinan" target="uc11">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link23" edge="1" parent="1" source="pimpinan" target="uc8">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link24" edge="1" parent="1" source="pimpinan" target="uc9">
+        <mxCell id="link27" edge="1" parent="1" source="petugas" target="uc13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         

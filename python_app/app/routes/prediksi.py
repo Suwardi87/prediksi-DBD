@@ -45,10 +45,11 @@ def make_prediction():
         try:
             bulan_int = int(bulan)
             if 1 <= bulan_int <= 12:
-                bulan_nama = BULAN_NAMES[bulan_int]
+                bulan_nama = BULAN_NAMES[bulan_int - 1]
+            else:
+                bulan_nama = BULAN_NAMES[datetime.now().month - 1]
         except (ValueError, TypeError):
-            # bulan is already a string like 'Januari'
-            bulan_nama = str(bulan) if bulan else BULAN_NAMES[datetime.now().month]
+            bulan_nama = str(bulan) if bulan else BULAN_NAMES[datetime.now().month - 1]
         
         # Save to database
         prediksi = HasilPrediksi(
@@ -91,7 +92,7 @@ def batch_predict():
         # Ambil 10 data terakhir secara random atau id descending
         pasiens = PasienDBD.query.order_by(PasienDBD.id.desc()).limit(10).all()
         if not pasiens:
-            return jsonify({'status': 'error', 'message': 'Data pasien kosong. Silakan import data terlebih dahulu.'})
+            return jsonify({'status': 'error', 'message': 'Data pasien kosong. Silakan import data terlebih dahulu.'}), 404
             
         result = predict_batch_with_trees(pasiens)
         return jsonify(result)

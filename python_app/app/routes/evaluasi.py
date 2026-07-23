@@ -20,7 +20,7 @@ def index():
         try:
             latest.confusion_matrix_data = json.loads(latest.confusion_matrix) if latest.confusion_matrix else []
             latest.feature_importance_data = json.loads(latest.feature_importance) if latest.feature_importance else {}
-        except:
+        except Exception:
             latest.confusion_matrix_data = []
             latest.feature_importance_data = {}
     

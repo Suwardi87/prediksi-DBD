@@ -19,9 +19,8 @@ skinparam state {
 state "Form Input Prediksi" as FormPrediksi <<blue>> {
 }
 FormPrediksi : entry / render form prediksi
-FormPrediksi : do / input Bulan, Jumlah Kasus,
-FormPrediksi :       Usia, Jenis Kelamin,
-FormPrediksi :       Lama Rawat Inap
+FormPrediksi : do / input Usia, Lama Rawat,
+FormPrediksi :       Jenis Kelamin
 
 state "Validasi Input Data" as ValidasiInput <<yellow>> {
 }
