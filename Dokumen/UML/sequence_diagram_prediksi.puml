@@ -1,5 +1,8 @@
 @startuml Sequence Diagram - Prediksi
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 
 title Sequence Diagram - Prediksi Risiko DBD\nSistem Prediksi Penyebaran DBD

@@ -1,4 +1,8 @@
 @startuml State Chart - Kelola Data Pasien
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 title State Chart Diagram - Kelola Data Pasien\nSistem Prediksi Penyebaran Penyakit Menular DBD
 
 skinparam state {

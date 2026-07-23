@@ -1,5 +1,8 @@
 @startuml Sequence Diagram - Import Data
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 
 title Sequence Diagram - Import Data Excel\nSistem Prediksi Penyebaran DBD

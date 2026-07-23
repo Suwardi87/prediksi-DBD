@@ -1,4 +1,8 @@
 @startuml State Chart - Training Model Random Forest
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 title State Chart Diagram - Training Model Random Forest
 title Sistem Prediksi Penyebaran Penyakit Menular DBD
 

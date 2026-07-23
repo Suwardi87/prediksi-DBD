@@ -1,5 +1,8 @@
 @startuml collaboration_diagram
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam defaultFontSize 11
 
 title Collaboration Diagram - Proses Prediksi DBD

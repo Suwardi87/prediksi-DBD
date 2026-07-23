@@ -1,4 +1,8 @@
 @startuml State Chart - Prediksi Risiko DBD
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 title State Chart Diagram - Prediksi Risiko DBD
 title Sistem Prediksi Penyebaran Penyakit Menular DBD
 

@@ -1,5 +1,8 @@
 @startuml deployment_diagram
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam nodeFontSize 11
 skinparam componentFontSize 10
 skinparam artifactFontSize 9

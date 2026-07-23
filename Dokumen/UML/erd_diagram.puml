@@ -1,5 +1,8 @@
 @startuml erd_diagram
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam linetype ortho
 
 title Entity Relationship Diagram (ERD)

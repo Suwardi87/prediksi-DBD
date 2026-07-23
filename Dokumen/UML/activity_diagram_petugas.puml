@@ -1,5 +1,8 @@
 @startuml activity_diagram_petugas
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam activityFontSize 11
 
 title Activity Diagram - Petugas\nSistem Prediksi Penyebaran DBD
@@ -34,26 +37,14 @@ endif
 
 stop
 
-note left of :Training Model
-  Admin + Petugas
-end note
-
-note left of :Prediksi Risiko
-  Semua Role
-end note
-
-note left of :Evaluasi Model
-  Admin + Petugas
-end note
-
-note left of :Lihat Laporan
-  Semua Role
-end note
-
-note
-  Note: Petugas tidak bisa akses
+legend right
+  **Note:** Petugas tidak bisa akses
   Data Pasien, Kelola Pengguna,
-  dan Log Aktivitas
-end note
+  dan Log Aktivitas.
+  ||
+  |= Warna |= Keterangan |
+  | **Oranye** | Admin + Petugas |
+  | **Biru** | Semua Role |
+endlegend
 
 @enduml

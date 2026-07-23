@@ -1,5 +1,8 @@
 @startuml activity_diagram_admin
 skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 skinparam activityFontSize 11
 
 title Activity Diagram - Administrator\nSistem Prediksi Penyebaran DBD
@@ -40,28 +43,11 @@ endif
 
 stop
 
-note right of :Kelola Data Pasien
-  Admin Only
-end note
-
-note right of :Kelola Pengguna
-  Admin Only
-end note
-
-note right of :Log Aktivitas
-  Admin Only
-end note
-
-note right of :Training Model
-  Admin + Petugas
-end note
-
-note right of :Prediksi Risiko
-  Semua Role
-end note
-
-note right of :Lihat Laporan
-  Semua Role
-end note
+legend right
+  |= Warna |= Keterangan |
+  | **Merah** | Admin Only |
+  | **Oranye** | Admin + Petugas |
+  | **Biru** | Semua Role |
+endlegend
 
 @enduml

@@ -1,31 +1,36 @@
 @startuml use_case_diagram
-skinparam backgroundColor #FEFEFE
-skinparam actorStyle awesome
-skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
 skinparam usecaseFontSize 11
 skinparam actorFontSize 12
+skinparam packageFontSize 14
+skinparam packageFontStyle bold
+skinparam rectangleBorderColor #0066CC
+skinparam rectangleBackgroundColor #E6F5FF
+skinparam shadowing false
+skinparam roundcorner 0
 
-title Use Case Diagram
-title Sistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+title **Use Case Diagram**\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
 
 left to right direction
 
-actor "Administrator" as Admin #LightBlue
-actor "Petugas" as Petugas #LightGreen
+actor "Administrator" as Admin #CCE5FF
+actor "Petugas" as Petugas #CCFFCC
 
-rectangle "Sistem Prediksi Penyebaran DBD" {
-    usecase "Login" as UC1
-    usecase "Logout" as UC2
-    usecase "Kelola\nPengguna" as UC3
-    usecase "Kelola Data\nPasien" as UC4
-    usecase "Perhitungan\nManual" as UC6
-    usecase "Training Model\nRandom Forest" as UC7
-    usecase "Prediksi\nRisiko DBD" as UC8
-    usecase "Evaluasi\nModel" as UC9
-    usecase "Dashboard" as UC10
-    usecase "Laporan" as UC11
-    usecase "Log Aktivitas" as UC12
-    usecase "Data Uji" as UC13
+rectangle "Sistem Prediksi Penyebaran DBD" as system #E6F5FF {
+  usecase "Login" as UC1 #FFE6CC
+  usecase "Logout" as UC2 #FFE6CC
+  usecase "Kelola\nPengguna" as UC3 #FFE6E6
+  usecase "Kelola Data\nPasien" as UC4 #FFE6E6
+  usecase "Perhitungan\nManual" as UC6 #FFF4E6
+  usecase "Data Uji" as UC13 #FFF4E6
+  usecase "Training Model\nRandom Forest" as UC7 #FFF4E6
+  usecase "Prediksi\nRisiko DBD" as UC8 #E6F5FF
+  usecase "Evaluasi\nModel" as UC9 #E6F5FF
+  usecase "Dashboard" as UC10 #E6FFE6
+  usecase "Laporan" as UC11 #E6FFE6
+  usecase "Log Aktivitas" as UC12 #FFE6E6
 }
 
 Admin --> UC1

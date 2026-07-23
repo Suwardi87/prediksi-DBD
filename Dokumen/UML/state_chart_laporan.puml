@@ -1,4 +1,8 @@
 @startuml State Chart - Lihat Laporan
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam shadowing false
 title State Chart Diagram - Lihat Laporan
 title Sistem Prediksi Penyebaran Penyakit Menular DBD
 
