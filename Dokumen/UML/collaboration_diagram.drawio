@@ -1,0 +1,177 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="Collaboration Diagram - Prediksi" id="collab-prediksi">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Collaboration Diagram - Proses Prediksi DBD&#xa;Sistem Prediksi Penyebaran DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="335" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Objects -->
+        <!-- User -->
+        <mxCell id="user" value=": User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="40" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Browser -->
+        <mxCell id="browser" value=": Browser" style="html=1;whiteSpace=wrap;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="250" y="220" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask Controller -->
+        <mxCell id="controller" value=": PrediksiController" style="html=1;whiteSpace=wrap;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="480" y="220" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- ML Model -->
+        <mxCell id="mlmodel" value=": MLModel" style="html=1;whiteSpace=wrap;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="740" y="180" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Random Forest -->
+        <mxCell id="rf" value=": RandomForest" style="html=1;whiteSpace=wrap;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+          <mxGeometry x="920" y="180" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="db" value=": Database" style="html=1;whiteSpace=wrap;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="740" y="320" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- HasilPrediksi -->
+        <mxCell id="hasil" value=": HasilPrediksi" style="html=1;whiteSpace=wrap;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="490" y="380" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Messages / Links -->
+        <!-- 1. User to Browser -->
+        <mxCell id="link1" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="user" target="browser">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="400" as="sourcePoint" />
+            <mxPoint x="510" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg1" value="1: input data prediksi" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="140" y="200" width="110" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 2. Browser to Controller -->
+        <mxCell id="link2" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="browser" target="controller">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="400" as="sourcePoint" />
+            <mxPoint x="510" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" value="2: POST /prediksi/predict" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="370" y="200" width="115" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 3. Controller to MLModel -->
+        <mxCell id="link3" value="" style="endArrow=none;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="controller" target="mlmodel">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="400" as="sourcePoint" />
+            <mxPoint x="510" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg3" value="3: predict(features)" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="625" y="180" width="110" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 4. MLModel to RandomForest -->
+        <mxCell id="link4" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="mlmodel" target="rf">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="760" y="400" as="sourcePoint" />
+            <mxPoint x="810" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" value="4: model.predict(X)" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="860" y="160" width="110" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="msg5" value="5: return prediction" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="860" y="210" width="110" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 6. Controller to HasilPrediksi -->
+        <mxCell id="link5" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="controller" target="hasil">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="400" as="sourcePoint" />
+            <mxPoint x="510" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="6: create(result)" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="510" y="290" width="100" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 7. HasilPrediksi to Database -->
+        <mxCell id="link6" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="hasil" target="db">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="450" as="sourcePoint" />
+            <mxPoint x="510" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" value="7: save()" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="630" y="360" width="80" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="msg8" value="8: return success" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="620" y="390" width="100" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- 9. Controller back to Browser -->
+        <mxCell id="msg9" value="9: return JSON result" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="370" y="250" width="115" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Note: Nomor menunjukkan urutan pesan&#xa;(message sequence number)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note2" value="Collaboration Diagram menunjukkan:&#xa;• Objek yang terlibat&#xa;• Link/asosiasi antar objek&#xa;• Urutan pesan (1, 2, 3...)&#xa;• Fokus pada struktur organisasi" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10;align=left" vertex="1" parent="1">
+          <mxGeometry x="100" y="420" width="200" height="90" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="300" width="200" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="Legend:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="930" y="310" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg1" value="" style="html=1;whiteSpace=wrap;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="940" y="340" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1-text" value="Controller" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1010" y="340" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg2" value="" style="html=1;whiteSpace=wrap;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="940" y="365" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2-text" value="Model/Entity" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1010" y="365" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg3" value="" style="html=1;whiteSpace=wrap;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="940" y="390" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3-text" value="Database" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1010" y="390" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg4" value="" style="endArrow=none;html=1;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="940" y="425" as="sourcePoint" />
+            <mxPoint x="1000" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg4-text" value="Link" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1010" y="415" width="100" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

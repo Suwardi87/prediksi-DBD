@@ -1,0 +1,227 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" version="22.1.11">
+  <diagram name="Sequence Diagram - Import Data" id="seq-import">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Sequence Diagram - Import Data Excel&#xa;Sistem Prediksi Penyebaran DBD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="335" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors & Objects -->
+        <!-- Admin -->
+        <mxCell id="actor" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="actor">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="800" as="sourcePoint" />
+            <mxPoint x="80" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Browser -->
+        <mxCell id="browser" value="Browser" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="200" y="100" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="browser-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#3399FF;strokeColor=#3399FF" vertex="1" parent="browser">
+          <mxGeometry x="45" y="70" width="10" height="540" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask data.py -->
+        <mxCell id="flask" value="Flask App&#xa;(data.py)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#CCE5FF;strokeColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="flask-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#0066CC;strokeColor=#0066CC" vertex="1" parent="flask">
+          <mxGeometry x="45" y="240" width="10" height="350" as="geometry" />
+        </mxCell>
+        
+        <!-- Excel Parser -->
+        <mxCell id="excel" value="Excel Parser&#xa;(openpyxl)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E6FFE6;strokeColor=#33CC33" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="excel-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#33CC33;strokeColor=#33CC33" vertex="1" parent="excel">
+          <mxGeometry x="45" y="310" width="10" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Validator -->
+        <mxCell id="validator" value="Data&#xa;Validator" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF4E6;strokeColor=#FF9900" vertex="1" parent="1">
+          <mxGeometry x="740" y="100" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="validator-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#FF9900;strokeColor=#FF9900" vertex="1" parent="validator">
+          <mxGeometry x="45" y="410" width="10" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;(MySQL)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFE6E6;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="920" y="100" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="db-act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#CC0000;strokeColor=#CC0000" vertex="1" parent="database">
+          <mxGeometry x="45" y="480" width="10" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Messages -->
+        <!-- 1. Click import -->
+        <mxCell id="msg1" value="1: Klik 'Import Data'" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="200" as="sourcePoint" />
+            <mxPoint x="245" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2. Show upload form -->
+        <mxCell id="msg2" value="2: Tampilkan form upload" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="245" y="230" as="sourcePoint" />
+            <mxPoint x="80" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3. Select file -->
+        <mxCell id="msg3" value="3: Pilih file Excel (.xlsx)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="270" as="sourcePoint" />
+            <mxPoint x="245" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4. Upload file -->
+        <mxCell id="msg4" value="4: POST /data/import (multipart/form-data)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="255" y="300" as="sourcePoint" />
+            <mxPoint x="425" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 5. Check file extension -->
+        <mxCell id="msg5" value="5: check_allowed_file(filename)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="330" as="sourcePoint" />
+            <mxPoint x="435" y="350" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="500" y="330" />
+              <mxPoint x="500" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 6. Save temp file -->
+        <mxCell id="msg6" value="6: save_temp_file(upload_folder)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="380" as="sourcePoint" />
+            <mxPoint x="435" y="400" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="500" y="380" />
+              <mxPoint x="500" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 7. Read Excel -->
+        <mxCell id="msg7" value="7: read_excel_file(file_path)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="430" as="sourcePoint" />
+            <mxPoint x="605" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 8. Parse rows -->
+        <mxCell id="msg8" value="8: parse_rows(sheet)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="460" as="sourcePoint" />
+            <mxPoint x="615" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="680" y="460" />
+              <mxPoint x="680" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 9. Return data -->
+        <mxCell id="msg9" value="9: return list_of_records" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="605" y="510" as="sourcePoint" />
+            <mxPoint x="435" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Loop frame -->
+        <mxCell id="loop-frame" value="loop" style="shape=umlFrame;whiteSpace=wrap;html=1;width=50;height=30;fillColor=#E6F5FF;strokeColor=#3399FF" vertex="1" parent="1">
+          <mxGeometry x="380" y="525" width="640" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="loop-label" value="[for each record]" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="390" y="560" width="120" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 10. Validate record -->
+        <mxCell id="msg10" value="10: validate_record(record)" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="590" as="sourcePoint" />
+            <mxPoint x="785" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11. Return valid -->
+        <mxCell id="msg11" value="11: return is_valid" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="785" y="620" as="sourcePoint" />
+            <mxPoint x="435" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 12. Bulk insert -->
+        <mxCell id="msg12" value="12: db.session.bulk_insert_mappings()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="670" as="sourcePoint" />
+            <mxPoint x="965" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 13. Commit transaction -->
+        <mxCell id="msg13" value="13: db.session.commit()" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="700" as="sourcePoint" />
+            <mxPoint x="965" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 14. Return success -->
+        <mxCell id="msg14" value="14: return success_count, error_count" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="730" as="sourcePoint" />
+            <mxPoint x="435" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 15. Flash message -->
+        <mxCell id="msg15" value="15: flash('Import berhasil: X data')" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="425" y="760" as="sourcePoint" />
+            <mxPoint x="255" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 16. Show result -->
+        <mxCell id="msg16" value="16: Tampilkan hasil import" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="245" y="790" as="sourcePoint" />
+            <mxPoint x="80" y="790" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Notes -->
+        <mxCell id="note1" value="Note: File Excel harus&#xa;format .xlsx" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="60" y="350" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="Note: Validasi kolom:&#xa;no_rm, nama, usia, jk, dll" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="note3" value="Note: Bulk insert untuk&#xa;performa lebih cepat" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="60" y="490" width="120" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
