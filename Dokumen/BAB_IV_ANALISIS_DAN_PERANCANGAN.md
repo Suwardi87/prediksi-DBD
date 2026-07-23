@@ -125,7 +125,7 @@ Petugas tidak memiliki akses untuk mengelola pengguna dan melihat log aktivitas.
 
 **[Gambar 4.5 Activity Diagram Perhitungan Manual]**
 
-*(Lihat file: Dokumen/UML/activity_diagram_pimpinan.puml)*
+*(Lihat file: Dokumen/UML/activity_diagram_admin.puml)*
 
 Gambar 4.5 menunjukkan alur aktivitas halaman Perhitungan Manual. Fitur ini menampilkan perhitungan Random Forest secara step-by-step sesuai Bab IV, meliputi:
 - Menampilkan data 163 pasien dari database
