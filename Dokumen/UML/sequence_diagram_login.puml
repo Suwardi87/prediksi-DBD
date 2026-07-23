@@ -1,41 +1,37 @@
-@startuml sequence_diagram_login
-!theme plain
+@startuml Sequence Diagram - Login
 skinparam backgroundColor #FEFEFE
 skinparam sequenceMessageAlign center
 
-title Sequence Diagram Login\nSistem Prediksi Penyebaran DBD
+title Sequence Diagram - Login\nSistem Prediksi Penyebaran DBD
 
-actor "Pengguna" as User
-participant "Halaman\nLogin" as Login
-participant "Controller\nAuth" as Controller
-database "Database" as DB
+actor User
+participant Browser
+participant "Flask App\n(auth.py)" as flask
+participant "User Model" as model
+database "Database\n(MySQL)" as db
 
-User -> Login : Membuka halaman login
-activate Login
+== Login Flow ==
 
-User -> Login : Input username & password
-Login -> Controller : Submit form login
-activate Controller
+User -> Browser : 1: Masukkan username dan password
+Browser --> User : 2: Tampilkan form login
+User -> Browser : 3: Submit login (POST /auth/login)
+Browser -> flask : 4: login(username, password)
+flask -> model : 5: query.filter_by(username)
+model -> db : 6: SELECT * FROM users WHERE username=?
+db --> model : 7: return user_record
+note left of model : Note: Password diverifikasi\nmenggunakan bcrypt/werkzeug
+flask -> model : 8: check_password(password)
+model --> flask : 9: return True/False
 
-Controller -> Controller : Validasi input
-Controller -> DB : Query user by username
-activate DB
-
-DB --> Controller : Return user data
-deactivate DB
-
-alt Password Valid
-    Controller -> Controller : Verify password
-    Controller -> Controller : Set session
-    Controller -> DB : Update last_login
-    Controller --> Login : Login berhasil
-    Login --> User : Redirect ke Dashboard
-else Password Tidak Valid
-    Controller --> Login : Login gagal
-    Login --> User : Tampilkan pesan error
+alt [Valid]
+    flask -> flask : 10: login_user(), create session
+    note right of flask : Note: Session disimpan\ndengan Flask-Login
+    flask --> Browser : 11: redirect('/dashboard')
+else [Invalid]
+    flask -> flask : 10: flash('Username atau password salah')
+    flask --> Browser : 11: render_template('login.html')
 end
 
-deactivate Controller
-deactivate Login
+Browser --> User : 12: Tampilkan halaman
 
 @enduml

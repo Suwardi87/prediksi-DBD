@@ -1,100 +1,45 @@
-@startuml sequence_diagram_kelola_pengguna
-!theme plain
+@startuml Sequence Diagram - Kelola Pengguna
 skinparam backgroundColor #FEFEFE
 skinparam sequenceMessageAlign center
 
-title Sequence Diagram Kelola Pengguna\nSistem Prediksi Penyebaran DBD
+title Sequence Diagram - Kelola Pengguna\nSistem Prediksi Penyebaran DBD
 
-actor "Admin" as User
-participant "Halaman\nPengguna" as Page
-participant "Controller\nUser" as Controller
-database "Database" as DB
+actor Admin
+participant Browser
+participant "Flask App\n(users.py)" as flask
+participant "User Model" as user_model
+participant "LogAktivitas\nModel" as log_model
+database "Database\n(MySQL)" as db
 
-== Menampilkan Daftar Pengguna ==
+== Scenario 1: Melihat Daftar Pengguna ==
 
-User -> Page : Buka menu Kelola Pengguna
-activate Page
+Admin -> Browser : 1.1: GET /users/
+Browser -> flask : 1.2: SELECT * FROM users
+flask -> db : 1.2: SELECT * FROM users
+db --> flask : 1.3: return list users
+flask --> Browser : 1.4: Tampilkan tabel users
+Browser --> Admin : 1.4: Tampilkan tabel users
 
-Page -> Controller : Request daftar pengguna
-activate Controller
+== Scenario 2: Tambah Pengguna Baru ==
 
-Controller -> DB : SELECT * FROM users
-activate DB
-DB --> Controller : Return data users
-deactivate DB
+Browser -> flask : 2.1: Submit form (POST /users/create)
+note left of flask : Note: Password di-hash\nmenggunakan werkzeug
+flask -> flask : 2.2: generate_password_hash()
+note left of flask : Note: Semua aktivitas\ndicatat di log_aktivitas
+flask -> user_model : 2.3: INSERT INTO users
+user_model -> db : 2.4: db.session.add() & commit()
+flask -> log_model : 2.5: log('Membuat user baru')
+log_model -> db : 2.6: INSERT INTO log_aktivitas
+flask --> Browser : 2.7: flash('Pengguna berhasil ditambahkan')
 
-Controller --> Page : Kirim data users
-Page --> User : Tampilkan tabel pengguna
+== Scenario 3: Hapus Pengguna ==
 
-deactivate Controller
+Browser -> flask : 3.1: POST /users/delete/<id>
+note left of flask : Note: Admin tidak bisa\nmenghapus akunnya sendiri
+flask -> flask : 3.2: if user.id == current_user.id
 
-== Tambah Pengguna Baru ==
-
-User -> Page : Klik tombol Tambah
-Page --> User : Tampilkan form input
-
-User -> Page : Input data:\n- Username\n- Password\n- Nama Lengkap\n- Email\n- Role
-
-Page -> Controller : Submit form
-activate Controller
-
-Controller -> Controller : Validasi username unik
-Controller -> DB : SELECT * WHERE username = ?
-activate DB
-DB --> Controller : Return result
-deactivate DB
-
-alt Username tersedia
-    Controller -> Controller : Hash password
-    Controller -> DB : INSERT INTO users
-    activate DB
-    DB --> Controller : Success
-    deactivate DB
-    
-    Controller -> DB : INSERT log_aktivitas
-    Controller --> Page : Response sukses
-    Page --> User : Tampilkan alert sukses
-    
-else Username sudah ada
-    Controller --> Page : Response error
-    Page --> User : Tampilkan pesan error
+alt [Self Delete]
+    flask --> Browser : 3.3: flash('Tidak dapat menghapus akun sendiri')
 end
-
-deactivate Controller
-
-== Ubah Status Pengguna ==
-
-User -> Page : Klik toggle status
-Page -> Controller : Request update status
-activate Controller
-
-Controller -> DB : UPDATE users SET status = ?
-activate DB
-DB --> Controller : Success
-deactivate DB
-
-Controller --> Page : Response sukses
-Page --> User : Refresh status
-deactivate Controller
-
-== Hapus Pengguna ==
-
-User -> Page : Klik tombol Hapus
-Page --> User : Konfirmasi hapus
-
-User -> Page : Konfirmasi Ya
-Page -> Controller : Request delete
-activate Controller
-
-Controller -> DB : DELETE FROM users WHERE id = ?
-activate DB
-DB --> Controller : Success
-deactivate DB
-
-Controller --> Page : Response sukses
-Page --> User : Refresh halaman
-deactivate Controller
-
-deactivate Page
 
 @enduml

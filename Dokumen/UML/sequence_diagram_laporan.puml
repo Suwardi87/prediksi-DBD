@@ -1,52 +1,37 @@
-@startuml sequence_diagram_laporan
-!theme plain
+@startuml Sequence Diagram - Laporan
 skinparam backgroundColor #FEFEFE
 skinparam sequenceMessageAlign center
 
-title Sequence Diagram Lihat Laporan\nSistem Prediksi Penyebaran DBD
+title Sequence Diagram - Generate Laporan\nSistem Prediksi Penyebaran DBD
 
-actor "Admin / Petugas" as User
-participant "Halaman\nLaporan" as Page
-participant "Controller\nLaporan" as Controller
-database "Database" as DB
+actor User
+participant Browser
+participant "Flask App\n(laporan.py)" as flask
+database "Database\n(MySQL)" as db
+participant "Report\nGenerator" as report
+participant "Report\nRenderer" as renderer
 
-User -> Page : Buka menu Laporan
-activate Page
+== Generate Laporan ==
 
-Page -> Controller : Request data awal
-activate Controller
+User -> Browser : 1: Buka halaman laporan
+Browser -> flask : 2: GET /laporan/
+flask -> db : 3: Query statistik (COUNT, SUM)
+db --> flask : 4: return data statistik
+flask --> Browser : 5: Tampilkan form filter
+Browser --> User : 6: Tampilkan halaman
 
-Controller -> DB : SELECT tahun FROM kasus_bulanan
-activate DB
-DB --> Controller : Return daftar tahun
-deactivate DB
-
-Controller --> Page : Kirim data filter
-Page --> User : Tampilkan halaman laporan\ndengan filter
-
-== Filter dan Tampilkan Laporan ==
-
-User -> Page : Pilih filter:\n- Tahun
-
-Page -> Controller : Request laporan\n{tahun}
-activate Controller
-
-Controller -> DB : SELECT * FROM kasus_bulanan\nWHERE tahun = ?
-activate DB
-DB --> Controller : Return data bulanan
-deactivate DB
-
-Controller -> Controller : Hitung statistik:\n- Total, Rata-rata\n- Tertinggi, Terendah
-
-Controller --> Page : Kirim data laporan
-
-Page -> Page : Render grafik (Chart.js)
-Page -> Page : Render tabel data
-
-Page --> User : Tampilkan:\n- Grafik trend\n- Tabel detail\n- Statistik ringkasan
-
-deactivate Controller
-
-deactivate Page
+User -> Browser : 7: Pilih periode laporan
+Browser -> flask : 8: POST /laporan/generate
+flask -> db : 9: SELECT * WHERE tanggal BETWEEN ?
+db --> flask : 10: return filtered_data
+note left of flask : Note: Laporan berisi data\npasien, prediksi, dan evaluasi
+note left of flask : Note: Laporan ditampilkan\ndi halaman web
+note left of flask : Note: Filter berdasarkan\nperiode waktu (bulan/tahun)
+flask -> report : 11: generate_report(data, format)
+report -> renderer : 12: render_report(data, format)
+renderer --> report : 13: return file_path
+report --> flask : 14: return report_file
+flask --> Browser : 15: send_file(report)
+Browser --> User : 16: Download/Tampilkan file
 
 @enduml

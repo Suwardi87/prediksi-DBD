@@ -1,5 +1,6 @@
 @startuml State Chart - Lihat Laporan
-title State Chart Diagram - Lihat Laporan\nSistem Prediksi Penyebaran Penyakit Menular DBD
+title State Chart Diagram - Lihat Laporan
+title Sistem Prediksi Penyebaran Penyakit Menular DBD
 
 skinparam state {
   BackgroundColor<<blue>> #dae8fc
@@ -26,6 +27,7 @@ state "Memilih Filter Laporan" as MemilihFilter <<blue>> {
 }
 MemilihFilter : entry / form filter aktif
 MemilihFilter : do / pilih tahun, jenis laporan
+MemilihFilter :       (per bulan)
 
 state "Query & Hitung Statistik" as QueryData <<yellow>> {
 }
@@ -41,16 +43,25 @@ TampilkanLaporan : do / tampilkan tabel detail data,
 TampilkanLaporan :       statistik ringkasan,
 TampilkanLaporan :       grafik batang / line
 
+state "Tampilkan Detail Laporan" as DetailLaporan <<purple>> {
+}
+DetailLaporan : entry / load detail data per bulan
+DetailLaporan : do / tampilkan grafik & tabel detail,
+DetailLaporan :       statistik ringkasan
+
 HalamanLaporan --> MemilihFilter : klik filter
 MemilihFilter --> QueryData : submit filter
 QueryData --> TampilkanLaporan : data siap
 TampilkanLaporan --> MemilihFilter : ganti filter
+TampilkanLaporan --> DetailLaporan : klik Export
+DetailLaporan --> TampilkanLaporan : export selesai
 TampilkanLaporan --> [*] : keluar halaman
 
 note right of QueryData
-  Aktor: Admin / Petugas
+  Aktor: Pengguna (Admin / Petugas)
   Jenis Laporan: Per Bulan
   Visualisasi: Chart.js (bar / line chart)
+  Filter: Tahun (default 2024)
 end note
 
 @enduml

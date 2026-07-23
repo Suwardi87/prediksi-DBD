@@ -1,99 +1,65 @@
 @startuml erd_diagram
-!theme plain
 skinparam backgroundColor #FEFEFE
 skinparam linetype ortho
 
-title Entity Relationship Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+title Entity Relationship Diagram (ERD)
+title Sistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
 
 entity "users" as users {
     * id : INT <<PK>>
     --
-    * username : VARCHAR(50) <<UNIQUE>>
-    * password : VARCHAR(255)
-    * nama_lengkap : VARCHAR(100)
+    username : VARCHAR(50) <<UNIQUE>>
+    password : VARCHAR(255)
+    nama_lengkap : VARCHAR(100)
     email : VARCHAR(100)
-    * role : ENUM('admin', 'petugas')
-    foto : VARCHAR(255)
-    * status : ENUM('aktif', 'nonaktif')
-    last_login : DATETIME
-    created_at : TIMESTAMP
-    updated_at : TIMESTAMP
+    role : ENUM(admin,petugas)
 }
 
 entity "pasien_dbd" as pasien {
     * id : INT <<PK>>
     --
     no_rm : VARCHAR(20) <<UNIQUE>>
-    * nama_pasien : VARCHAR(100)
-    * usia : INT
-    * jenis_kelamin : ENUM('L', 'P')
-    alamat : TEXT
-    * tanggal_masuk : DATE
+    nama_pasien : VARCHAR(100)
+    usia : INT
+    jenis_kelamin : ENUM
+    tanggal_masuk : DATE
     tanggal_keluar : DATE
     lama_rawat : INT
     bulan : VARCHAR(20)
     tahun : INT
+    status_pasien : ENUM
     created_at : TIMESTAMP
     updated_at : TIMESTAMP
 }
 
-entity "kasus_bulanan" as kasus {
+entity "log_aktivitas" as log {
     * id : INT <<PK>>
     --
-    * bulan : VARCHAR(20)
-    * tahun : INT
-    * jumlah_kasus : INT
-    jumlah_sembuh : INT
-    jumlah_meninggal : INT
-    tingkat_risiko : ENUM('Rendah', 'Sedang', 'Tinggi')
+    * user_id : INT <<FK>>
+    aksi : VARCHAR(100)
+    deskripsi : TEXT
+    ip_address : VARCHAR(45)
     created_at : TIMESTAMP
 }
 
 entity "hasil_prediksi" as prediksi {
     * id : INT <<PK>>
     --
-    * tanggal_prediksi : DATETIME
-    * bulan_prediksi : VARCHAR(20)
-    * tahun_prediksi : INT
-    jumlah_kasus_prediksi : INT
-    tingkat_risiko_prediksi : ENUM('Rendah', 'Sedang', 'Tinggi')
-    confidence_score : DECIMAL(5,2)
-    model_version : VARCHAR(50)
-    created_by : INT <<FK>>
+    bulan_prediksi : VARCHAR(20)
+    tingkat_risiko : ENUM
+    * created_by : INT <<FK>>
     created_at : TIMESTAMP
 }
 
-entity "model_evaluasi" as evaluasi {
+entity "kasus_bulanan" as kasus {
     * id : INT <<PK>>
     --
-    * tanggal_training : DATETIME
-    accuracy : DECIMAL(5,4)
-    precision_score : DECIMAL(5,4)
-    recall_score : DECIMAL(5,4)
-    f1_score : DECIMAL(5,4)
-    mae : DECIMAL(10,4)
-    rmse : DECIMAL(10,4)
-    r2_score : DECIMAL(5,4)
-    n_estimators : INT
-    max_depth : INT
-    confusion_matrix : TEXT
-    feature_importance : TEXT
-    model_path : VARCHAR(255)
-    created_at : TIMESTAMP
+    bulan : VARCHAR(20)
+    jumlah_kasus : INT
+    tingkat_risiko : ENUM
 }
 
-entity "log_aktivitas" as log {
-    * id : INT <<PK>>
-    --
-    user_id : INT <<FK>>
-    * aksi : VARCHAR(100)
-    deskripsi : TEXT
-    ip_address : VARCHAR(45)
-    created_at : TIMESTAMP
-}
-
-' Relationships
- users ||--o{ prediksi : "membuat"
-users ||--o{ log : "melakukan"
+users ||--o{ log
+users ||--o{ prediksi
 
 @enduml

@@ -1,69 +1,62 @@
 @startuml use_case_diagram
-!theme plain
 skinparam backgroundColor #FEFEFE
 skinparam actorStyle awesome
 skinparam packageStyle rectangle
 skinparam usecaseFontSize 11
 skinparam actorFontSize 12
 
-title Use Case Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+title Use Case Diagram
+title Sistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
 
 left to right direction
 
-' Actors
-actor "Admin" as Admin #LightBlue
+actor "Administrator" as Admin #LightBlue
 actor "Petugas" as Petugas #LightGreen
 
-' System boundary
 rectangle "Sistem Prediksi Penyebaran DBD" {
-    ' Authentication
     usecase "Login" as UC1
     usecase "Logout" as UC2
-    
-    ' Data Management
-    usecase "Kelola Pengguna" as UC3
-    usecase "Kelola Data Pasien" as UC4
-    usecase "Import Data Excel" as UC5
-    
-    ' Machine Learning
+    usecase "Kelola\nPengguna" as UC3
+    usecase "Kelola Data\nPasien" as UC4
+    usecase "Perhitungan\nManual" as UC6
     usecase "Training Model\nRandom Forest" as UC7
-    usecase "Prediksi Risiko DBD" as UC8
-    usecase "Lihat Evaluasi Model" as UC9
-    usecase "Perhitungan Manual" as UC13
-    usecase "Data Uji" as UC14
-    
-    ' Reporting
-    usecase "Lihat Dashboard" as UC10
-    usecase "Lihat Laporan" as UC11
-    usecase "Lihat Log Aktivitas" as UC12
+    usecase "Prediksi\nRisiko DBD" as UC8
+    usecase "Evaluasi\nModel" as UC9
+    usecase "Dashboard" as UC10
+    usecase "Laporan" as UC11
+    usecase "Log Aktivitas" as UC12
+    usecase "Data Uji" as UC13
 }
 
-' Admin connections
 Admin --> UC1
 Admin --> UC2
-Admin --> UC3
+Admin --> UC10
+Admin --> UC11
 Admin --> UC4
-Admin --> UC5
+Admin --> UC3
+Admin --> UC12
+Admin --> UC6
+Admin --> UC13
 Admin --> UC7
 Admin --> UC8
 Admin --> UC9
-Admin --> UC10
-Admin --> UC11
-Admin --> UC12
-Admin --> UC13
-Admin --> UC14
 
-' Petugas connections
 Petugas --> UC1
 Petugas --> UC2
-Petugas --> UC4
-Petugas --> UC5
+Petugas --> UC10
+Petugas --> UC11
 Petugas --> UC7
 Petugas --> UC8
 Petugas --> UC9
-Petugas --> UC10
-Petugas --> UC11
+Petugas --> UC6
 Petugas --> UC13
-Petugas --> UC14
+
+legend right
+  |= Warna |= Keterangan |
+  | <#FFE6E6> | Admin Only |
+  | <#FFF4E6> | Admin+Petugas |
+  | <#E6F5FF> | All Roles |
+  | <#FFE6CC> | Authentication |
+endlegend
 
 @enduml

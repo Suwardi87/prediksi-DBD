@@ -1,5 +1,6 @@
 @startuml State Chart - Prediksi Risiko DBD
-title State Chart Diagram - Prediksi Risiko DBD\nSistem Prediksi Penyebaran Penyakit Menular DBD
+title State Chart Diagram - Prediksi Risiko DBD
+title Sistem Prediksi Penyebaran Penyakit Menular DBD
 
 skinparam state {
   BackgroundColor<<blue>> #dae8fc
@@ -19,8 +20,9 @@ skinparam state {
 state "Form Input Prediksi" as FormPrediksi <<blue>> {
 }
 FormPrediksi : entry / render form prediksi
-FormPrediksi : do / input Usia, Lama Rawat,
-FormPrediksi :       Jenis Kelamin
+FormPrediksi : do / input Bulan, Jumlah Kasus,
+FormPrediksi :       Usia, Jenis Kelamin,
+FormPrediksi :       Lama Rawat Inap
 
 state "Validasi Input Data" as ValidasiInput <<yellow>> {
 }
@@ -40,7 +42,8 @@ state "Prediksi Rule-Based (Fallback)" as RuleBased <<yellow>> {
 }
 RuleBased : entry / model belum tersedia
 RuleBased : do / get_risk_level(jumlah_kasus)
-RuleBased :       ≤8=Rendah, 9-15=Sedang, >15=Tinggi
+RuleBased :       ≤8=Rendah, 9-15=Sedang,
+RuleBased :       >15=Tinggi
 
 state "Prediksi dengan Model RF" as ModelRF <<purple>> {
 }

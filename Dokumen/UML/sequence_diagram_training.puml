@@ -1,67 +1,42 @@
-@startuml sequence_diagram_training
-!theme plain
+@startuml Sequence Diagram - Training
 skinparam backgroundColor #FEFEFE
 skinparam sequenceMessageAlign center
 
-title Sequence Diagram Training Model Random Forest\nSistem Prediksi Penyebaran DBD
+title Sequence Diagram - Training Model RF\nSistem Prediksi Penyebaran DBD
 
-actor "Petugas" as User
-participant "Halaman\nTraining" as Page
-participant "Controller\nTraining" as Controller
-participant "Python API\n(Flask)" as API
-participant "Random Forest\nModel" as Model
-database "Database" as DB
+actor "Admin/\nPetugas" as admin
+participant Browser
+participant "Flask App\n(training.py)" as flask
+database "Database\n(MySQL)" as db
+participant "ML Model\n(ml_model.py)" as ml
+participant "RF Algorithm\n(Manual)" as rf
 
-User -> Page : Buka menu Training Model
-activate Page
+== Training Model RF ==
 
-Page --> User : Tampilkan form konfigurasi
+admin -> Browser : 1: Klik menu Training
+Browser -> flask : 2: GET /training/
+flask -> db : 3: SELECT * FROM pasien_dbd
+db --> flask : 4: return dataset (n records)
+flask --> Browser : 5: Tampilkan info dataset
+Browser --> admin : 6: Tampilkan halaman training
 
-User -> Page : Atur parameter\n(n_estimators)
-User -> Page : Klik tombol Mulai Training
+admin -> Browser : 7: Klik tombol 'Mulai Training'
+Browser -> flask : 8: POST /training/train
+flask -> ml : 9: train_model()
+note left of ml : Note: Training menggunakan 3 fitur\n(Usia, Lama Rawat, Jenis Kelamin),\nmax_features=None, 5-fold CV
+note left of ml : Note: n_estimators bisa\ndikonfigurasi pengguna
+note left of ml : Note: Metrics (accuracy, precision,\nrecall, f1, cv_score) disimpan\ke database
+ml -> ml : 10: prepare_dataset()
 
-Page -> Controller : Submit parameter training
-activate Controller
-
-Controller -> API : POST /train\n{n_estimators}
-activate API
-
-API -> API : Load data dari Excel
-API -> API : Preprocessing data\n(cleaning, encoding)
-API -> API : Select 3 fitur:\nUsia, Lama Rawat,\nJenis Kelamin
-
-API -> API : 5-Fold Cross Validation
-
-loop Untuk setiap fold (k=1..5)
-    API -> Model : Inisialisasi RandomForestClassifier\n(max_features=None)
-    activate Model
-    API -> Model : fit(X_train, y_train)
-    API -> Model : predict(X_test)
-    API -> Model : Calculate metrics\n(accuracy, precision, recall, f1)
-    deactivate Model
+loop [25 trees]
+    ml -> rf : 11: build_tree()
+    rf -> rf : 12: calculate_entropy()
+    rf --> ml : 13: return decision_tree
 end
 
-API -> API : Hitung rata-rata metrics\n dari 5 fold
-
-API -> Model : Train final model\n dengan seluruh data
-activate Model
-Model --> API : Trained model
-deactivate Model
-
-API -> API : Save model to file\n(random_forest_model.pkl)
-
-API -> DB : INSERT INTO model_evaluasi\n(metrics, confusion_matrix)
-activate DB
-DB --> API : Success
-deactivate DB
-
-API --> Controller : Response\n{status, metrics, feature_importance}
-deactivate API
-
-Controller --> Page : Kirim hasil training
-Page --> User : Tampilkan hasil evaluasi\n(Accuracy, Precision, Recall, F1)
-
-deactivate Controller
-deactivate Page
+ml -> ml : 14: evaluate_model()
+ml --> flask : 15: return metrics (MAE, RMSE, R²)
+flask -> db : 16: save(ModelEvaluasi)
+db --> flask : 17: return success
 
 @enduml

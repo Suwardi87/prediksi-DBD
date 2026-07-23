@@ -1,125 +1,115 @@
 @startuml class_diagram
-!theme plain
 skinparam backgroundColor #FEFEFE
 skinparam classAttributeIconSize 0
 skinparam classFontSize 12
 
-title Class Diagram\nSistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
+title Class Diagram
+title Sistem Prediksi Penyebaran DBD - RSUD Lubuk Basung
 
-' Classes
 class User {
-    -id: int
-    -username: string
-    -password: string
-    -nama_lengkap: string
-    -email: string
-    -role: enum('admin', 'petugas')
-    -foto: string
-    -status: enum('aktif', 'nonaktif')
-    -last_login: datetime
+    - id: Integer (PK)
+    - username: String(50) UNIQUE
+    - password: String(255)
+    - role: Enum(admin,petugas)
+    - created_at: DateTime
     --
-    +login(): boolean
-    +logout(): void
-    +create(): boolean
-    +update(): boolean
-    +delete(): boolean
+    + check_password(password): Boolean
+    + login(): Boolean
+    + logout(): Void
+    + create(): Boolean
+    + update(): Boolean
+    + delete(): Boolean
 }
 
 class PasienDBD {
-    -id: int
-    -no_rm: string
-    -nama_pasien: string
-    -usia: int
-    -jenis_kelamin: enum('L', 'P')
-    -alamat: text
-    -tanggal_masuk: date
-    -tanggal_keluar: date
-    -lama_rawat: int
-    -bulan: string
-    -tahun: int
+    - id: Integer (PK)
+    - no_rm: String(20) UNIQUE
+    - nama_pasien: String(100)
+    - usia: Integer
+    - jenis_kelamin: Enum(L,P)
+    - lama_rawat: Integer
+    - tanggal_masuk: Date
+    - tanggal_keluar: Date
+    - bulan: String(20)
+    - tahun: Integer
+    - created_at: DateTime
     --
-    +create(): boolean
-    +read(): array
-    +update(): boolean
-    +delete(): boolean
-    +getByBulan(): array
+    + create(): Boolean
+    + read(): List
+    + update(): Boolean
+    + delete(): Boolean
+    + getByBulan(): List
 }
 
 class KasusBulanan {
-    -id: int
-    -bulan: string
-    -tahun: int
-    -jumlah_kasus: int
-    -jumlah_sembuh: int
-    -jumlah_meninggal: int
-    -tingkat_risiko: enum
+    - id: Integer (PK)
+    - bulan: String(20)
+    - tahun: Integer
+    - jumlah_kasus: Integer
+    - jumlah_sembuh: Integer
+    - jumlah_meninggal: Integer
+    - tingkat_risiko: Enum(...)
+    - created_at: DateTime
     --
-    +getByTahun(): array
-    +calculateRisk(): string
+    + create(): Boolean
+    + read(): List
+    + update(): Boolean
+    + getByTahun(tahun): List
+    + getStatistik(): Object
 }
 
 class HasilPrediksi {
-    -id: int
-    -tanggal_prediksi: datetime
-    -bulan_prediksi: string
-    -tahun_prediksi: int
-    -jumlah_kasus_prediksi: int
-    -tingkat_risiko_prediksi: enum
-    -confidence_score: decimal
-    -model_version: string
-    -created_by: int
+    - id: Integer (PK)
+    - tanggal_prediksi: DateTime
+    - bulan_prediksi: String(20)
+    - tahun_prediksi: Integer
+    - jumlah_kasus_prediksi: Integer
+    - tingkat_risiko_prediksi: Enum(...)
+    - confidence_score: Decimal(5,2)
+    - model_version: String(50)
+    - created_by: Integer (FK)
+    - created_at: DateTime
     --
-    +savePrediction(): boolean
-    +getHistory(): array
+    + create(): Boolean
+    + read(): List
+    + getByTahun(tahun): List
+    + getLatest(): Object
+    + predict(data): Object
 }
 
 class ModelEvaluasi {
-    -id: int
-    -tanggal_training: datetime
-    -accuracy: decimal
-    -precision_score: decimal
-    -recall_score: decimal
-    -f1_score: decimal
-    -mae: decimal
-    -rmse: decimal
-    -r2_score: decimal
-    -n_estimators: int
-    -max_depth: int
-    -confusion_matrix: text
-    -feature_importance: text
+    - id: Integer (PK)
+    - tanggal_training: DateTime
+    - accuracy: Decimal(5,4)
+    - precision: Decimal(5,4)
+    - recall: Decimal(5,4)
+    - f1_score: Decimal(5,4)
+    - n_estimators: Integer
+    - max_depth: Integer
+    - cv_score: Decimal(5,4)
+    - created_at: DateTime
     --
-    +saveEvaluation(): boolean
-    +getLatest(): object
+    + create(): Boolean
+    + read(): List
+    + getLatest(): Object
+    + getMetrics(): Object
 }
 
 class LogAktivitas {
-    -id: int
-    -user_id: int
-    -aksi: string
-    -deskripsi: text
-    -ip_address: string
+    - id: Integer (PK)
+    - user_id: Integer (FK)
+    - aksi: String(100)
+    - deskripsi: Text
+    - ip_address: String(45)
+    - created_at: DateTime
     --
-    +create(): boolean
-    +getByUser(): array
+    + create(): Boolean
+    + read(): List
+    + getByUser(user_id): List
+    + filter(filters): List
 }
 
-class RandomForestModel {
-    -model: object
-    -encoder: object
-    -feature_names: array
-    --
-    +train(): object
-    +predict(): object
-    +evaluate(): object
-    +saveModel(): boolean
-    +loadModel(): boolean
-    +getFeatureImportance(): array
-}
-
-' Relationships
-HasilPrediksi "many" --> "1" User : dibuat oleh
-LogAktivitas "many" --> "1" User : dilakukan oleh
-RandomForestModel ..> ModelEvaluasi : generates
-RandomForestModel ..> HasilPrediksi : creates
+User "1" -- "many" HasilPrediksi : creates
+User "1" -- "many" LogAktivitas : logs
 
 @enduml

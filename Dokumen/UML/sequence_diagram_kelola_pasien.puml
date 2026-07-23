@@ -1,89 +1,45 @@
-@startuml sequence_diagram_kelola_pasien
-!theme plain
+@startuml Sequence Diagram - Kelola Pasien
 skinparam backgroundColor #FEFEFE
 skinparam sequenceMessageAlign center
 
-title Sequence Diagram Kelola Data Pasien\nSistem Prediksi Penyebaran DBD
+title Sequence Diagram - Kelola Data Pasien DBD\nSistem Prediksi Penyebaran DBD
 
-actor "Admin / Petugas" as User
-participant "Halaman\nData Pasien" as Page
-participant "Controller\nPasien" as Controller
-database "Database" as DB
+actor Admin
+participant Browser
+participant "Flask App\n(data.py)" as flask
+participant "PasienDBD\nModel" as pasien
+database "Database\n(MySQL)" as db
 
-== Menampilkan Daftar Pasien ==
-User -> Page : Buka menu Data Pasien
-activate Page
+== Scenario 1: Melihat Daftar Pasien ==
 
-Page -> Controller : Request daftar pasien
-activate Controller
+Browser -> flask : 1.1: GET /data/
+note left of flask : Note: Hanya Admin\nyang bisa akses
+flask -> db : 1.2: SELECT * FROM pasien_dbd
+db --> flask : 1.3: return list pasien
+flask --> Browser : 1.4: Tampilkan tabel pasien
 
-Controller -> DB : SELECT * FROM pasien_dbd
-activate DB
-DB --> Controller : Return data pasien
-deactivate DB
+== Scenario 2: Tambah Data Pasien Baru ==
 
-Controller --> Page : Kirim data pasien
-Page --> User : Tampilkan tabel pasien
-deactivate Controller
+Admin -> Browser : 2.1: Klik 'Tambah Pasien'
+flask -> pasien : 2.2: validate_pasien_data()
+note left of flask : Note: Validasi\ndilakukan di form
+pasien --> flask : 2.3: return is_valid
+Browser -> flask : 2.4: Submit form (POST /data/create)
+flask -> pasien : 2.5: INSERT INTO pasien_dbd
+pasien -> db : 2.6: db.session.add() & commit()
+db --> flask : 2.7: return success
 
-== Tambah Data Pasien ==
-User -> Page : Klik tombol Tambah
-Page --> User : Tampilkan form input
+== Scenario 3: Edit Data Pasien ==
 
-User -> Page : Input data pasien
-Page -> Controller : Submit form
-activate Controller
+Browser -> flask : 3.1: Submit edit (POST /data/edit/<id>)
+flask -> pasien : 3.2: UPDATE pasien_dbd SET ...
+pasien -> db : 3.3: db.session.commit()
+db --> flask : 3.4: return success
 
-Controller -> Controller : Validasi data
-Controller -> DB : INSERT INTO pasien_dbd
-activate DB
-DB --> Controller : Success
-deactivate DB
+== Scenario 4: Hapus Data Pasien ==
 
-Controller -> DB : INSERT INTO log_aktivitas
-Controller --> Page : Response sukses
-Page --> User : Tampilkan alert sukses
-
-deactivate Controller
-
-== Edit Data Pasien ==
-User -> Page : Klik tombol Edit
-Page -> Controller : Request data by ID
-activate Controller
-Controller -> DB : SELECT * WHERE id=?
-activate DB
-DB --> Controller : Return data
-deactivate DB
-Controller --> Page : Kirim data
-deactivate Controller
-Page --> User : Tampilkan form edit
-
-User -> Page : Update data
-Page -> Controller : Submit update
-activate Controller
-Controller -> DB : UPDATE pasien_dbd
-activate DB
-DB --> Controller : Success
-deactivate DB
-Controller --> Page : Response sukses
-Page --> User : Tampilkan alert sukses
-deactivate Controller
-
-== Hapus Data Pasien ==
-User -> Page : Klik tombol Hapus
-Page --> User : Konfirmasi hapus
-
-User -> Page : Konfirmasi Ya
-Page -> Controller : Request delete
-activate Controller
-Controller -> DB : DELETE FROM pasien_dbd
-activate DB
-DB --> Controller : Success
-deactivate DB
-Controller --> Page : Response sukses
-Page --> User : Refresh halaman
-deactivate Controller
-
-deactivate Page
+Browser -> flask : 4.1: Konfirmasi hapus (POST /data/delete/<id>)
+flask -> pasien : 4.2: DELETE FROM pasien_dbd WHERE id=?
+pasien --> Browser : 4.3: return success
 
 @enduml

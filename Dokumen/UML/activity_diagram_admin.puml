@@ -1,9 +1,8 @@
 @startuml activity_diagram_admin
-!theme plain
 skinparam backgroundColor #FEFEFE
 skinparam activityFontSize 11
 
-title Activity Diagram Admin\nSistem Prediksi Penyebaran DBD
+title Activity Diagram - Administrator\nSistem Prediksi Penyebaran DBD
 
 start
 
@@ -11,86 +10,58 @@ start
 
 :Memasukkan Username dan Password;
 
-if (Validasi Login?) then (Valid)
-    :Masuk ke Dashboard;
+if (Valid?) then (Ya)
+    :Tampilkan Dashboard;
     
     repeat
-        :Pilih Menu;
-        
-        switch (Menu yang dipilih?)
-        case (Dashboard)
-            :Tampilkan Total Kasus;
-            :Tampilkan Grafik Trend;
-            :Tampilkan Distribusi Risiko;
-            :Tampilkan Status Model;
-            
-        case (Kelola Data Pasien)
-            :Tampilkan Daftar Pasien;
-            if (Aksi?) then (Tambah/Edit)
-                :Input Data Pasien;
-                :Simpan ke Database;
-            else (Hapus)
-                :Konfirmasi Hapus;
-                :Hapus dari Database;
-            endif
-            
-        case (Import Data Excel)
-            :Pilih File Excel;
-            :Upload File;
-            :Validasi Format;
-            if (Format Valid?) then (Ya)
-                :Proses Import Data;
-                :Tampilkan Hasil Import;
-            else (Tidak)
-                :Tampilkan Error;
-            endif
-            
-        case (Data Uji)
-            :Pilih Dataset Uji;
-            :Atur Parameter Uji;
-            :Jalankan Uji Model;
-            :Tampilkan Hasil Uji;
-            
-        case (Training Model)
-            :Atur Parameter Model;
-            :n_estimators, max_depth, test_size;
-            :Mulai Training;
-            :Tunggu Proses;
-            :Tampilkan Metrik Evaluasi;
-            
-        case (Perhitungan Manual)
-            :Input Data Manual;
-            :Pilih Metode Perhitungan;
-            :Jalankan Perhitungan;
-            :Tampilkan Hasil Perhitungan;
-            
-        case (Evaluasi Model)
-            :Tampilkan Metrik Evaluasi;
-            :Accuracy, Precision, Recall;
-            :Tampilkan Confusion Matrix;
-            :Tampilkan Feature Importance;
-            
-        case (Laporan)
-            :Pilih Filter Periode;
-            :Pilih Jenis Laporan;
-            :Tampilkan Laporan;
-            :Cetak/Export Laporan;
-            
-        case (Log Aktivitas)
-            :Tampilkan Riwayat Aktivitas;
-            :Filter Berdasarkan Waktu;
-            
-        endswitch
-        
+    
+    :Pilih Menu;
+    
+    :Kelola Data Pasien;
+    
+    :Kelola Pengguna;
+    
+    :Log Aktivitas;
+    
+    :Training Model;
+    
+    :Prediksi Risiko;
+    
+    :Lihat Laporan;
+    
     repeat while (Lanjut?) is (Ya)
-
+    
     :Logout;
     
-else (Tidak Valid)
+else (Tidak)
     :Tampilkan Pesan Error;
     :Kembali ke Form Login;
 endif
 
 stop
+
+note right of :Kelola Data Pasien
+  Admin Only
+end note
+
+note right of :Kelola Pengguna
+  Admin Only
+end note
+
+note right of :Log Aktivitas
+  Admin Only
+end note
+
+note right of :Training Model
+  Admin + Petugas
+end note
+
+note right of :Prediksi Risiko
+  Semua Role
+end note
+
+note right of :Lihat Laporan
+  Semua Role
+end note
 
 @enduml
