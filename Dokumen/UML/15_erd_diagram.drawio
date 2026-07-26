@@ -1,0 +1,13 @@
+<mxfile host="Electron" modified="2026-07-24T00:00:00.000Z" agent="5.0" version="20.0.0">
+  <diagram id="diag_15" name="ERD Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="placeholder" value="ERD Diagram (Gambar Tambahan)&lt;br/&gt;&lt;br/&gt;Gunakan XMI Import untuk struktur kelas &amp;amp; usecase, atau salin kode Mermaid dari UML_Bab4.md ke tool Live Editor." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CCCCCC;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="500" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

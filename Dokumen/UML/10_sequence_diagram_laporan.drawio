@@ -1,0 +1,117 @@
+<mxfile host="Electron" modified="2026-07-24T00:00:00.000Z" agent="5.0" version="20.0.0">
+  <diagram id="diag_10" name="Sequence Lihat Laporan">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="outer_frame" value="sequence diagram\nlihat laporan" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=30;fillColor=none;fontSize=9;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="800" height="840" as="geometry" />
+        </mxCell>
+        <mxCell id="pengguna" value="" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;participant=umlActor;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="110" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="hl" value="Halaman Laporan" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="80" width="110" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="proses" value="proses" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="440" y="80" width="110" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="620" y="80" width="110" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_0" value="Buka menu Laporan()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.167;entryX=0.5;entryY=0.167;" edge="1" parent="1" source="pengguna" target="hl">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1" value="Request data awal()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.222;entryX=0.5;entryY=0.222;" edge="1" parent="1" source="hl" target="proses">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2" value="SELECT tahun FROM kasus_bulanan" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.278;entryX=0.5;entryY=0.278;" edge="1" parent="1" source="proses" target="db">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3" value="Return daftar tahun" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.333;entryX=0.5;entryY=0.333;" edge="1" parent="1" source="db" target="proses">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4" value="Kirim data filter" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.389;entryX=0.5;entryY=0.389;" edge="1" parent="1" source="proses" target="hl">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_5" value="Tampilkan halaman laporan dengan filter" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.444;entryX=0.5;entryY=0.444;" edge="1" parent="1" source="hl" target="pengguna">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_6" value="Pilih filter &amp; Klik Tampilkan" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.500;entryX=0.5;entryY=0.500;" edge="1" parent="1" source="pengguna" target="hl">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_7" value="Request laporan(filter)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.556;entryX=0.5;entryY=0.556;" edge="1" parent="1" source="hl" target="proses">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_8" value="SELECT * FROM kasus_bulanan WHERE tahun=?" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.611;entryX=0.5;entryY=0.611;" edge="1" parent="1" source="proses" target="db">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_9" value="Return data bulanan" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.667;entryX=0.5;entryY=0.667;" edge="1" parent="1" source="db" target="proses">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_10" value="Hitung statistik()" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;" edge="1" parent="1" source="proses" target="proses">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="495" y="520" as="sourcePoint" />
+            <mxPoint x="495" y="540" as="targetPoint" />
+            <array as="points">
+              <mxPoint x="535" y="520" />
+              <mxPoint x="535" y="540" />
+            </array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_11" value="Kirim data laporan" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.778;entryX=0.5;entryY=0.778;" edge="1" parent="1" source="proses" target="hl">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_12" value="Render grafik (Chart.js)" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;" edge="1" parent="1" source="hl" target="hl">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="315" y="600" as="sourcePoint" />
+            <mxPoint x="315" y="620" as="targetPoint" />
+            <array as="points">
+              <mxPoint x="355" y="600" />
+              <mxPoint x="355" y="620" />
+            </array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_13" value="Tampilkan visualisasi laporan" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#FFFFFF;fontSize=9;exitX=0.5;exitY=0.889;entryX=0.5;entryY=0.889;" edge="1" parent="1" source="hl" target="pengguna">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

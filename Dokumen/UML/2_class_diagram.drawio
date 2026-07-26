@@ -1,0 +1,49 @@
+<mxfile host="Electron" modified="2026-07-24T00:00:00.000Z" agent="5.0" version="20.0.0">
+  <diagram id="diag_2" name="Class Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c_User" value="&lt;b&gt;User&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- username: String(50) UNIQUE&lt;br/&gt;- password: String(255)&lt;br/&gt;- nama_lengkap: String(100)&lt;br/&gt;- email: String(100)&lt;br/&gt;- role: Enum(admin,petugas,pimpinan)&lt;br/&gt;- foto: String(255)&lt;br/&gt;- status: Enum(aktif,nonaktif)&lt;br/&gt;- last_login: DateTime&lt;br/&gt;- created_at: DateTime&lt;br/&gt;- updated_at: DateTime&lt;hr/&gt;+ check_password(password): Boolean&lt;br/&gt;+ login(): Boolean&lt;br/&gt;+ logout(): Void&lt;br/&gt;+ create(): Boolean&lt;br/&gt;+ update(): Boolean&lt;br/&gt;+ delete(): Boolean" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="190" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="c_Wilayah" value="&lt;b&gt;Wilayah&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- nama_wilayah: String(100)&lt;br/&gt;- kecamatan: String(100)&lt;br/&gt;- latitude: Decimal(10,8)&lt;br/&gt;- longitude: Decimal(11,8)&lt;br/&gt;- populasi: Integer&lt;br/&gt;- created_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ update(): Boolean&lt;br/&gt;+ delete(): Boolean&lt;br/&gt;+ getPasienCount(): Integer" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="280" y="50" width="190" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="c_PasienDBD" value="&lt;b&gt;PasienDBD&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- no_rm: String(20) UNIQUE&lt;br/&gt;- nama_pasien: String(100)&lt;br/&gt;- usia: Integer&lt;br/&gt;- jenis_kelamin: Enum(L,P)&lt;br/&gt;- alamat: Text&lt;br/&gt;- id_wilayah: Integer (FK)&lt;br/&gt;- tanggal_masuk: Date&lt;br/&gt;- tanggal_keluar: Date&lt;br/&gt;- lama_rawat: Integer&lt;br/&gt;- bulan: String(20)&lt;br/&gt;- tahun: Integer&lt;br/&gt;- status_pasien: Enum(...)&lt;br/&gt;- created_at: DateTime&lt;br/&gt;- updated_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ update(): Boolean&lt;br/&gt;+ delete(): Boolean&lt;br/&gt;+ getByBulan(): List" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="510" y="50" width="200" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="c_KasusBulanan" value="&lt;b&gt;KasusBulanan&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- bulan: String(20)&lt;br/&gt;- tahun: Integer&lt;br/&gt;- jumlah_kasus: Integer&lt;br/&gt;- jumlah_sembuh: Integer&lt;br/&gt;- jumlah_meninggal: Integer&lt;br/&gt;- tingkat_risiko: Enum(...)&lt;br/&gt;- created_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ update(): Boolean&lt;br/&gt;+ getByTahun(tahun): List&lt;br/&gt;+ getStatistik(): Object" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="50" y="360" width="190" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="c_HasilPrediksi" value="&lt;b&gt;HasilPrediksi&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- tanggal_prediksi: DateTime&lt;br/&gt;- bulan_prediksi: String(20)&lt;br/&gt;- tahun_prediksi: Integer&lt;br/&gt;- jumlah_kasus_prediksi: Integer&lt;br/&gt;- tingkat_risiko_prediksi: Enum(...)&lt;br/&gt;- confidence_score: Decimal(5,2)&lt;br/&gt;- model_version: String(50)&lt;br/&gt;- created_by: Integer (FK)&lt;br/&gt;- created_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ getByTahun(tahun): List&lt;br/&gt;+ getLatest(): Object&lt;br/&gt;+ predict(data): Object" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="280" y="360" width="200" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ModelEvaluasi" value="&lt;b&gt;ModelEvaluasi&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- tanggal_training: DateTime&lt;br/&gt;- accuracy: Decimal(5,4)&lt;br/&gt;- precision_score: Decimal(5,4)&lt;br/&gt;- recall_score: Decimal(5,4)&lt;br/&gt;- f1_score: Decimal(5,4)&lt;br/&gt;- mae: Decimal(10,4)&lt;br/&gt;- rmse: Decimal(10,4)&lt;br/&gt;- r2_score: Decimal(5,4)&lt;br/&gt;- n_estimators: Integer&lt;br/&gt;- max_depth: Integer&lt;br/&gt;- confusion_matrix: Text (JSON)&lt;br/&gt;- feature_importance: Text (JSON)&lt;br/&gt;- model_path: String(255)&lt;br/&gt;- created_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ getLatest(): Object&lt;br/&gt;+ getMetrics(): Object" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="510" y="360" width="210" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="c_LogAktivitas" value="&lt;b&gt;LogAktivitas&lt;/b&gt;&lt;hr/&gt;- id: Integer (PK)&lt;br/&gt;- user_id: Integer (FK)&lt;br/&gt;- aksi: String(100)&lt;br/&gt;- deskripsi: Text&lt;br/&gt;- ip_address: String(45)&lt;br/&gt;- created_at: DateTime&lt;hr/&gt;+ create(): Boolean&lt;br/&gt;+ read(): List&lt;br/&gt;+ getByUser(user_id): List&lt;br/&gt;+ filter(filters): List" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="280" y="640" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="c_assoc_user_pred" value="creates" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="c_User" target="c_HasilPrediksi">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_assoc_user_log" value="logs" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="c_User" target="c_LogAktivitas">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_assoc_wil_pasien" value="memiliki" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="c_Wilayah" target="c_PasienDBD">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

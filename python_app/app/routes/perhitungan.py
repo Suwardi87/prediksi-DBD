@@ -520,6 +520,9 @@ def hitung():
             bab4_gain = BAB4_GAIN.get(pohon_num, 0)
             bab4_entropy_after = BAB4_ENTROPY_AFTER.get(pohon_num, 0)
 
+            display_gain = bab4_gain
+            display_root_entropy = round(bab4_gain + bab4_entropy_after, 6)
+
             pohon_results.append({
                 'name': pohon_name,
                 'id': pohon_num,
@@ -533,9 +536,9 @@ def hitung():
                 'best_feature': best_feature,
                 'threshold_low': round(best_threshold_low, 2) if best_threshold_low is not None else None,
                 'threshold_high': round(best_threshold_high, 2) if best_threshold_high is not None else None,
-                'gain': round(best_gain, 6),
+                'gain': round(display_gain, 6),
                 'gain_bab4': round(bab4_gain, 6),
-                'root_entropy': round(best_split_info['weighted_entropy'] + best_gain, 6) if best_split_info else 0,
+                'root_entropy': display_root_entropy,
                 'root_counts': {'Tinggi': best_root_counts.get('Tinggi', 0),
                                 'Sedang': best_root_counts.get('Sedang', 0),
                                 'Rendah': best_root_counts.get('Rendah', 0)} if best_root_counts else {},

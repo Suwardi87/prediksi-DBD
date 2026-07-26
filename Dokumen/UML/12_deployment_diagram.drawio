@@ -1,0 +1,79 @@
+<mxfile host="Electron" modified="2026-07-24T00:00:00.000Z" agent="5.0" version="20.0.0">
+  <diagram id="diag_12" name="Deployment Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="node_client" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;
+Client Device (PC/Laptop)" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="80" width="220" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_browser" value="&amp;lt;&amp;lt;execution environment&amp;gt;&amp;gt;
+Web Browser
+--
+HTML5 + CSS3
+JavaScript (ES6+)
+Chart.js Library" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="node_client">
+          <mxGeometry x="20" y="60" width="180" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="node_app" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;
+Application Server" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="80" width="220" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_flask" value="&amp;lt;&amp;lt;execution environment&amp;gt;&amp;gt;
+Python Environment
+--
+Flask Web Framework
+Random Forest ML Engine
+SQLAlchemy ORM" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="node_app">
+          <mxGeometry x="20" y="60" width="180" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="node_db" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;
+Database Server" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="80" width="220" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_mysql" value="&amp;lt;&amp;lt;execution environment&amp;gt;&amp;gt;
+MySQL DBMS
+--
+Database Schema:
+db_prediksi_dbd" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="node_db">
+          <mxGeometry x="20" y="60" width="180" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="node_cdn" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;
+Content Delivery Network (CDN)" style="verticalAlign=top;align=left;spacingLeft=10;html=1;whiteSpace=wrap;fillColor=#FFFACD;strokeColor=#8B8000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="420" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_assets" value="Static Assets (CSS, Icons)" style="verticalAlign=middle;align=center;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#8B8000;fontSize=9;" vertex="1" parent="node_cdn">
+          <mxGeometry x="20" y="45" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="path_client_app" value="" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="comp_browser" target="comp_flask">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_path1" value="HTTPS (Port 5000)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;" vertex="1" connectable="0" parent="path_client_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="path_app_db" value="" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="comp_flask" target="comp_mysql">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_path2" value="TCP/IP (Port 3306)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;" vertex="1" connectable="0" parent="path_app_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="path_client_cdn" value="" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;jumpStyle=arc;endSize=8;fontSize=9;" edge="1" parent="1" source="comp_browser" target="comp_assets">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_path3" value="HTTP GET" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;" vertex="1" connectable="0" parent="path_client_cdn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

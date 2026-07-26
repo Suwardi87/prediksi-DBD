@@ -1,0 +1,73 @@
+<mxfile host="Electron" modified="2026-07-24T00:00:00.000Z" agent="5.0" version="20.0.0">
+  <diagram id="diag_13" name="State Chart Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="st_start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="50" y="100" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="st_idle" value="Idle
+--
+entry / Menunggu input" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFACD;strokeColor=#8B8000;align=left;spacingLeft=10;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="st_login" value="ProsesLogin
+--
+MasukkanKredensial
+ValidasiLogin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFACD;strokeColor=#8B8000;align=left;spacingLeft=10;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="st_dash" value="Dashboard
+--
+MenampilkanStatistik
+ManajemenData
+TrainingModel
+ProsesPrediksi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFACD;strokeColor=#8B8000;align=left;spacingLeft=10;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="530" y="80" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st_logout" value="LogoutState
+--
+do / Hapus Session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFACD;strokeColor=#8B8000;align=left;spacingLeft=10;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="530" y="240" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="trans_1" value="Akses Sistem" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_start" target="st_idle">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans_2" value="Belum Login" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_idle" target="st_login">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans_3" value="Login Sukses" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_login" target="st_dash">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans_4" value="Batal / Timeout" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_login" target="st_idle">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans_5" value="Klik Logout" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_dash" target="st_logout">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trans_6" value="Selesai" style="endArrow=open;endSize=6;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#000000;" edge="1" parent="1" source="st_logout" target="st_idle">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
