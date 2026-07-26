@@ -318,18 +318,25 @@ def extract_all_trees_details(model, X_test, y_test,
     
     if feature_names is None:
         feature_names = ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin']
-    
+
+    # Helper: dapatkan raw class counts dari node, kompatibel semua versi sklearn.
+    # sklearn < 1.5: tree.value[node] = raw weighted counts (sum = n_samples)
+    # sklearn >= 1.5: tree.value[node] = fractions (sum = 1.0)
+    def _node_counts(tree, node_idx):
+        counts = tree.value[node_idx].flatten()
+        total = float(counts.sum())
+        if 0 < total <= 1.5:
+            # Fractions (sklearn modern) — kalikan dengan weighted samples
+            return counts * float(tree.weighted_n_node_samples[node_idx])
+        return counts  # Raw counts (sklearn lama)
+
     trees_details = []
     
     for i, estimator in enumerate(model.estimators_):
         tree = estimator.tree_
         
         # ── 1. Distribusi kelas di root (= bootstrap sample) ──
-        # Catatan: sklearn modern mengembalikan tree.value sebagai fractions (sum=1.0),
-        # bukan raw counts. Kalikan dengan weighted_n_node_samples untuk dapat counts asli.
-        root_counts = tree.value[0].flatten()
-        total_weighted = float(tree.weighted_n_node_samples[0])
-        root_counts_scaled = root_counts * total_weighted
+        root_counts_scaled = _node_counts(tree, 0)
         total_samples = int(round(root_counts_scaled.sum()))
         class_dist = {}
         class_probs = {}
@@ -359,10 +366,8 @@ def extract_all_trees_details(model, X_test, y_test,
         right_count = 0
         
         if tree.children_left[0] >= 0 and tree.children_right[0] >= 0:
-            left_w = float(tree.weighted_n_node_samples[tree.children_left[0]])
-            right_w = float(tree.weighted_n_node_samples[tree.children_right[0]])
-            left_counts = tree.value[tree.children_left[0]].flatten() * left_w
-            right_counts = tree.value[tree.children_right[0]].flatten() * right_w
+            left_counts = _node_counts(tree, tree.children_left[0])
+            right_counts = _node_counts(tree, tree.children_right[0])
             left_entropy = calculate_entropy([round(c) for c in left_counts])
             right_entropy = calculate_entropy([round(c) for c in right_counts])
             left_count = int(round(left_counts.sum()))
