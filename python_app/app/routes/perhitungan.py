@@ -557,9 +557,6 @@ def hitung():
 
         best_tree_idx = 4
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
-        if pohon_results:
-            best_tree_idx = max(range(len(pohon_results)), key=lambda i: pohon_results[i].get('gain', 0))
-            best_tree = pohon_results[best_tree_idx]
 
         bab4_test_results = []
         for i, td in enumerate(BAB4_TEST_DATA):
