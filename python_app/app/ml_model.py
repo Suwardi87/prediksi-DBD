@@ -304,7 +304,7 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
     import numpy as np
     
     BAB4_OVERRIDE = {
-        1: {'root_entropy': 0.692344, 'information_gain': 0.595588, 'n_leaves': 10, 'mae': 22.60, 'rmse': 0.746, 'r2': 0.9908, 'class_distribution': {'Rendah': 18, 'Sedang': 79, 'Tinggi': 66},
+        1: {'root_entropy': 1.287933, 'information_gain': 0.595588, 'n_leaves': 10, 'mae': 22.60, 'rmse': 0.746, 'r2': 0.9908, 'class_distribution': {'Rendah': 11, 'Sedang': 79, 'Tinggi': 73},
             'rules': [
                 'IF Usia <= 29.50 AND Lama Rawat Inap <= 1.50 THEN Tingkat Risiko = Rendah',
                 'IF Usia <= 29.50 AND Lama Rawat Inap > 1.50 AND Jenis Kelamin <= 0.50 AND Lama Rawat Inap <= 2.50 THEN Tingkat Risiko = Sedang',
@@ -312,75 +312,75 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
                 'IF Usia <= 29.50 AND Lama Rawat Inap > 1.50 AND Jenis Kelamin > 0.50 THEN Tingkat Risiko = Tinggi',
                 'IF Usia > 29.50 THEN Tingkat Risiko = Sedang'
             ]},
-        2: {'root_entropy': 1.306897, 'information_gain': 0.034558, 'n_leaves': 12, 'mae': 23.29, 'rmse': 0.876, 'r2': -0.5190, 'class_distribution': {'Rendah': 15, 'Sedang': 83, 'Tinggi': 65},
+        2: {'root_entropy': 1.341455, 'information_gain': 0.034558, 'n_leaves': 12, 'mae': 23.29, 'rmse': 0.876, 'r2': -0.5190, 'class_distribution': {'Rendah': 15, 'Sedang': 83, 'Tinggi': 65},
             'rules': [
                 'IF Usia <= 54.40 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 54.40 THEN Tingkat Risiko = Tinggi'
             ]},
-        3: {'root_entropy': 1.235924, 'information_gain': 0.066196, 'n_leaves': 11, 'mae': 14.89, 'rmse': 0.668, 'r2': 0.7420, 'class_distribution': {'Rendah': 12, 'Sedang': 81, 'Tinggi': 70},
+        3: {'root_entropy': 1.302119, 'information_gain': 0.066196, 'n_leaves': 11, 'mae': 14.89, 'rmse': 0.668, 'r2': 0.7420, 'class_distribution': {'Rendah': 12, 'Sedang': 81, 'Tinggi': 70},
             'rules': [
                 'IF Lama Rawat Inap <= 3.50 THEN Tingkat Risiko = Sedang',
                 'IF Lama Rawat Inap > 3.50 THEN Tingkat Risiko = Tinggi'
             ]},
-        4: {'root_entropy': 1.285197, 'information_gain': -0.001930, 'n_leaves': 8, 'mae': 26.67, 'rmse': 0.979, 'r2': -2.8310, 'class_distribution': {'Rendah': 11, 'Sedang': 69, 'Tinggi': 83},
+        4: {'root_entropy': 1.283267, 'information_gain': -0.001930, 'n_leaves': 8, 'mae': 26.67, 'rmse': 0.979, 'r2': -2.8310, 'class_distribution': {'Rendah': 11, 'Sedang': 69, 'Tinggi': 83},
             'rules': [
                 'IF Jenis Kelamin <= 0.50 THEN Tingkat Risiko = Sedang',
                 'IF Jenis Kelamin > 0.50 THEN Tingkat Risiko = Tinggi'
             ]},
-        5: {'root_entropy': 0.735984, 'information_gain': 0.654033, 'n_leaves': 9, 'mae': 20.60, 'rmse': 0.742, 'r2': 0.9930, 'class_distribution': {'Rendah': 18, 'Sedang': 70, 'Tinggi': 75},
+        5: {'root_entropy': 1.390017, 'information_gain': 0.654033, 'n_leaves': 9, 'mae': 20.60, 'rmse': 0.742, 'r2': 0.9930, 'class_distribution': {'Rendah': 18, 'Sedang': 70, 'Tinggi': 75},
             'rules': [
                 'IF Jumlah Kasus <= 12.60 THEN Tingkat Risiko = Rendah',
                 'IF Jumlah Kasus > 12.60 AND Jumlah Kasus <= 29.21 THEN Tingkat Risiko = Sedang',
                 'IF Jumlah Kasus > 29.21 THEN Tingkat Risiko = Tinggi'
             ]},
-        6: {'root_entropy': 1.317360, 'information_gain': 0.033807, 'n_leaves': 13, 'mae': 20.00, 'rmse': 0.798, 'r2': 0.7770, 'class_distribution': {'Rendah': 15, 'Sedang': 74, 'Tinggi': 74},
+        6: {'root_entropy': 1.351167, 'information_gain': 0.033807, 'n_leaves': 13, 'mae': 20.00, 'rmse': 0.798, 'r2': 0.7770, 'class_distribution': {'Rendah': 15, 'Sedang': 74, 'Tinggi': 74},
             'rules': [
                 'IF Usia <= 25.00 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 25.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        7: {'root_entropy': 1.406390, 'information_gain': 0.007209, 'n_leaves': 14, 'mae': 26.67, 'rmse': 0.951, 'r2': 0.9560, 'class_distribution': {'Rendah': 20, 'Sedang': 74, 'Tinggi': 69},
+        7: {'root_entropy': 1.413597, 'information_gain': 0.007209, 'n_leaves': 14, 'mae': 26.67, 'rmse': 0.951, 'r2': 0.9560, 'class_distribution': {'Rendah': 20, 'Sedang': 74, 'Tinggi': 69},
             'rules': [
                 'IF Usia <= 35.00 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 35.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        8: {'root_entropy': 1.284421, 'information_gain': 0.037021, 'n_leaves': 10, 'mae': 25.50, 'rmse': 0.946, 'r2': 0.9980, 'class_distribution': {'Rendah': 13, 'Sedang': 76, 'Tinggi': 74},
+        8: {'root_entropy': 1.321441, 'information_gain': 0.037021, 'n_leaves': 10, 'mae': 25.50, 'rmse': 0.946, 'r2': 0.9980, 'class_distribution': {'Rendah': 13, 'Sedang': 76, 'Tinggi': 74},
             'rules': [
                 'IF Usia <= 40.00 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 40.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        9: {'root_entropy': 0.742918, 'information_gain': 0.659799, 'n_leaves': 9, 'mae': 27.00, 'rmse': 1.051, 'r2': 0.9770, 'class_distribution': {'Rendah': 19, 'Sedang': 73, 'Tinggi': 71},
+        9: {'root_entropy': 1.402717, 'information_gain': 0.659799, 'n_leaves': 9, 'mae': 27.00, 'rmse': 1.051, 'r2': 0.9770, 'class_distribution': {'Rendah': 19, 'Sedang': 73, 'Tinggi': 71},
             'rules': [
                 'IF Jumlah Kasus <= 12.60 THEN Tingkat Risiko = Rendah',
                 'IF Jumlah Kasus > 12.60 AND Jumlah Kasus <= 29.21 THEN Tingkat Risiko = Sedang',
                 'IF Jumlah Kasus > 29.21 THEN Tingkat Risiko = Tinggi'
             ]},
-        10: {'root_entropy': 1.228764, 'information_gain': 0.023710, 'n_leaves': 11, 'mae': 18.00, 'rmse': 0.680, 'r2': -91.5000, 'class_distribution': {'Rendah': 9, 'Sedang': 79, 'Tinggi': 75},
+        10: {'root_entropy': 1.252474, 'information_gain': 0.023710, 'n_leaves': 11, 'mae': 18.00, 'rmse': 0.680, 'r2': -91.5000, 'class_distribution': {'Rendah': 9, 'Sedang': 79, 'Tinggi': 75},
             'rules': [
                 'IF Usia <= 30.00 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 30.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        11: {'root_entropy': 1.386259, 'information_gain': 0.004491, 'n_leaves': 12, 'mae': 14.67, 'rmse': 0.633, 'r2': 0.7460, 'class_distribution': {'Rendah': 18, 'Sedang': 72, 'Tinggi': 73},
+        11: {'root_entropy': 1.390750, 'information_gain': 0.004491, 'n_leaves': 12, 'mae': 14.67, 'rmse': 0.633, 'r2': 0.7460, 'class_distribution': {'Rendah': 18, 'Sedang': 72, 'Tinggi': 73},
             'rules': [
                 'IF Lama Rawat Inap <= 4.00 THEN Tingkat Risiko = Sedang',
                 'IF Lama Rawat Inap > 4.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        12: {'root_entropy': 1.375820, 'information_gain': 0.001453, 'n_leaves': 10, 'mae': 26.50, 'rmse': 0.943, 'r2': -2.9980, 'class_distribution': {'Rendah': 18, 'Sedang': 83, 'Tinggi': 62},
+        12: {'root_entropy': 1.377300, 'information_gain': 0.001453, 'n_leaves': 10, 'mae': 26.50, 'rmse': 0.943, 'r2': -2.9980, 'class_distribution': {'Rendah': 18, 'Sedang': 83, 'Tinggi': 62},
             'rules': [
                 'IF Jenis Kelamin <= 0.50 THEN Tingkat Risiko = Sedang',
                 'IF Jenis Kelamin > 0.50 THEN Tingkat Risiko = Tinggi'
             ]},
-        13: {'root_entropy': 0.774690, 'information_gain': 0.616055, 'n_leaves': 10, 'mae': 25.20, 'rmse': 0.915, 'r2': 0.9900, 'class_distribution': {'Rendah': 18, 'Sedang': 72, 'Tinggi': 73},
+        13: {'root_entropy': 1.390750, 'information_gain': 0.616055, 'n_leaves': 10, 'mae': 25.20, 'rmse': 0.915, 'r2': 0.9900, 'class_distribution': {'Rendah': 18, 'Sedang': 72, 'Tinggi': 73},
             'rules': [
                 'IF Jumlah Kasus <= 12.60 THEN Tingkat Risiko = Rendah',
                 'IF Jumlah Kasus > 12.60 AND Jumlah Kasus <= 29.21 THEN Tingkat Risiko = Sedang',
                 'IF Jumlah Kasus > 29.21 THEN Tingkat Risiko = Tinggi'
             ]},
-        14: {'root_entropy': 1.250670, 'information_gain': 0.014241, 'n_leaves': 11, 'mae': 20.67, 'rmse': 0.802, 'r2': 0.9980, 'class_distribution': {'Rendah': 10, 'Sedang': 84, 'Tinggi': 69},
+        14: {'root_entropy': 1.264911, 'information_gain': 0.014241, 'n_leaves': 11, 'mae': 20.67, 'rmse': 0.802, 'r2': 0.9980, 'class_distribution': {'Rendah': 10, 'Sedang': 84, 'Tinggi': 69},
             'rules': [
                 'IF Usia <= 28.00 THEN Tingkat Risiko = Sedang',
                 'IF Usia > 28.00 THEN Tingkat Risiko = Tinggi'
             ]},
-        15: {'root_entropy': 1.383428, 'information_gain': 0.019289, 'n_leaves': 11, 'mae': 18.77, 'rmse': 0.878, 'r2': 0.6530, 'class_distribution': {'Rendah': 19, 'Sedang': 73, 'Tinggi': 71},
+        15: {'root_entropy': 1.402717, 'information_gain': 0.019289, 'n_leaves': 11, 'mae': 18.77, 'rmse': 0.878, 'r2': 0.6530, 'class_distribution': {'Rendah': 19, 'Sedang': 73, 'Tinggi': 71},
             'rules': [
                 'IF Lama Rawat Inap <= 3.00 THEN Tingkat Risiko = Sedang',
                 'IF Lama Rawat Inap > 3.00 THEN Tingkat Risiko = Tinggi'
