@@ -64,7 +64,7 @@ BULAN_MAP = {
     'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
 }
 
-TAHUN = 2024  # Tahun data
+TAHUN = 2025  # Tahun data
 
 with app.app_context():
     # --- 1. Hapus data pasien lama ---
@@ -98,7 +98,7 @@ with app.app_context():
         tanggal_masuk = date(TAHUN, bulan_num, day)
         tanggal_keluar = tanggal_masuk + timedelta(days=lama_rawat)
         
-        no_rm = f"RM-2024-{i+1:04d}"
+        no_rm = f"RM-2025-{i+1:04d}"
         
         pasien = PasienDBD(
             no_rm=no_rm,

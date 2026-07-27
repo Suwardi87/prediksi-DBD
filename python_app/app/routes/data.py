@@ -197,7 +197,7 @@ def import_excel():
             success_count = 0
             
             bulan_list = BULAN_NAMES
-            tahun_import = 2024
+            tahun_import = 2025
             
             # Reset kasus bulanan for this year to avoid duplicates if re-importing
             # Actually we can just update it below

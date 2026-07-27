@@ -158,7 +158,7 @@ def _seed_initial_data(app):
                 'jk': 'L' if int(row['Jenis Kelamin']) == 1 else 'P',
             })
 
-        tahun = 2024
+        tahun = 2025
         day_counter = {}
         p_no = 0
         for kasus_val in sorted(patients_by_kasus.keys()):

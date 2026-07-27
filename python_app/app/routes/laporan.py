@@ -25,7 +25,7 @@ def index():
     tahun_list = [t[0] for t in tahun_list]
     
     # Default tahun = tahun terbaru yang ada di data
-    default_tahun = tahun_list[0] if tahun_list else 2024
+    default_tahun = tahun_list[0] if tahun_list else 2025
     tahun = request.args.get('tahun', default_tahun, type=int)
     
     kasus_bulanan = KasusBulanan.query.filter_by(tahun=tahun).all()
