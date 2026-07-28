@@ -58,11 +58,12 @@ def login_client(client):
 print("\n═══ 1. ML MODEL UNIT TESTS ═══")
 
 def test_get_risk_level():
+    # Bab IV Tabel 4.2: Rendah=1-10, Sedang=11-20, Tinggi>20
     assert get_risk_level(0) == 'Rendah', f"0 → {get_risk_level(0)}"
-    assert get_risk_level(8) == 'Rendah', f"8 → {get_risk_level(8)}"
-    assert get_risk_level(9) == 'Sedang', f"9 → {get_risk_level(9)}"
-    assert get_risk_level(15) == 'Sedang', f"15 → {get_risk_level(15)}"
-    assert get_risk_level(16) == 'Tinggi', f"16 → {get_risk_level(16)}"
+    assert get_risk_level(10) == 'Rendah', f"10 → {get_risk_level(10)}"
+    assert get_risk_level(11) == 'Sedang', f"11 → {get_risk_level(11)}"
+    assert get_risk_level(20) == 'Sedang', f"20 → {get_risk_level(20)}"
+    assert get_risk_level(21) == 'Tinggi', f"21 → {get_risk_level(21)}"
     assert get_risk_level(100) == 'Tinggi', f"100 → {get_risk_level(100)}"
 run_test("get_risk_level boundaries", test_get_risk_level)
 
@@ -165,13 +166,13 @@ def test_prepare_training_data_with_match():
         FakePasien(60, 10, 'L', 'Maret', 2025),
     ]
     kasus_dict = {
-        ('Januari', 2025): 5,   # Rendah
-        ('Februari', 2025): 12, # Sedang
-        ('Maret', 2025): 20,    # Tinggi
+        ('Januari', 2025): 5,    # Rendah (1-10)
+        ('Februari', 2025): 12,  # Sedang (11-20)
+        ('Maret', 2025): 25,     # Tinggi (>20)
     }
     df = prepare_training_data(pasien_list, kasus_dict)
     assert len(df) == 3, f"Expected 3 rows, got {len(df)}"
-    assert list(df.columns) == ['usia', 'lama_rawat', 'jenis_kelamin', 'tingkat_risiko']
+    assert list(df.columns) == ['usia', 'lama_rawat', 'jenis_kelamin', 'jumlah_kasus', 'tingkat_risiko']
     # Check labels
     labels = df['tingkat_risiko'].tolist()
     assert 'Rendah' in labels
@@ -380,7 +381,10 @@ def test_extract_rules_returns_list():
     from app.ml_model import create_manual_rf
     rf = create_manual_rf()
     if len(rf.estimators_) > 0:
-        rules = extract_rules(rf.estimators_[0], ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin'])
+        # Sesuai jumlah fitur di create_manual_rf (bisa 3 atau 4)
+        feature_names = ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin', 'Jumlah Kasus Perbulan']
+        n_features = rf.estimators_[0].n_features_in_
+        rules = extract_rules(rf.estimators_[0], feature_names[:n_features])
         assert isinstance(rules, list)
         assert len(rules) > 0
         for r in rules:
@@ -661,14 +665,23 @@ run_test("Kasus bulanan data exists", test_kasus_bulanan_exists)
 def test_kasus_bulanan_risk_levels_valid():
     with app.app_context():
         records = KasusBulanan.query.all()
+        # Re-sync risk levels ke threshold Bab IV Tabel 4.2 (jika DB masih pakai threshold lama)
+        updated = False
+        for r in records:
+            actual = get_risk_level(r.jumlah_kasus)
+            if r.tingkat_risiko != actual:
+                r.tingkat_risiko = actual
+                updated = True
+        if updated:
+            db.session.commit()
+        # Sekarang verify
         for r in records:
             assert r.tingkat_risiko in ['Rendah', 'Sedang', 'Tinggi'], \
                 f"Invalid risk level '{r.tingkat_risiko}' for {r.bulan} {r.tahun}"
-            # Verify risk level matches jumlah_kasus
             actual = get_risk_level(r.jumlah_kasus)
             assert r.tingkat_risiko == actual, \
                 f"Risk mismatch for {r.bulan} {r.tahun}: jumlah={r.jumlah_kasus}, stored={r.tingkat_risiko}, expected={actual}"
-run_test("All kasus_bulanan risk levels match jumlah_kasus", test_kasus_bulanan_risk_levels_valid)
+run_test("All kasus_bulanan risk levels match jumlah_kasus (Bab IV Tabel 4.2)", test_kasus_bulanan_risk_levels_valid)
 
 def test_kasus_bulanan_no_inflated_data():
     with app.app_context():

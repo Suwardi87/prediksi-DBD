@@ -58,6 +58,11 @@ def create():
                 flash('Username sudah digunakan!', 'danger')
                 return redirect(url_for('users.create'))
             
+            # Validasi password minimal 6 karakter
+            if not password or len(password) < 6:
+                flash('Password minimal 6 karakter!', 'danger')
+                return redirect(url_for('users.create'))
+            
             # Hash password
             hashed_password = generate_password_hash(password)
             
@@ -122,6 +127,9 @@ def edit(id):
             # Update password jika diisi
             new_password = request.form.get('password')
             if new_password:
+                if len(new_password) < 6:
+                    flash('Password minimal 6 karakter!', 'danger')
+                    return render_template('users/edit.html', user=user)
                 user.password = generate_password_hash(new_password)
             
             user.updated_at = datetime.utcnow()

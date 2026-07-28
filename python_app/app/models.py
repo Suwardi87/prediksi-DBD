@@ -23,21 +23,11 @@ class User(UserMixin, db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def check_password(self, password):
-        """Verify password - supports both bcrypt and werkzeug hash"""
+        """Verify password using werkzeug hash"""
         try:
-            if check_password_hash(self.password, password):
-                return True
+            return check_password_hash(self.password, password)
         except Exception:
-            pass
-        
-        try:
-            import bcrypt
-            if bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8')):
-                return True
-        except Exception:
-            pass
-            
-        return False
+            return False
 
 class PasienDBD(db.Model):
     """Model untuk tabel pasien_dbd"""

@@ -3,7 +3,7 @@ Perhitungan Manual Routes — Random Forest
 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus)
 15 pohon, setiap pohon HANYA 1 fitur untuk split.
 Encoding: Rendah=1, Sedang=2, Tinggi=3
-Grouping: Kasus <=8=Rendah, 9-15=Sedang, >15=Tinggi
+Grouping (Bab IV Tabel 4.2): Kasus 1-10=Rendah, 11-20=Sedang, >20=Tinggi
 Pohon 5 = pohon terbaik (Gain tertinggi). Evaluasi pada 10 data uji.
 """
 import os
@@ -658,9 +658,9 @@ def hitung():
                     {'fitur': 'Tingkat Resiko (Target)', 'nilai_asli': 'Rendah / Sedang / Tinggi', 'nilai_encoding': '1 / 2 / 3'},
                 ],
                 'grouping_table': [
-                    {'fitur': 'Jumlah Kasus', 'rentang': '≤ 8', 'risiko': 'Rendah', 'label': 1},
-                    {'fitur': 'Jumlah Kasus', 'rentang': '9 – 15', 'risiko': 'Sedang', 'label': 2},
-                    {'fitur': 'Jumlah Kasus', 'rentang': '> 15', 'risiko': 'Tinggi', 'label': 3},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '1 – 10', 'risiko': 'Rendah', 'label': 1},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '11 – 20', 'risiko': 'Sedang', 'label': 2},
+                    {'fitur': 'Jumlah Kasus', 'rentang': '> 20', 'risiko': 'Tinggi', 'label': 3},
                 ],
             },
             'step4': {

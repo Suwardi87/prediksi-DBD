@@ -1,7 +1,9 @@
 """
 API Routes - for external access
+Semua endpoint memerlukan autentikasi (login session atau API key header).
 """
 from flask import Blueprint, jsonify, request
+from flask_login import login_required, current_user
 from app.models import KasusBulanan, HasilPrediksi, ModelEvaluasi
 from app.ml_model import predict, train_model, prepare_training_data
 from app import db
@@ -18,14 +20,15 @@ def home():
         'version': '1.0.0',
         'description': 'API untuk prediksi penyebaran DBD menggunakan Random Forest',
         'endpoints': {
-            '/api/train': 'POST - Train model',
-            '/api/predict': 'POST - Make prediction',
-            '/api/evaluate': 'GET - Get model evaluation',
-            '/api/data': 'GET - Get data statistics'
+            '/api/train': 'POST - Train model (auth required)',
+            '/api/predict': 'POST - Make prediction (auth required)',
+            '/api/evaluate': 'GET - Get model evaluation (auth required)',
+            '/api/data': 'GET - Get data statistics (auth required)'
         }
     })
 
 @api_bp.route('/train', methods=['POST'])
+@login_required
 def api_train():
     """API endpoint untuk training"""
     try:
@@ -79,6 +82,7 @@ def api_train():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @api_bp.route('/predict', methods=['POST'])
+@login_required
 def api_predict():
     """API endpoint untuk prediksi"""
     try:
@@ -96,6 +100,7 @@ def api_predict():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @api_bp.route('/evaluate')
+@login_required
 def api_evaluate():
     """API endpoint untuk evaluasi"""
     latest = ModelEvaluasi.query.order_by(ModelEvaluasi.tanggal_training.desc()).first()
@@ -116,6 +121,7 @@ def api_evaluate():
     })
 
 @api_bp.route('/data')
+@login_required
 def api_data():
     """API endpoint untuk statistik data"""
     kasus = KasusBulanan.query.all()

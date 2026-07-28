@@ -1,6 +1,6 @@
 """
 Training Routes
-Data training dari PasienDBD, 5 pohon keputusan, fitur: Usia, Lama Rawat, JK
+Data training dari PasienDBD, 15 pohon keputusan, fitur: Usia, Lama Rawat, JK, Jumlah Kasus
 """
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
@@ -32,9 +32,9 @@ def index():
 def start_training():
     """Mulai training model"""
     try:
-        # Get parameters from request — default 5 pohon
+        # Get parameters from request — default 15 pohon (sesuai Bab IV)
         data = request.get_json() or {}
-        n_estimators = max(1, min(data.get('n_estimators', 5), 100))
+        n_estimators = max(1, min(data.get('n_estimators', 15), 100))
         
         random_state = data.get('random_state', 42)
         

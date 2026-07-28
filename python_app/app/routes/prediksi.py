@@ -21,23 +21,51 @@ def index():
 @prediksi_bp.route('/predict', methods=['POST'])
 @login_required
 def make_prediction():
-    """Buat prediksi — fitur: Usia, Lama Rawat, Jenis Kelamin"""
+    """Buat prediksi — fitur: Usia, Lama Rawat, Jenis Kelamin, (Jumlah Kasus)"""
     try:
         data = request.get_json() or {}
         
-        # Input utama model (3 fitur)
+        # Input utama model
         usia = data.get('usia', 25)
         lama_rawat = data.get('lama_rawat', 3)
         jenis_kelamin = data.get('jenis_kelamin', 'L')
+        jumlah_kasus = data.get('jumlah_kasus')
+        
+        # ── Validasi input ──
+        try:
+            usia = int(usia)
+            if usia < 0 or usia > 120:
+                return jsonify({'status': 'error', 'message': 'Usia harus antara 0-120 tahun'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'status': 'error', 'message': 'Usia harus berupa angka'}), 400
+        
+        try:
+            lama_rawat = int(lama_rawat)
+            if lama_rawat < 1:
+                return jsonify({'status': 'error', 'message': 'Lama rawat minimal 1 hari'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'status': 'error', 'message': 'Lama rawat harus berupa angka'}), 400
+        
+        if jenis_kelamin not in ('L', 'P'):
+            return jsonify({'status': 'error', 'message': 'Jenis kelamin harus L atau P'}), 400
+        
+        if jumlah_kasus is not None:
+            try:
+                jumlah_kasus = int(jumlah_kasus)
+                if jumlah_kasus < 0:
+                    return jsonify({'status': 'error', 'message': 'Jumlah kasus tidak boleh negatif'}), 400
+            except (ValueError, TypeError):
+                return jsonify({'status': 'error', 'message': 'Jumlah kasus harus berupa angka'}), 400
         
         # Data konteks (disimpan ke DB)
         bulan = data.get('bulan', datetime.now().month)
         
-        # Make prediction — 3 fitur
+        # Make prediction
         result = predict(
             usia=usia,
             lama_rawat=lama_rawat,
-            jenis_kelamin=jenis_kelamin
+            jenis_kelamin=jenis_kelamin,
+            jumlah_kasus=jumlah_kasus
         )
         
         # Resolve bulan to a name string

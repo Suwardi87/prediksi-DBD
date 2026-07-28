@@ -125,10 +125,10 @@ with app.app_context():
     
     print("Memasukkan data kasus bulanan...")
     for bulan, jumlah in kasus_per_bulan.items():
-        # Tentukan tingkat risiko
-        if jumlah > 15:
+        # Tentukan tingkat risiko (Bab IV Tabel 4.2)
+        if jumlah > 20:
             risiko = 'Tinggi'
-        elif jumlah >= 9:
+        elif jumlah >= 11:
             risiko = 'Sedang'
         else:
             risiko = 'Rendah'

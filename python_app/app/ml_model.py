@@ -1,7 +1,7 @@
 """
 Machine Learning Model - Random Forest
-25 pohon keputusan, fitur: Usia, Lama Rawat Inap, Jenis Kelamin
-Threshold risiko: Rendah (≤8), Sedang (9-15), Tinggi (>15)
+15 pohon keputusan, fitur: Usia, Lama Rawat Inap, Jenis Kelamin, Jumlah Kasus Perbulan
+Threshold risiko (Bab IV Tabel 4.2): Rendah (1-10), Sedang (11-20), Tinggi (>20)
 """
 import os
 import pickle
@@ -37,13 +37,14 @@ INVERSE_LABEL_MAP = {1: 'Rendah', 2: 'Sedang', 3: 'Tinggi'}
 def get_risk_level(jumlah_kasus):
     """
     Tentukan tingkat risiko berdasarkan jumlah kasus per bulan.
-      - Rendah : ≤ 8 kasus
-      - Sedang : 9 – 15 kasus
-      - Tinggi : > 15 kasus
+    Sesuai Bab IV Tabel 4.2 Pengelompokkan Data:
+      - Rendah : 1 – 10 kasus
+      - Sedang : 11 – 20 kasus
+      - Tinggi : > 20 kasus
     """
-    if jumlah_kasus > 15:
+    if jumlah_kasus > 20:
         return 'Tinggi'
-    elif jumlah_kasus >= 9:
+    elif jumlah_kasus >= 11:
         return 'Sedang'
     else:
         return 'Rendah'
@@ -72,11 +73,11 @@ def get_lama_rawat_category(lama_rawat):
 def prepare_training_data(pasien_list, kasus_bulanan_dict=None):
     """
     Siapkan data untuk training dari data pasien DBD.
-    Fitur: Usia (X1), Lama Rawat Inap (X2), Jenis Kelamin (X3)
+    Fitur: Usia (X1), Lama Rawat Inap (X2), Jenis Kelamin (X3), Jumlah Kasus Perbulan (X4)
       target = tingkat risiko (Rendah/Sedang/Tinggi)
     
-    Catatan: Jumlah Kasus Perbulan digunakan untuk menentukan tingkat risiko (target),
-    tetapi bukan fitur model.
+    Sesuai Bab IV Tabel 4.4, X4 (Jumlah Kasus Perbulan) digunakan sebagai fitur
+    prediktor sekaligus dasar penentuan target (tingkat risiko).
     
     Args:
         pasien_list: List of PasienDBD objects
@@ -120,6 +121,7 @@ def prepare_training_data(pasien_list, kasus_bulanan_dict=None):
             'usia': pasien.usia,
             'lama_rawat': lama_rawat,
             'jenis_kelamin': jk_encoded,
+            'jumlah_kasus': jumlah_kasus,
             'tingkat_risiko': tingkat_risiko
         }
         data.append(row)
@@ -209,7 +211,9 @@ def create_manual_rf():
     excel_path = os.path.abspath(excel_path)
     try:
         xls = pd.ExcelFile(excel_path)
-        features_order = ['Usia.1', 'Lama Rawat Inap.1', 'Jenis Kelamin.1']
+        features_order = ['Usia.1', 'Lama Rawat Inap.1', 'Jenis Kelamin.1', 'Jumlah Kasus Per Bulan.1']
+        # Fallback jika kolom Jumlah Kasus tidak ada di sheet Excel
+        fallback_features = ['Usia.1', 'Lama Rawat Inap.1', 'Jenis Kelamin.1']
         
         # Hanya gunakan Pohon 5 (Pohon Terbaik)
         sheet_name = 'Pohon 5'
@@ -221,16 +225,21 @@ def create_manual_rf():
                 valid_labels = ['Rendah', 'Sedang', 'Tinggi']
                 y_col = y_col[y_col.isin(valid_labels)]
 
-                all_cols = [c for c in features_order if c in df.columns]
-                synced = df[all_cols + ['Tingkat Resiko.1']].dropna()
+                # Deteksi fitur yang tersedia di sheet (X4 opsional)
+                available_features = [c for c in features_order if c in df.columns]
+                if not available_features:
+                    available_features = [c for c in fallback_features if c in df.columns]
+                
+                synced = df[available_features + ['Tingkat Resiko.1']].dropna()
                 synced = synced[synced['Tingkat Resiko.1'].isin(valid_labels)]
 
                 y_col = synced['Tingkat Resiko.1']
                 n_samples = len(y_col)
+                n_features = len(available_features)
 
-                X_boot = np.zeros((n_samples, 3))
+                X_boot = np.zeros((n_samples, n_features))
 
-                for col_idx, col_name in enumerate(features_order):
+                for col_idx, col_name in enumerate(available_features):
                     if col_name in synced.columns:
                         vals = pd.to_numeric(synced[col_name], errors='coerce').values
                         limit = min(len(vals), n_samples)
@@ -244,7 +253,7 @@ def create_manual_rf():
                 
                 # Tambahkan dummy rows untuk ketiga class (0, 1, 2) dengan bobot 0
                 # agar DecisionTree memiliki array tree.value berukuran 3 secara internal
-                X_dummy = np.zeros((3, 3))
+                X_dummy = np.zeros((3, n_features))
                 y_dummy = np.array([0, 1, 2])
                 X_boot_aug = np.vstack([X_boot, X_dummy])
                 y_boot_aug = np.concatenate([y_boot, y_dummy])
@@ -440,17 +449,17 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
 
 
 
-def train_model(data, n_estimators=25, max_depth=None, random_state=42):
+def train_model(data, n_estimators=15, max_depth=None, random_state=42):
     """
     Training model Random Forest.
-    - n_estimators pohon keputusan (default 25)
-    - 3 fitur: Usia, Lama Rawat Inap, Jenis Kelamin
+    - n_estimators pohon keputusan (default 15, sesuai Bab IV)
+    - 4 fitur: Usia, Lama Rawat Inap, Jenis Kelamin, Jumlah Kasus Perbulan
     - Evaluasi MAE/RMSE/R²: Metode BAB IV (Pohon 5 pada 10 data uji)
     - Evaluasi Klasifikasi: Stratified 5-Fold Cross-Validation
     
     Args:
         data: DataFrame dengan kolom features dan target
-        n_estimators: Jumlah decision trees (default 25)
+        n_estimators: Jumlah decision trees (default 15, sesuai Bab IV)
         max_depth: Kedalaman maksimum tree (default None = unlimited)
         random_state: Seed untuk reproducibility
     
@@ -470,8 +479,11 @@ def train_model(data, n_estimators=25, max_depth=None, random_state=42):
     if data is None or len(data) == 0:
         raise ValueError("Data training kosong")
     
-    # Fitur: Usia (X1), Lama Rawat Inap (X2), Jenis Kelamin (X3)
+    # Fitur: Usia (X1), Lama Rawat Inap (X2), Jenis Kelamin (X3), Jumlah Kasus Perbulan (X4)
+    # Sesuai Bab IV Tabel 4.4
     feature_columns = ['usia', 'lama_rawat', 'jenis_kelamin']
+    if 'jumlah_kasus' in data.columns:
+        feature_columns.append('jumlah_kasus')
     
     # Validasi kolom
     missing_cols = [col for col in feature_columns + ['tingkat_risiko'] if col not in data.columns]
@@ -640,7 +652,10 @@ def train_model(data, n_estimators=25, max_depth=None, random_state=42):
     # ── Metrik MAE, RMSE, R² sudah dihitung dari CV ──
     
     # Feature importance (dari model final yang dilatih pada semua data)
+    # Sesuai Bab IV Tabel 4.4: X1=Usia, X2=Lama Rawat, X3=JK, X4=Jumlah Kasus
     feature_names_list = ['Usia', 'Lama Rawat Inap', 'Jenis Kelamin']
+    if 'jumlah_kasus' in feature_columns:
+        feature_names_list.append('Jumlah Kasus Perbulan')
     feature_importance = dict(zip(
         feature_names_list,
         model.feature_importances_.tolist()
@@ -716,15 +731,16 @@ def load_model():
     return None
 
 
-def predict(usia, lama_rawat, jenis_kelamin='L'):
+def predict(usia, lama_rawat, jenis_kelamin='L', jumlah_kasus=None):
     """
     Membuat prediksi tingkat risiko
-    Fitur model: Usia, Lama Rawat Inap, Jenis Kelamin
+    Fitur model: Usia, Lama Rawat Inap, Jenis Kelamin, (Jumlah Kasus Perbulan)
     
     Args:
         usia: Usia pasien (tahun)
         lama_rawat: Lama rawat inap (hari)
         jenis_kelamin: 'L' atau 'P'
+        jumlah_kasus: Jumlah kasus per bulan (opsional, untuk model 4 fitur)
     
     Returns:
         dict: Hasil prediksi
@@ -753,10 +769,23 @@ def predict(usia, lama_rawat, jenis_kelamin='L'):
     
     model = model_data['model']
     inverse_label_map = model_data.get('inverse_label_map', INVERSE_LABEL_MAP)
+    saved_feature_columns = model_data.get('feature_columns', ['usia', 'lama_rawat', 'jenis_kelamin'])
     
-    # Prepare input — 3 fitur: Usia, Lama Rawat, JK
+    # Prepare input — sesuai jumlah fitur model yang disimpan
     jk_encoded = 1 if jenis_kelamin == 'L' else 0
-    X = np.array([[usia, lama_rawat, jk_encoded]])
+    
+    # Default jumlah_kasus jika model butuh 4 fitur tapi tidak disupply
+    if 'jumlah_kasus' in saved_feature_columns and jumlah_kasus is None:
+        jumlah_kasus = 10  # Default aman (Sedang bawah)
+    
+    # Build feature vector mengikuti urutan saved_feature_columns
+    feature_map = {
+        'usia': usia,
+        'lama_rawat': lama_rawat,
+        'jenis_kelamin': jk_encoded,
+        'jumlah_kasus': jumlah_kasus if jumlah_kasus is not None else 10,
+    }
+    X = np.array([[feature_map[col] for col in saved_feature_columns]])
     
     # Predict
     prediction = model.predict(X)[0]

@@ -2,7 +2,6 @@
 Flask Application Factory
 """
 import os
-import secrets
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -19,7 +18,14 @@ def create_app():
                 static_folder='static')
     
     # Configuration
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+    # SECRET_KEY: pakai env var agar konsisten antar restart (session tidak ke-reset).
+    # Fallback ke dev key dengan warning jika env var tidak diset.
+    _sk = os.environ.get('SECRET_KEY')
+    if not _sk:
+        print('[CONFIG] WARNING: SECRET_KEY tidak diset di environment. '
+              'Menggunakan dev key — JANGAN dipakai untuk production.')
+        _sk = 'dev-secret-key-change-in-production-please'
+    app.config['SECRET_KEY'] = _sk
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Database: MySQL only (XAMPP)
