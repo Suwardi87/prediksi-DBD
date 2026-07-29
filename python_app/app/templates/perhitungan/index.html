@@ -102,16 +102,19 @@
 {% block content %}
 <div class="page-header">
     <h4><i class='bx bx-git-branch'></i> Perhitungan Manual — Random Forest</h4>
-    <p>Alur Random Forest: 163 data, 3 fitur (X1=Usia, X2=LamaRawat, X3=JK), 15 pohon, Pohon 5 = terbaik</p>
+    <p>Alur Random Forest: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, Pohon 11 = terbaik</p>
 </div>
 
 <div class="step-nav" id="stepNav">
     <div class="sn active" onclick="goStep(0)"><span class="num">1</span> Data Latih</div>
-    <div class="sn" onclick="goStep(1)"><span class="num">2</span> Encoding</div>
-    <div class="sn" onclick="goStep(2)"><span class="num">3</span> Bootstrap</div>
-    <div class="sn" onclick="goStep(3)"><span class="num">4</span> Pohon Keputusan</div>
-    <div class="sn" onclick="goStep(4)"><span class="num">5</span> Pohon Terbaik</div>
-    <div class="sn" onclick="goStep(5)"><span class="num">6</span> Evaluasi</div>
+    <div class="sn" onclick="goStep(1)"><span class="num">2</span> Data Uji</div>
+    <div class="sn" onclick="goStep(2)"><span class="num">3</span> Pemilihan Fitur</div>
+    <div class="sn" onclick="goStep(3)"><span class="num">4</span> Encoding</div>
+    <div class="sn" onclick="goStep(4)"><span class="num">5</span> Bootstrap</div>
+    <div class="sn" onclick="goStep(5)"><span class="num">6</span> Pohon Keputusan</div>
+    <div class="sn" onclick="goStep(6)"><span class="num">7</span> Perhitungan RF</div>
+    <div class="sn" onclick="goStep(7)"><span class="num">8</span> Pohon Terbaik</div>
+    <div class="sn" onclick="goStep(8)"><span class="num">9</span> Evaluasi</div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -140,8 +143,30 @@
     </div>
 </div>
 
-<!-- STEP 1: ENCODING -->
+<!-- STEP 1: DATA UJI -->
 <div class="step-panel" id="step1">
+    <div class="card-clean">
+        <h6><i class='bx bx-test-tube'></i> Data Uji — 10 Sampel Pasien</h6>
+        <p class="desc">10 data uji dari Excel (sheet Data Uji). Digunakan untuk evaluasi model Random Forest.</p>
+        <div class="scroll-box-lg" style="max-height:320px;">
+            <table class="mini-tbl" id="tblDataUji"></table>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 2: PEMILIHAN FITUR -->
+<div class="step-panel" id="step2">
+    <div class="card-clean">
+        <h6><i class='bx bx-select-multiple'></i> Pemilihan Fitur — Random Sampling</h6>
+        <p class="desc">Nilai korelasi setiap fitur terhadap target (Tingkat Resiko). Fitur dengan nilai tertinggi akan diprioritaskan dalam pembentukan pohon.</p>
+        <div class="scroll-box" style="max-height:350px;">
+            <table class="mini-tbl" id="tblPemilihanFitur"></table>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 3: ENCODING -->
+<div class="step-panel" id="step3">
     <div class="card-clean">
         <h6><i class='bx bx-hash'></i> Encoding & Pengelompokan Data</h6>
         <p class="desc">Konversi kategori ke numerik dan pengelompokan data.</p>
@@ -183,7 +208,7 @@
 </div>
 
 <!-- STEP 2: BOOTSTRAP -->
-<div class="step-panel" id="step2">
+<div class="step-panel" id="step4">
     <div class="card-clean">
         <h6><i class='bx bx-duplicate'></i> Bootstrap Sampling — 15 Pohon</h6>
         <p class="desc">
@@ -201,8 +226,8 @@
     </div>
 </div>
 
-<!-- STEP 3: POHON KEPUTUSAN -->
-<div class="step-panel" id="step3">
+<!-- STEP 5: POHON KEPUTUSAN -->
+<div class="step-panel" id="step5">
     <div class="card-clean">
         <h6><i class='bx bx-selection'></i> Hasil Perhitungan — Gain & Entropy (Tabel 4.18)</h6>
         <p class="desc">
@@ -223,32 +248,47 @@
     </div>
 </div>
 
-<!-- STEP 4: POHON TERBAIK -->
-<div class="step-panel" id="step4">
+<!-- STEP 6: PERHITUNGAN RF -->
+<div class="step-panel" id="step6">
     <div class="card-clean">
-        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 5 (Gain Tertinggi)</h6>
+        <h6><i class='bx bx-calculator'></i> Perhitungan Random Forest — MAE, MSE, RMSE, R² per Pohon</h6>
+        <p class="desc">Perhitungan error untuk setiap pohon berdasarkan data bootstrap-nya sendiri. Semakin kecil MAE, semakin baik pohon tersebut.</p>
+        <div id="perhitunganRFTables"></div>
+    </div>
+</div>
+
+<!-- STEP 7: POHON TERBAIK -->
+<div class="step-panel" id="step7">
+    <div class="card-clean">
+        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 11 (MAE Terkecil)</h6>
         <p class="desc">
-            <strong>Pohon 5</strong> dipilih sebagai pohon terbaik karena memiliki Gain tertinggi.
-            Pohon 5 menggunakan fitur <strong>Jumlah Kasus Perbulan</strong> dengan threshold 12.60 dan 29.21.
+            <strong>Pohon 11</strong> dipilih sebagai pohon terbaik karena memiliki MAE terkecil (14.6667).
+            Pohon 11 menggunakan fitur <strong>Lama Rawat Inap</strong> dengan threshold 2.44 dan 4.68.
         </p>
         <div class="stat-row" id="statBestTree"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-book'></i> Aturan Pohon 5</h6>
+        <h6><i class='bx bx-table'></i> Tabel Perbandingan — Penentuan Pohon Terbaik</h6>
+        <p class="desc">Perbandingan MAE, RMSE, dan R² dari 15 pohon. Pohon dengan MAE terkecil dipilih sebagai pohon terbaik.</p>
+        <div id="penentuanPohonTerbaikTable"></div>
+    </div>
+
+    <div class="card-clean">
+        <h6><i class='bx bx-book'></i> Aturan Pohon 11</h6>
         <div id="bab4Rules"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-calculator'></i> Perhitungan Entropy & Gain — Pohon 5</h6>
+        <h6><i class='bx bx-calculator'></i> Perhitungan Entropy & Gain — Pohon 11</h6>
         <div id="bestTreeCalc"></div>
     </div>
 </div>
 
-<!-- STEP 5: EVALUASI -->
-<div class="step-panel" id="step5">
+<!-- STEP 8: EVALUASI -->
+<div class="step-panel" id="step8">
     <div class="card-clean">
-        <h6><i class='bx bx-line-chart'></i> Evaluasi Pohon 5 pada 10 Data Uji</h6>
+        <h6><i class='bx bx-line-chart'></i> Evaluasi Pohon 11 pada 10 Data Uji</h6>
         <p class="desc">Data uji: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</p>
         <div class="stat-row" id="statEval"></div>
     </div>
@@ -262,6 +302,11 @@
         <h6><i class='bx bx-check-double'></i> Confusion Matrix</h6>
         <div id="confusionMatrix"></div>
     </div>
+    <div class="card-clean">
+        <h6><i class='bx bx-table'></i> Metrik Evaluasi — perhitungan data uji</h6>
+        <p class="desc">Metrik evaluasi final dari sheet <strong>perhitungan data uji</strong> (Excel).</p>
+        <div id="perhitunganDataUjiMetrics"></div>
+    </div>
 </div>
 
 </div><!-- /dataReady -->
@@ -273,7 +318,7 @@
 </div>
 
 <script>
-const STEPS = ['Data Latih', 'Encoding', 'Bootstrap', 'Pohon Keputusan', 'Pohon Terbaik', 'Evaluasi'];
+const STEPS = ['Data Latih', 'Data Uji', 'Pemilihan Fitur', 'Encoding', 'Bootstrap', 'Pohon Keputusan', 'Perhitungan RF', 'Pohon Terbaik', 'Evaluasi'];
 let currentStep = 0;
 let DATA = null;
 let chartInstance = null;
@@ -293,7 +338,7 @@ function goStep(n) {
     document.getElementById('stepLabel').textContent = `Langkah ${n + 1} dari ${STEPS.length}`;
     document.getElementById('navBar').style.display = '';
 }
-function nextStep() { if (currentStep < STEPS.length - 1) goStep(currentStep + 1); }
+function nextStep() { if (currentStep < STEPS.length - 1) goStep(currentStep + 1); else goStep(0); }
 function prevStep() { if (currentStep > 0) goStep(currentStep - 1); }
 
 function tag(label) {
@@ -339,17 +384,42 @@ function renderStep0() {
     document.getElementById('labelTable').innerHTML = tbl;
 }
 
+function renderStep1() {
+    const du = DATA.data_uji;
+    if (!du || !du.rows) return;
+    let html = '<thead><tr><th>' + du.headers.join('</th><th>') + '</th></tr></thead><tbody>';
+    du.rows.forEach(r => {
+        html += '<tr><td>' + r.join('</td><td>') + '</td></tr>';
+    });
+    html += '</tbody>';
+    document.getElementById('tblDataUji').innerHTML = html;
+}
+
 function renderStep2() {
+    const pf = DATA.pemilihan_fitur;
+    if (!pf || !pf.length) return;
+    let html = '<thead><tr><th>Fitur</th><th>Nilai</th><th>Keterangan</th></tr></thead><tbody>';
+    pf.forEach(f => {
+        const val = parseFloat(f.nilai);
+        const barWidth = Math.min(val * 100, 100);
+        const barColor = val > 0.9 ? '#16a34a' : val > 0.6 ? '#ca8a04' : '#dc2626';
+        html += `<tr><td><strong>${f.fitur}</strong></td><td>${f.nilai}</td><td><div style="width:120px; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;"><div style="width:${barWidth}%; height:100%; background:${barColor}; border-radius:4px;"></div></div></td></tr>`;
+    });
+    html += '</tbody>';
+    document.getElementById('tblPemilihanFitur').innerHTML = html;
+}
+
+function renderStep4() {
     const trees = DATA.step4.trees;
     document.getElementById('statBootstrap').innerHTML = `
         <div class="stat-box"><div class="val">${trees.length}</div><div class="lbl">Jumlah Pohon</div></div>
         <div class="stat-box"><div class="val">163</div><div class="lbl">Data per Pohon</div></div>
         <div class="stat-box"><div class="val">1</div><div class="lbl">Fitur / Pohon</div></div>
-        <div class="stat-box"><div class="val">Pohon 5</div><div class="lbl">Terbaik</div></div>
+        <div class="stat-box"><div class="val">Pohon 11</div><div class="lbl">Terbaik</div></div>
     `;
     let html = '<thead><tr><th>Pohon</th><th>Fitur</th><th>N Data</th><th>N Unik</th><th>Duplikat</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 5;
+        const isBest = t.id === 11;
         const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
         html += `<tr${rowStyle}>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">Terbaik</span>' : ''}</td>
@@ -364,12 +434,12 @@ function renderStep2() {
     document.getElementById('tblBootstrap').innerHTML = html;
 }
 
-function renderStep3() {
+function renderStep5() {
     const trees = DATA.step4.trees;
 
     let html = '<thead><tr><th>No</th><th>Pohon Keputusan</th><th>Fitur</th><th>Gain</th><th>Entropy</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 5;
+        const isBest = t.id === 11;
         const rowBg = isBest ? 'background:#f0fdf4;' : '';
         const gainColor = t.gain > 0.5 ? 'color:#16a34a;' : t.gain < 0 ? 'color:#dc2626;' : '';
         html += `<tr style="${rowBg} cursor:pointer;" onclick="showRuleDetail(${t.id - 1})">
@@ -402,7 +472,7 @@ function showRuleDetail(idx) {
 
     let html = `<div style="margin-bottom:14px;">
         <strong style="font-size:1rem;">${t.name}</strong>
-        ${t.id === 5 ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
+        ${t.id === 11 ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
         <span class="tag tag-feat" style="margin-left:6px;">${fname}</span>
     </div>`;
 
@@ -467,22 +537,29 @@ function showRuleDetail(idx) {
     panel.innerHTML = html;
 }
 
-function renderStep4() {
+function renderStep7() {
     const bt = DATA.step5;
     const bestTree = bt.best_tree;
+    const ppt = DATA.penentuan_pohon_terbaik;
+    let bestMae = '-', bestRmse = '-', bestR2 = '-';
+    if (ppt && ppt.length) {
+        let bi = 0;
+        ppt.forEach((p, i) => { if (p.mae !== null && p.mae < ppt[bi].mae) bi = i; });
+        bestMae = ppt[bi].mae; bestRmse = ppt[bi].rmse; bestR2 = ppt[bi].r2;
+    }
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bestTree.name}</div><div class="lbl">Pohon Terbaik</div></div>
         <div class="stat-box"><div class="val">${bestTree.target_label}</div><div class="lbl">Fitur</div></div>
-        <div class="stat-box"><div class="val">${bestTree.gain}</div><div class="lbl">Gain</div></div>
-        <div class="stat-box"><div class="val">${bestTree.weighted_entropy}</div><div class="lbl">Entropy</div></div>
-        <div class="stat-box"><div class="val">${bestTree.root_entropy}</div><div class="lbl">Root Entropy</div></div>
+        <div class="stat-box"><div class="val">${bestMae}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${bestRmse}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${bestR2}</div><div class="lbl">R²</div></div>
     `;
 
     document.getElementById('bab4Rules').innerHTML = bt.bab4_rules.map(r =>
         `<div class="rule-card"><div class="rule-body">${r}</div></div>`
     ).join('');
 
-    // Perhitungan entropy & gain untuk Pohon 5
+    // Perhitungan entropy & gain untuk Pohon 11
     const t = bestTree;
     const n = t.n_samples;
     const rd = (t.rules_deep && t.rules_deep[0]) ? t.rules_deep[0] : null;
@@ -523,6 +600,53 @@ function renderStep4() {
     document.getElementById('bestTreeCalc').innerHTML = html;
 }
 
+function renderStep6() {
+    const rf = DATA.perhitungan_rf;
+    if (!rf || !rf.length) return;
+    let html = '';
+    rf.forEach(t => {
+        const mae = t.metrics.MAE || '-';
+        const mse = t.metrics.MSE || '-';
+        const rmse = t.metrics.RMSE || '-';
+        const r2 = t.metrics.R2 || '-';
+        const isBest = t.name === 'Sampel Pohon 11';
+        const bg = isBest ? ' style="background:#f0fdf4;"' : '';
+        html += `<div class="card-clean"${bg}>
+            <h6>${t.name} ${isBest ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}</h6>
+            <table class="mini-tbl" style="max-width:600px;">
+                <thead><tr><th>Metrik</th><th>Nilai</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>MAE</strong></td><td>${mae}</td></tr>
+                    <tr><td><strong>MSE</strong></td><td>${mse}</td></tr>
+                    <tr><td><strong>RMSE</strong></td><td>${rmse}</td></tr>
+                    <tr><td><strong>R²</strong></td><td>${r2}</td></tr>
+                </tbody>
+            </table>
+        </div>`;
+    });
+    document.getElementById('perhitunganRFTables').innerHTML = html;
+}
+
+function renderPenentuanPohonTerbaik() {
+    const ppt = DATA.penentuan_pohon_terbaik;
+    if (!ppt || !ppt.length) return;
+    let bestIdx = 0;
+    ppt.forEach((p, i) => {
+        if (p.mae !== null && p.r2 !== null) {
+            if (p.mae < ppt[bestIdx].mae) bestIdx = i;
+        }
+    });
+    const best = ppt[bestIdx];
+    let tblHtml = '<div class="scroll-box-lg" style="max-height:450px;"><table class="mini-tbl"><thead><tr><th>No</th><th>Sampel Pohon</th><th>MAE</th><th>RMSE</th><th>R²</th></tr></thead><tbody>';
+    ppt.forEach(p => {
+        const isB = p.mae !== null && p.mae === best.mae;
+        const bg = isB ? ' style="background:#f0fdf4;"' : '';
+        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae || '-'}</td><td>${p.rmse || '-'}</td><td>${p.r2 || '-'}</td></tr>`;
+    });
+    tblHtml += '</tbody></table></div>';
+    document.getElementById('penentuanPohonTerbaikTable').innerHTML = tblHtml;
+}
+
 function renderConfusionMatrix(testData, containerId) {
     const cm = [[0,0,0],[0,0,0],[0,0,0]];
     testData.forEach(t => {
@@ -546,7 +670,7 @@ function renderConfusionMatrix(testData, containerId) {
     document.getElementById(containerId).innerHTML = cmHtml;
 }
 
-function renderStep5() {
+function renderStep8() {
     const s = DATA.step6;
     const testData = DATA.step5.bab4_test_data;
 
@@ -567,6 +691,18 @@ function renderStep5() {
     document.getElementById('tblEvalDetail').innerHTML = html;
 
     renderConfusionMatrix(testData, 'confusionMatrix');
+
+    const pdu = DATA.perhitungan_data_uji_metrics;
+    if (pdu) {
+        let pduHtml = '<table class="mini-tbl" style="max-width:400px;"><thead><tr><th>Metrik</th><th>Nilai</th></tr></thead><tbody>';
+        ['MAE','MSE','RMSE','R2'].forEach(k => {
+            if (pdu[k] !== undefined) {
+                pduHtml += `<tr><td><strong>${k}</strong></td><td>${pdu[k]}</td></tr>`;
+            }
+        });
+        pduHtml += '</tbody></table>';
+        document.getElementById('perhitunganDataUjiMetrics').innerHTML = pduHtml;
+    }
 }
 
 async function jalankanPerhitungan() {
@@ -582,10 +718,13 @@ async function jalankanPerhitungan() {
         if (DATA.status === 'error') throw new Error(DATA.message);
 
         renderStep0();
+        renderStep1();
         renderStep2();
-        renderStep3();
         renderStep4();
         renderStep5();
+        renderStep6();
+        renderPenentuanPohonTerbaik();
+        renderStep8();
 
         overlay.style.display = 'none';
         ready.style.display = 'block';

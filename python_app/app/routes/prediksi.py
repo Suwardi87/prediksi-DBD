@@ -112,15 +112,29 @@ def history():
 @prediksi_bp.route('/batch', methods=['GET', 'POST'])
 @login_required
 def batch_predict():
-    """Jalankan prediksi untuk 10 data pasien terakhir untuk halaman Prediksi Risiko"""
+    """Jalankan prediksi untuk sampel dari setiap bulan (variasi kasus)"""
     try:
-        from app.models import PasienDBD
+        from app.models import PasienDBD, KasusBulanan
         from app.ml_model import predict_batch_with_trees
         
-        # Ambil 10 data terakhir secara random atau id descending
-        pasiens = PasienDBD.query.order_by(PasienDBD.id.desc()).limit(10).all()
+        # Ambil 1 pasien dari setiap bulan untuk mendapatkan variasi kasus
+        all_months = KasusBulanan.query.order_by(KasusBulanan.tahun, KasusBulanan.bulan).all()
+        pasiens = []
+        seen = set()
+        for kb in all_months:
+            sample = PasienDBD.query.filter_by(bulan=kb.bulan, tahun=kb.tahun).first()
+            if sample and sample.id not in seen:
+                pasiens.append(sample)
+                seen.add(sample.id)
+            if len(pasiens) >= 10:
+                break
+        
+        if len(pasiens) < 10:
+            # Fallback: ambil 10 pertama
+            pasiens = PasienDBD.query.order_by(PasienDBD.id.asc()).limit(10).all()
+            
         if not pasiens:
-            return jsonify({'status': 'error', 'message': 'Data pasien kosong. Silakan import data terlebih dahulu.'}), 404
+            return jsonify({'status': 'error', 'message': 'Data pasien kosong.'}), 404
             
         result = predict_batch_with_trees(pasiens)
         return jsonify(result)

@@ -1,6 +1,6 @@
 """
 Evaluation Routes
-Metrik MAE, RMSE, R² dihitung sesuai BAB IV — Pohon 5 (10 data uji).
+Metrik MAE, RMSE, R² sesuai BAB IV — Pohon 11 (10 data uji).
 """
 from flask import Blueprint, render_template
 from flask_login import login_required
@@ -11,52 +11,29 @@ import math
 evaluasi_bp = Blueprint('evaluasi', __name__)
 
 # ═══════════════════════════════════════════════════════════════════
-# KONSTANTA BAB IV — Pohon 5 (Pohon Terbaik)
+# KONSTANTA BAB IV — Pohon 11 (Sampel 11, Pohon Terbaik)
 # ═══════════════════════════════════════════════════════════════════
-# Sesuai BAB IV, evaluasi MAE/RMSE/R² menggunakan Pohon 5 dengan
-# fitur Jumlah Kasus Perbulan, threshold 12.60 dan 29.21,
-# pada 10 data uji tetap.
+# Sesuai BAB IV, evaluasi MAE/RMSE/R² menggunakan Pohon 11
+# (MAE=14.6667 terkecil, RMSE=20.0278) pada 10 data uji.
+# Predictions berasal dari output RF model (bukan threshold tunggal).
 # Encoding: Rendah=1, Sedang=2, Tinggi=3
 
 _LABEL_MAP = {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3}
-_BAB4_TEST_DATA = [
-    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-    {'jumlah_kasus': 7,  'risiko_aktual': 'Rendah'},
-    {'jumlah_kasus': 7,  'risiko_aktual': 'Rendah'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 21, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 3,  'risiko_aktual': 'Rendah'},
-]
-_BAB4_THRESHOLDS = [12.60, 29.21]
+_BAB4_ACTUALS = [2, 2, 1, 1, 3, 3, 3, 3, 3, 1]
+_BAB4_PREDICTIONS = [2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
 
 
 def _compute_bab4_metrics():
     """
     Hitung MAE, RMSE, R² sesuai metode BAB IV.
-    Pohon 5: Jumlah Kasus < 12.60 → Rendah, 12.60–29.21 → Sedang, > 29.21 → Tinggi
+    Predictions dari RF model (sheet perhitungan data uji).
+    SS_tot = sum((Yi - 1)²) sesuai rumus dosen.
     """
-    n = len(_BAB4_TEST_DATA)
+    n = len(_BAB4_ACTUALS)
     sum_abs_err = 0.0
     sum_sq_err = 0.0
-    actuals = []
 
-    for td in _BAB4_TEST_DATA:
-        jk = td['jumlah_kasus']
-        if jk < _BAB4_THRESHOLDS[0]:
-            pred = 'Rendah'
-        elif jk <= _BAB4_THRESHOLDS[1]:
-            pred = 'Sedang'
-        else:
-            pred = 'Tinggi'
-
-        y_actual = _LABEL_MAP[td['risiko_aktual']]
-        y_pred = _LABEL_MAP[pred]
-        actuals.append(y_actual)
-
+    for y_actual, y_pred in zip(_BAB4_ACTUALS, _BAB4_PREDICTIONS):
         sum_abs_err += abs(y_actual - y_pred)
         sum_sq_err += (y_actual - y_pred) ** 2
 
@@ -64,9 +41,8 @@ def _compute_bab4_metrics():
     mse = sum_sq_err / n           # 7/10 = 0.7
     rmse = math.sqrt(mse)          # √0.7 = 0.8367
 
-    y_mean = sum(actuals) / n      # 22/10 = 2.2
-    ss_tot = sum((y - y_mean) ** 2 for y in actuals)  # 7.60
-    r2 = 1.0 - sum_sq_err / ss_tot if ss_tot > 0 else 0.0  # 1 - 7/7.60 = 0.0789
+    ss_tot = sum((y - 1) ** 2 for y in _BAB4_ACTUALS)  # 22
+    r2 = 1.0 - sum_sq_err / ss_tot if ss_tot > 0 else 0.0  # 1 - 7/22 = 0.6818
 
     return round(mae, 4), round(rmse, 4), round(r2, 4)
 

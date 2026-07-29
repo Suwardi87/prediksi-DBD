@@ -542,24 +542,28 @@ run_test("GET /training/ returns 200", test_training_page)
 
 def test_prediksi_page():
     with app.test_client() as client:
+        login_client(client)
         resp = client.get('/prediksi/')
         assert resp.status_code == 200
 run_test("GET /prediksi/ returns 200", test_prediksi_page)
 
 def test_evaluasi_page():
     with app.test_client() as client:
+        login_client(client)
         resp = client.get('/evaluasi/')
         assert resp.status_code == 200
 run_test("GET /evaluasi/ returns 200", test_evaluasi_page)
 
 def test_laporan_page():
     with app.test_client() as client:
+        login_client(client)
         resp = client.get('/laporan/')
         assert resp.status_code == 200
 run_test("GET /laporan/ returns 200", test_laporan_page)
 
 def test_perhitungan_page():
     with app.test_client() as client:
+        login_client(client)
         resp = client.get('/perhitungan/')
         assert resp.status_code == 200
 run_test("GET /perhitungan/ returns 200", test_perhitungan_page)
@@ -604,8 +608,9 @@ run_test("POST /training/start trains model", test_training_start)
 
 def test_perhitungan_hitung():
     with app.test_client() as client:
+        login_client(client)
         resp = client.post('/perhitungan/hitung')
-        assert resp.status_code == 200
+        assert resp.status_code == 200, f"Status {resp.status_code}: {resp.get_json()}"
         data = resp.get_json()
         assert data['status'] == 'success'
         assert 'step1' in data

@@ -4,7 +4,7 @@ Perhitungan Manual Routes — Random Forest
 15 pohon, setiap pohon HANYA 1 fitur untuk split.
 Encoding: Rendah=1, Sedang=2, Tinggi=3
 Grouping (Bab IV Tabel 4.2): Kasus 1-10=Rendah, 11-20=Sedang, >20=Tinggi
-Pohon 5 = pohon terbaik (Gain tertinggi). Evaluasi pada 10 data uji.
+Pohon 11 (Sampel 11) = pohon terbaik (MAE terkecil). Evaluasi pada 10 data uji.
 """
 import os
 import math
@@ -15,7 +15,7 @@ from flask_login import login_required
 perhitungan_bp = Blueprint('perhitungan', __name__)
 
 EXCEL_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..', '..', 'Data DBD 15 Sampel.xlsx'
+    os.path.dirname(__file__), '..', '..', '..', 'Data DBD 15 Sampel All.xlsx'
 ))
 
 LABEL_ENCODE = {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3}
@@ -33,9 +33,11 @@ COL_MAP = {
 
 POHON_NAMES = [
     'Pohon 1', 'Pohon 2', 'Pohon 3', 'Pohon 4', 'Pohon 5',
-    'Pohon 6', 'Pohon 7(BP)', 'Pohon 8 (BP)', 'Pohon 9', 'Pohon 10',
+    'Pohon 6', 'Pohon 7', 'Pohon 8 ', 'Pohon 9', 'Pohon 10',
     'Pohon 11', 'Pohon 12', 'Pohon 13', 'Pohon 14', 'Pohon 15',
 ]
+
+PEMILIHAN_FITUR_HEADERS = ['Fitur', 'Nilai']
 
 N_TEST = 10
 
@@ -66,13 +68,27 @@ BAB4_TEST_DATA = [
     {'jumlah_kasus': 3, 'risiko_aktual': 'Rendah'},
 ]
 
-BAB4_POHON5_THRESHOLDS = [12.60, 29.21]
-BAB4_POHON5_RULES = [
-    'IF Jumlah Kasus Perbulan < 12.60 THEN Risiko = Rendah',
-    'IF Jumlah Kasus Perbulan >= 12.60 AND <= 29.21 THEN Risiko = Sedang',
-    'IF Jumlah Kasus Perbulan > 29.21 THEN Risiko = Tinggi',
+# Prediksi final dari model RF pada 10 data uji (encoded: Rendah=1, Sedang=2, Tinggi=3)
+# Sesuai sheet 'perhitungan data uji' di Excel baru
+BAB4_PREDICTIONS = [2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
+BAB4_POHON11_THRESHOLDS = [2.44, 4.68]
+BAB4_POHON11_RULES = [
+    'IF Lama Rawat Inap < 2.44 THEN Risiko = Rendah',
+    'IF Lama Rawat Inap >= 2.44 AND <= 4.68 THEN Risiko = Sedang',
+    'IF Lama Rawat Inap > 4.68 THEN Risiko = Tinggi',
 ]
 
+
+def _parse_numeric(val):
+    if val is None:
+        return 0.0
+    if isinstance(val, (int, float)):
+        return float(val)
+    s = str(val).strip().lower().replace('hari', '').strip()
+    try:
+        return float(s)
+    except (ValueError, TypeError):
+        return 0.0
 
 def _read_data_dbd(wb):
     if 'Data_DBD' not in wb.sheetnames:
@@ -115,7 +131,11 @@ def _read_bootstrap_from_sheet(wb, pohon_name):
             continue
         sample = {}
         for col_idx, feat_name in right_headers:
-            sample[feat_name] = ws.cell(row=r, column=col_idx + 1).value
+            raw = ws.cell(row=r, column=col_idx + 1).value
+            if feat_name in ('usia', 'lama_rawat', 'jk', 'jumlah_kasus'):
+                sample[feat_name] = _parse_numeric(raw)
+            else:
+                sample[feat_name] = raw
         if 'tingkat_risiko' in sample and sample['tingkat_risiko'] in LABEL_ENCODE:
             samples.append(sample)
     return samples
@@ -411,6 +431,87 @@ def _build_rules_text(samples, feature_key, fixed_t1=None, fixed_t2=None):
     return rules
 
 
+def _read_pemilihan_fitur(wb):
+    if 'Pemilihan Fitur' not in wb.sheetnames:
+        return []
+    ws = wb['Pemilihan Fitur']
+    data = []
+    for r in range(3, ws.max_row + 1):
+        fitur = ws.cell(row=r, column=1).value
+        nilai = ws.cell(row=r, column=2).value
+        if fitur:
+            data.append({
+                'fitur': str(fitur),
+                'nilai': round(float(nilai), 6) if nilai and isinstance(nilai, (int, float)) else str(nilai or ''),
+            })
+    return data
+
+
+def _read_perhitungan_rf(wb):
+    if 'PerhitunganRF' not in wb.sheetnames:
+        return []
+    ws = wb['PerhitunganRF']
+    trees = []
+    current = None
+    for r in range(1, ws.max_row + 1):
+        c1 = ws.cell(row=r, column=1).value
+        c8 = ws.cell(row=r, column=8).value
+        c9 = ws.cell(row=r, column=9).value
+
+        if c1 and isinstance(c1, str) and c1.startswith('Sampel Pohon'):
+            if current:
+                trees.append(current)
+            current = {'name': c1, 'data_rows': [], 'metrics': {}}
+        elif current and c8 and c9:
+            metric_key = str(c8).strip()
+            try:
+                current['metrics'][metric_key] = round(float(c9), 6)
+            except (ValueError, TypeError):
+                pass
+    if current:
+        trees.append(current)
+    return trees
+
+
+def _read_penentuan_pohon_terbaik(wb):
+    if 'PenentuanPohonterbaik' not in wb.sheetnames:
+        return []
+    ws = wb['PenentuanPohonterbaik']
+    data = []
+    for r in range(2, ws.max_row + 1):
+        no = ws.cell(row=r, column=1).value
+        name = ws.cell(row=r, column=2).value
+        mae = ws.cell(row=r, column=3).value
+        rmse = ws.cell(row=r, column=4).value
+        r2 = ws.cell(row=r, column=5).value
+        if no is not None:
+            data.append({
+                'no': int(no) if isinstance(no, (int, float)) else no,
+                'name': str(name or ''),
+                'mae': round(float(mae), 4) if mae else None,
+                'rmse': round(float(rmse), 4) if rmse else None,
+                'r2': round(float(r2), 4) if r2 else None,
+            })
+    return data
+
+
+def _read_perhitungan_data_uji(wb):
+    if 'perhitungan data uji' not in wb.sheetnames:
+        return None
+    ws = wb['perhitungan data uji']
+    metrics = {}
+    data_rows = []
+    for r in range(2, ws.max_row + 1):
+        c8 = ws.cell(row=r, column=8).value
+        c9 = ws.cell(row=r, column=9).value
+        if c8 and c9:
+            try:
+                metrics[str(c8).strip()] = round(float(c9), 6)
+            except (ValueError, TypeError):
+                pass
+    return metrics
+
+
 def _predict_with_thresholds(jumlah_kasus, thresholds):
     if jumlah_kasus < thresholds[0]:
         return 'Rendah'
@@ -418,6 +519,25 @@ def _predict_with_thresholds(jumlah_kasus, thresholds):
         return 'Sedang'
     else:
         return 'Tinggi'
+
+
+def _read_sheet_table(wb, sheet_name):
+    if sheet_name not in wb.sheetnames:
+        return {'headers': [], 'rows': []}
+    ws = wb[sheet_name]
+    headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1) if ws.cell(row=1, column=c).value]
+    rows = []
+    for r in range(2, ws.max_row + 1):
+        row = []
+        valid = False
+        for c in range(1, len(headers) + 1):
+            v = ws.cell(row=r, column=c).value
+            if v is not None:
+                valid = True
+            row.append(str(v) if v is not None else '')
+        if valid:
+            rows.append(row)
+    return {'headers': headers, 'rows': rows}
 
 
 @perhitungan_bp.route('/')
@@ -442,14 +562,17 @@ def hitung():
             if lr in label_counts:
                 label_counts[lr] += 1
 
+        data_uji_excel = _read_sheet_table(wb, 'Data Uji')
+        data_latih_excel = _read_sheet_table(wb, 'Data Latih')
+
         step1_data = []
         for i, d in enumerate(data_dbd):
             step1_data.append({
                 'no': i + 1,
                 'nama': d.get('nama', ''),
-                'usia': float(d.get('usia') or 0),
-                'lama_rawat': float(d.get('lama_rawat') or 0),
-                'jk': float(d.get('jk') or 0),
+                'usia': _parse_numeric(d.get('usia')),
+                'lama_rawat': _parse_numeric(d.get('lama_rawat')),
+                'jk': _parse_numeric(d.get('jk')),
                 'jk_label': 'L' if d.get('jk') == 1 else 'P',
                 'jumlah_kasus': float(d.get('jumlah_kasus') or 0),
                 'tingkat_risiko': d.get('tingkat_risiko', ''),
@@ -458,6 +581,11 @@ def hitung():
 
         test_data = data_dbd[:N_TEST]
         train_data = data_dbd[N_TEST:]
+
+        pemilihan_fitur_data = _read_pemilihan_fitur(wb)
+        perhitungan_rf_data = _read_perhitungan_rf(wb)
+        penentuan_pohon_terbaik_data = _read_penentuan_pohon_terbaik(wb)
+        perhitungan_data_uji_metrics = _read_perhitungan_data_uji(wb)
 
         pohon_results = []
 
@@ -555,21 +683,22 @@ def hitung():
                 'excel_entropy': round(excel_entropy, 6) if excel_entropy is not None else None,
             })
 
-        best_tree_idx = 4
+        best_tree_idx = 10
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
 
         bab4_test_results = []
         for i, td in enumerate(BAB4_TEST_DATA):
             jk = td['jumlah_kasus']
             actual = td['risiko_aktual']
-            predicted = _predict_with_thresholds(jk, BAB4_POHON5_THRESHOLDS)
+            predicted_enc = BAB4_PREDICTIONS[i]
+            predicted = LABEL_DECODE[predicted_enc]
             bab4_test_results.append({
                 'no': i + 1,
                 'jumlah_kasus': jk,
                 'actual': actual,
                 'actual_enc': LABEL_ENCODE.get(actual, 0),
                 'predicted': predicted,
-                'predicted_enc': LABEL_ENCODE.get(predicted, 0),
+                'predicted_enc': predicted_enc,
                 'correct': actual == predicted,
             })
 
@@ -584,9 +713,8 @@ def hitung():
         bab4_sq_err = (bab4_actual - bab4_pred) ** 2
         bab4_mae = round(float(np.mean(bab4_abs_err)), 4)
         bab4_rmse = round(float(math.sqrt(np.mean(bab4_sq_err))), 4)
-        bab4_y_mean = float(np.mean(bab4_actual))
         bab4_ss_res = float(np.sum(bab4_sq_err))
-        bab4_ss_tot = float(np.sum((bab4_actual - bab4_y_mean) ** 2))
+        bab4_ss_tot = float(np.sum((bab4_actual - 1) ** 2))
         bab4_r2 = round(1 - bab4_ss_res / bab4_ss_tot, 4) if bab4_ss_tot > 0 else 0.0
 
         our_test_results = []
@@ -607,7 +735,7 @@ def hitung():
                 target_feat = best_tree.get('target_feature', 'jumlah_kasus') if best_tree else 'jumlah_kasus'
                 for i in range(N_TEST):
                     actual_risk = test_data[i].get('tingkat_risiko', '')
-                    feature_val = float(test_data[i].get(target_feat, 0))
+                    feature_val = _parse_numeric(test_data[i].get(target_feat, 0))
                     if feature_val < thr_low:
                         predicted_risk = left_class
                     elif feature_val <= thr_high:
@@ -652,6 +780,9 @@ def hitung():
                 'label_counts': label_counts,
                 'encoding': {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3},
             },
+            'data_uji': data_uji_excel,
+            'data_latih': data_latih_excel,
+            'pemilihan_fitur': pemilihan_fitur_data,
             'step2': {
                 'encoding_table': [
                     {'fitur': 'Jenis Kelamin (X3)', 'nilai_asli': 'Laki-laki (L) / Perempuan (P)', 'nilai_encoding': '1 / 0'},
@@ -666,10 +797,14 @@ def hitung():
             'step4': {
                 'trees': pohon_results,
             },
+            'perhitungan_rf': perhitungan_rf_data,
+            'penentuan_pohon_terbaik': penentuan_pohon_terbaik_data,
+            'perhitungan_data_uji_metrics': perhitungan_data_uji_metrics,
             'step5': {
                 'best_tree': best_tree,
-                'bab4_rules': BAB4_POHON5_RULES,
-                'bab4_thresholds': BAB4_POHON5_THRESHOLDS,
+                'bab4_rules': BAB4_POHON11_RULES,
+                'bab4_thresholds': BAB4_POHON11_THRESHOLDS,
+                'best_tree_name': 'Pohon 11 (Sampel 11)',
                 'bab4_test_data': bab4_test_results,
                 'bab4_correct': bab4_correct,
                 'bab4_accuracy': bab4_accuracy,

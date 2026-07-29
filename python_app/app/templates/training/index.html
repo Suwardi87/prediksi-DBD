@@ -114,7 +114,7 @@
         <div class="row mb-3">
             <div class="col-md-6 mb-3">
                 <label class="form-label text-muted" style="font-size: 0.8rem;">Jumlah Pohon (n_trees)</label>
-                <input type="number" id="input_n_trees" class="form-control" value="5" min="1" max="100" style="background: white;">
+                <input type="number" id="input_n_trees" class="form-control" value="11" min="1" max="100" style="background: white;">
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label text-muted" style="font-size: 0.8rem;">Kedalaman Maksimum (max_depth)</label>
@@ -192,7 +192,7 @@
 
     async function jalankanTraining() {
         const btn = document.getElementById('btnTraining');
-        const nTrees = parseInt(document.getElementById('input_n_trees').value) || 5;
+        const nTrees = parseInt(document.getElementById('input_n_trees').value) || 11;
         let maxDepth = parseInt(document.getElementById('input_max_depth').value);
         if (isNaN(maxDepth) || maxDepth <= 0) maxDepth = null;
         const randomSeed = parseInt(document.getElementById('input_random_seed').value) || 42;

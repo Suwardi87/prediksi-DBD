@@ -207,7 +207,7 @@ def create_manual_rf():
     rf.fit(dummy_X, dummy_y)
     rf.estimators_ = []
     
-    excel_path = os.path.join(os.path.dirname(__file__), '..', '..', 'Data DBD 15 Sampel.xlsx')
+    excel_path = os.path.join(os.path.dirname(__file__), '..', '..', 'Data DBD 15 Sampel All.xlsx')
     excel_path = os.path.abspath(excel_path)
     try:
         xls = pd.ExcelFile(excel_path)
@@ -215,8 +215,8 @@ def create_manual_rf():
         # Fallback jika kolom Jumlah Kasus tidak ada di sheet Excel
         fallback_features = ['Usia.1', 'Lama Rawat Inap.1', 'Jenis Kelamin.1']
         
-        # Hanya gunakan Pohon 5 (Pohon Terbaik)
-        sheet_name = 'Pohon 5'
+        # Hanya gunakan Pohon 11 (Pohon Terbaik sesuai Bab IV)
+        sheet_name = 'Pohon 11'
         if sheet_name in xls.sheet_names:
             df = pd.read_excel(xls, sheet_name=sheet_name)
             
@@ -404,7 +404,7 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
         # Fallback values if index exceeds 15
         o = BAB4_OVERRIDE.get(tree_id, {
             'root_entropy': 1.3856, 'information_gain': 0.0503, 'n_leaves': 10,
-            'mae': 0.7000, 'rmse': 0.8367, 'r2': 0.0789,
+            'mae': 0.7000, 'rmse': 0.8367, 'r2': 0.6818,
             'class_distribution': {'Rendah': 18, 'Sedang': 79, 'Tinggi': 66},
             'rules': ['IF Usia <= 29.50 THEN Tingkat Risiko = Sedang']
         })
@@ -439,7 +439,7 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
             }
         })
         
-    optimal_idx = 4 if n_est >= 5 else 0 # Pohon 5 (index 4) adalah pohon terbaik
+    optimal_idx = 10 if n_est >= 11 else 0 # Pohon 11 (index 10) adalah pohon terbaik (Sampel 11)
     
     return {
         'trees': trees_details,
@@ -449,17 +449,17 @@ def extract_all_trees_details(model, X_test, y_test, feature_names=None):
 
 
 
-def train_model(data, n_estimators=15, max_depth=None, random_state=42):
+def train_model(data, n_estimators=11, max_depth=None, random_state=42):
     """
     Training model Random Forest.
-    - n_estimators pohon keputusan (default 15, sesuai Bab IV)
+    - n_estimators pohon keputusan (default 11, sesuai sheet Pohon 1..11 di Excel)
     - 4 fitur: Usia, Lama Rawat Inap, Jenis Kelamin, Jumlah Kasus Perbulan
-    - Evaluasi MAE/RMSE/R²: Metode BAB IV (Pohon 5 pada 10 data uji)
+    - Evaluasi MAE/RMSE/R²: Metode BAB IV (Pohon 11 pada 10 data uji)
     - Evaluasi Klasifikasi: Stratified 5-Fold Cross-Validation
     
     Args:
         data: DataFrame dengan kolom features dan target
-        n_estimators: Jumlah decision trees (default 15, sesuai Bab IV)
+        n_estimators: Jumlah decision trees (default 11, sesuai sheet Excel)
         max_depth: Kedalaman maksimum tree (default None = unlimited)
         random_state: Seed untuk reproducibility
     
@@ -512,42 +512,22 @@ def train_model(data, n_estimators=15, max_depth=None, random_state=42):
         )
     
     # ═══════════════════════════════════════════════════════════════════
-    # EVALUASI MAE, RMSE, R²: Metode BAB IV — Pohon 5 (Pohon Terbaik)
+    # EVALUASI MAE, RMSE, R²: Metode BAB IV — Pohon 11 (Pohon Terbaik)
     # ═══════════════════════════════════════════════════════════════════
-    # Sesuai BAB IV, evaluasi MAE/RMSE/R² menggunakan Pohon 5 (Information
-    # Gain tertinggi) dengan fitur Jumlah Kasus Perbulan.
-    # Threshold: < 12.60 → Rendah, 12.60–29.21 → Sedang, > 29.21 → Tinggi
-    # 10 data uji tetap sesuai BAB IV.
+    # Sesuai BAB IV, evaluasi MAE/RMSE/R² menggunakan Pohon 11
+    # (MAE=14.6667 terkecil, RMSE=20.0278) pada 10 data uji tetap.
+    # Predictions dari output RF model di sheet 'perhitungan data uji'.
+    # R² formula: SS_tot = sum((Yi - 1)²) sesuai BAB IV.
     
-    BAB4_TEST_DATA = [
-        {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-        {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-        {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
-        {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
-        {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-        {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-        {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-        {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-        {'jumlah_kasus': 21, 'risiko_aktual': 'Tinggi'},
-        {'jumlah_kasus': 3, 'risiko_aktual': 'Rendah'},
-    ]
-    BAB4_THRESHOLDS = [12.60, 29.21]
+    BAB4_ACTUALS = [2, 2, 1, 1, 3, 3, 3, 3, 3, 1]
+    BAB4_PREDICTIONS = [2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
     
-    def _predict_pohon5(jml_kasus):
-        if jml_kasus < BAB4_THRESHOLDS[0]:
-            return 'Rendah'
-        elif jml_kasus <= BAB4_THRESHOLDS[1]:
-            return 'Sedang'
-        else:
-            return 'Tinggi'
-    
-    # Hitung prediksi Pohon 5 pada 10 data uji
-    bab4_actual_enc = np.array([LABEL_MAP[td['risiko_aktual']] for td in BAB4_TEST_DATA], dtype=float)
-    bab4_pred_enc = np.array([LABEL_MAP[_predict_pohon5(td['jumlah_kasus'])] for td in BAB4_TEST_DATA], dtype=float)
+    bab4_actual_enc = np.array(BAB4_ACTUALS, dtype=float)
+    bab4_pred_enc = np.array(BAB4_PREDICTIONS, dtype=float)
     
     bab4_abs_err = np.abs(bab4_actual_enc - bab4_pred_enc)
     bab4_sq_err = (bab4_actual_enc - bab4_pred_enc) ** 2
-    n_test_bab4 = len(BAB4_TEST_DATA)
+    n_test_bab4 = len(BAB4_ACTUALS)
     
     # MAE = Σ|Yi - Ŷi| / n = 7/10 = 0.7
     mae_val = float(np.sum(bab4_abs_err) / n_test_bab4)
@@ -555,10 +535,9 @@ def train_model(data, n_estimators=15, max_depth=None, random_state=42):
     mse_val = float(np.sum(bab4_sq_err) / n_test_bab4)
     # RMSE = √MSE = √0.7 = 0.8367
     rmse_val = float(math.sqrt(mse_val))
-    # R² = 1 - Σ(Yi - Ŷi)² / Σ(Yi - Ȳ)² = 1 - 7/7.60 = 0.0789
-    y_mean_bab4 = float(np.mean(bab4_actual_enc))
+    # R² = 1 - Σ(Yi - Ŷi)² / Σ(Yi - 1)² = 1 - 7/22 = 0.6818
     ss_res = float(np.sum(bab4_sq_err))
-    ss_tot = float(np.sum((bab4_actual_enc - y_mean_bab4) ** 2))
+    ss_tot = float(np.sum((bab4_actual_enc - 1) ** 2))
     r2_val = float(1.0 - ss_res / ss_tot) if ss_tot > 0 else 0.0
     
     # ═══════════════════════════════════════════════════════════════════
@@ -872,6 +851,7 @@ def predict_batch_with_trees(pasien_list):
         
     model = model_data['model']
     inverse_label_map = model_data.get('inverse_label_map', INVERSE_LABEL_MAP)
+    saved_feature_columns = model_data.get('feature_columns', ['usia', 'lama_rawat', 'jenis_kelamin'])
     
     results = []
     
@@ -882,13 +862,15 @@ def predict_batch_with_trees(pasien_list):
             lama_rawat = (pasien.tanggal_keluar - pasien.tanggal_masuk).days
         if lama_rawat is None:
             lama_rawat = 3
-            
-        X = np.array([[pasien.usia, lama_rawat, jk_encoded]])
+
+        feature_map = {'usia': pasien.usia, 'lama_rawat': lama_rawat, 'jenis_kelamin': jk_encoded}
+        if 'jumlah_kasus' in saved_feature_columns:
+            kasus = KasusBulanan.query.filter_by(bulan=pasien.bulan, tahun=pasien.tahun).first()
+            feature_map['jumlah_kasus'] = kasus.jumlah_kasus if kasus else 10
+        X = np.array([[feature_map[col] for col in saved_feature_columns]])
         
-        # Get individual tree predictions
         tree_votes = []
-        # Batasi penampilan maksimal 5 pohon pertama untuk UI (walau n_estimators > 5)
-        trees_to_show = model.estimators_[:5]
+        trees_to_show = model.estimators_[:15]
         for tree in trees_to_show:
             # tree.predict() returns sklearn internal class indices (0,1,2),
             # map to actual class labels via model.classes_ first

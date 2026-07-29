@@ -1,9 +1,4 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19-12.3.2-MariaDB, for Linux (x86_64)
---
--- Host: localhost    Database: db_prediksi_dbd
--- ------------------------------------------------------
--- Server version	12.3.2-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -15,11 +10,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
-
---
--- Table structure for table `data_training`
---
-
 DROP TABLE IF EXISTS `data_training`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -38,10 +28,6 @@ CREATE TABLE `data_training` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `data_training`
---
-
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `data_training` WRITE;
 /*!40000 ALTER TABLE `data_training` DISABLE KEYS */;
@@ -49,11 +35,6 @@ LOCK TABLES `data_training` WRITE;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `hasil_prediksi`
---
-
 DROP TABLE IF EXISTS `hasil_prediksi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -71,12 +52,8 @@ CREATE TABLE `hasil_prediksi` (
   PRIMARY KEY (`id`),
   KEY `created_by` (`created_by`),
   CONSTRAINT `hasil_prediksi_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `hasil_prediksi`
---
 
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `hasil_prediksi` WRITE;
@@ -95,16 +72,42 @@ INSERT INTO `hasil_prediksi` VALUES
 (102,'2027-07-23 15:04:22','',2025,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-23 08:04:22'),
 (103,'2027-07-23 15:04:25','',2025,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-23 08:04:25'),
 (104,'2027-07-26 22:04:10','',2025,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-26 15:04:10'),
-(105,'2027-07-26 22:04:13','',2025,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-26 15:04:13');
+(105,'2027-07-26 22:04:13','',2025,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-26 15:04:13'),
+(106,'2026-07-28 17:17:46','',2026,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-28 10:17:46'),
+(107,'2026-07-28 17:17:49','',2026,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-28 10:17:49'),
+(108,'2026-07-28 18:04:12','',2026,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-28 11:04:12'),
+(109,'2026-07-28 18:04:14','',2026,NULL,'Sedang',100.00,'1.0.0',1,'2026-07-28 11:04:14'),
+(110,'2026-07-28 18:53:33','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:53:33'),
+(111,'2026-07-28 18:53:35','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:53:35'),
+(112,'2026-07-28 18:55:34','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:55:34'),
+(113,'2026-07-28 18:55:37','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:55:37'),
+(114,'2026-07-28 18:58:22','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:58:22'),
+(115,'2026-07-28 18:58:24','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 11:58:24'),
+(116,'2026-07-28 19:05:17','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 12:05:17'),
+(117,'2026-07-28 19:05:20','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 12:05:20'),
+(118,'2026-07-28 19:06:43','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 12:06:43'),
+(119,'2026-07-28 19:06:45','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 12:06:45'),
+(120,'2026-07-28 21:00:23','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 14:00:23'),
+(121,'2026-07-28 21:00:25','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-28 14:00:25'),
+(122,'2026-07-29 22:23:45','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:23:45'),
+(123,'2026-07-29 22:23:47','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:23:47'),
+(124,'2026-07-29 22:25:10','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:25:10'),
+(125,'2026-07-29 22:25:12','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:25:12'),
+(126,'2026-07-29 22:26:26','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:26:26'),
+(127,'2026-07-29 22:26:28','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:26:28'),
+(128,'2026-07-29 22:27:26','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:27:26'),
+(129,'2026-07-29 22:28:45','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:28:45'),
+(130,'2026-07-29 22:28:47','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:28:47'),
+(131,'2026-07-29 22:29:17','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:29:17'),
+(132,'2026-07-29 22:29:19','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:29:19'),
+(133,'2026-07-29 22:34:10','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:34:10'),
+(134,'2026-07-29 22:34:12','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:34:12'),
+(135,'2026-07-29 22:37:41','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:37:41'),
+(136,'2026-07-29 22:37:43','',2026,NULL,'Rendah',100.00,'1.0.0',1,'2026-07-29 15:37:43');
 /*!40000 ALTER TABLE `hasil_prediksi` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `kasus_bulanan`
---
-
 DROP TABLE IF EXISTS `kasus_bulanan`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -121,10 +124,6 @@ CREATE TABLE `kasus_bulanan` (
 ) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `kasus_bulanan`
---
-
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `kasus_bulanan` WRITE;
 /*!40000 ALTER TABLE `kasus_bulanan` DISABLE KEYS */;
@@ -135,9 +134,9 @@ INSERT INTO `kasus_bulanan` VALUES
 (124,'April',2025,4,0,0,'Rendah','2026-07-22 15:03:23'),
 (125,'Mei',2025,13,0,0,'Sedang','2026-07-22 15:03:23'),
 (126,'Juni',2025,15,0,0,'Sedang','2026-07-22 15:03:23'),
-(127,'Juli',2025,10,0,0,'Sedang','2026-07-22 15:03:23'),
+(127,'Juli',2025,10,0,0,'Rendah','2026-07-22 15:03:23'),
 (128,'Agustus',2025,13,0,0,'Sedang','2026-07-22 15:03:23'),
-(129,'September',2025,18,0,0,'Tinggi','2026-07-22 15:03:23'),
+(129,'September',2025,18,0,0,'Sedang','2026-07-22 15:03:23'),
 (130,'Oktober',2025,33,0,0,'Tinggi','2026-07-22 15:03:23'),
 (131,'November',2025,21,0,0,'Tinggi','2026-07-22 15:03:23'),
 (132,'Desember',2025,3,0,0,'Rendah','2026-07-22 15:03:23');
@@ -145,11 +144,6 @@ INSERT INTO `kasus_bulanan` VALUES
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `log_aktivitas`
---
-
 DROP TABLE IF EXISTS `log_aktivitas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -163,12 +157,8 @@ CREATE TABLE `log_aktivitas` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `log_aktivitas_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=166 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `log_aktivitas`
---
 
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `log_aktivitas` WRITE;
@@ -191,16 +181,31 @@ INSERT INTO `log_aktivitas` VALUES
 (142,1,'Login','Login berhasil','127.0.0.1','2026-07-27 01:27:29'),
 (143,1,'Login','Login berhasil','127.0.0.1','2026-07-27 01:31:54'),
 (144,1,'Login','Login berhasil','127.0.0.1','2026-07-27 01:42:48'),
-(145,1,'Login','Login berhasil','127.0.0.1','2026-07-27 01:59:10');
+(145,1,'Login','Login berhasil','127.0.0.1','2026-07-27 01:59:10'),
+(146,1,'Login','Login berhasil','127.0.0.1','2026-07-27 03:02:26'),
+(147,1,'Login','Login berhasil','127.0.0.1','2026-07-27 03:25:55'),
+(148,1,'Login','Login berhasil','127.0.0.1','2026-07-27 04:45:27'),
+(149,1,'Login','Login berhasil','127.0.0.1','2026-07-27 04:48:24'),
+(150,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:16:33'),
+(151,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:25:23'),
+(152,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:25:44'),
+(153,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:52:42'),
+(154,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:55:35'),
+(155,1,'Login','Login berhasil','127.0.0.1','2026-07-29 15:56:25'),
+(156,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:30:14'),
+(157,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:30:40'),
+(158,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:33:25'),
+(159,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:34:37'),
+(160,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:35:32'),
+(161,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:35:42'),
+(162,1,'Logout','Logout dari sistem','127.0.0.1','2026-07-29 16:38:09'),
+(163,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:38:14'),
+(164,1,'Logout','Logout dari sistem','127.0.0.1','2026-07-29 16:38:20'),
+(165,1,'Login','Login berhasil','127.0.0.1','2026-07-29 16:39:55');
 /*!40000 ALTER TABLE `log_aktivitas` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `model_evaluasi`
---
-
 DROP TABLE IF EXISTS `model_evaluasi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -221,12 +226,8 @@ CREATE TABLE `model_evaluasi` (
   `model_path` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=176 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=213 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `model_evaluasi`
---
 
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `model_evaluasi` WRITE;
@@ -255,16 +256,48 @@ INSERT INTO `model_evaluasi` VALUES
 (172,'2026-07-27 09:38:10',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 02:38:10'),
 (173,'2026-07-27 09:39:19',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 02:39:19'),
 (174,'2026-07-27 09:49:24',0.5036,0.5187,0.5036,0.5011,0.7000,0.8367,0.0789,10,NULL,'[[2, 4, 8], [4, 44, 29], [9, 27, 36]]','{\"Usia\": 0.7696485436637571, \"Lama Rawat Inap\": 0.17880988443279772, \"Jenis Kelamin\": 0.051541571903445195}','models/random_forest_model.pkl','2026-07-27 02:49:24'),
-(175,'2026-07-27 09:57:42',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 02:57:42');
+(175,'2026-07-27 09:57:42',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 02:57:42'),
+(176,'2026-07-27 10:02:27',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 03:02:27'),
+(177,'2026-07-27 10:26:03',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-27 03:26:03'),
+(178,'2026-07-28 17:17:45',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-28 10:17:45'),
+(179,'2026-07-28 17:17:47',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-28 10:17:47'),
+(180,'2026-07-28 18:04:10',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-28 11:04:10'),
+(181,'2026-07-28 18:04:13',0.4722,0.5018,0.4722,0.4747,0.7000,0.8367,0.0789,5,NULL,'[[2, 5, 7], [6, 42, 29], [11, 28, 33]]','{\"Usia\": 0.7690530040816432, \"Lama Rawat Inap\": 0.17629383947450245, \"Jenis Kelamin\": 0.05465315644385442}','models/random_forest_model.pkl','2026-07-28 11:04:13'),
+(182,'2026-07-28 18:53:32',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:53:32'),
+(183,'2026-07-28 18:53:34',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:53:34'),
+(184,'2026-07-28 18:55:33',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:55:33'),
+(185,'2026-07-28 18:55:35',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:55:35'),
+(186,'2026-07-28 18:58:21',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:58:21'),
+(187,'2026-07-28 18:58:23',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 11:58:23'),
+(188,'2026-07-28 19:05:16',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 12:05:16'),
+(189,'2026-07-28 19:05:19',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 12:05:19'),
+(190,'2026-07-28 19:06:42',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 12:06:42'),
+(191,'2026-07-28 19:06:44',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 12:06:44'),
+(192,'2026-07-28 21:00:22',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 14:00:22'),
+(193,'2026-07-28 21:00:24',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.0789,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-28 14:00:24'),
+(194,'2026-07-29 22:23:44',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:23:44'),
+(195,'2026-07-29 22:23:46',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:23:46'),
+(196,'2026-07-29 22:25:09',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:25:09'),
+(197,'2026-07-29 22:25:11',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:25:11'),
+(198,'2026-07-29 22:26:25',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:26:25'),
+(199,'2026-07-29 22:26:28',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:26:28'),
+(200,'2026-07-29 22:27:25',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:27:25'),
+(201,'2026-07-29 22:28:44',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:28:44'),
+(202,'2026-07-29 22:28:46',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:28:46'),
+(203,'2026-07-29 22:29:16',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:29:16'),
+(204,'2026-07-29 22:29:18',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:29:18'),
+(205,'2026-07-29 22:34:09',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:34:09'),
+(206,'2026-07-29 22:34:11',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:34:11'),
+(207,'2026-07-29 22:35:09',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,11,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.03938699649367901, \"Lama Rawat Inap\": 0.01570847521704196, \"Jenis Kelamin\": 0.014536256493866216, \"Jumlah Kasus Perbulan\": 0.9303682717954128}','models/random_forest_model.pkl','2026-07-29 15:35:10'),
+(208,'2026-07-29 22:37:40',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:37:40'),
+(209,'2026-07-29 22:37:42',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,5,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.04444201950426792, \"Lama Rawat Inap\": 0.019141441738413142, \"Jenis Kelamin\": 0.007490696548805448, \"Jumlah Kasus Perbulan\": 0.9289258422085135}','models/random_forest_model.pkl','2026-07-29 15:37:42'),
+(210,'2026-07-29 22:49:47',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,11,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.03938699649367901, \"Lama Rawat Inap\": 0.01570847521704196, \"Jenis Kelamin\": 0.014536256493866216, \"Jumlah Kasus Perbulan\": 0.9303682717954128}','models/random_forest_model.pkl','2026-07-29 15:49:47'),
+(211,'2026-07-29 22:59:52',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,11,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.03938699649367901, \"Lama Rawat Inap\": 0.01570847521704196, \"Jenis Kelamin\": 0.014536256493866216, \"Jumlah Kasus Perbulan\": 0.9303682717954128}','models/random_forest_model.pkl','2026-07-29 15:59:52'),
+(212,'2026-07-29 23:02:45',1.0000,1.0000,1.0000,1.0000,0.7000,0.8367,0.6818,11,NULL,'[[24, 0, 0], [0, 85, 0], [0, 0, 54]]','{\"Usia\": 0.03938699649367901, \"Lama Rawat Inap\": 0.01570847521704196, \"Jenis Kelamin\": 0.014536256493866216, \"Jumlah Kasus Perbulan\": 0.9303682717954128}','models/random_forest_model.pkl','2026-07-29 16:02:45');
 /*!40000 ALTER TABLE `model_evaluasi` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `pasien_dbd`
---
-
 DROP TABLE IF EXISTS `pasien_dbd`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -286,10 +319,6 @@ CREATE TABLE `pasien_dbd` (
   UNIQUE KEY `no_rm` (`no_rm`)
 ) ENGINE=InnoDB AUTO_INCREMENT=903 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `pasien_dbd`
---
 
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `pasien_dbd` WRITE;
@@ -462,11 +491,6 @@ INSERT INTO `pasien_dbd` VALUES
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
---
--- Table structure for table `users`
---
-
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -487,16 +511,12 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `users`
---
-
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1,'admin','scrypt:32768:8:1$dW2jNJLFDi0i6UfL$6aff2348914b68f4a8d36743bfd852f7e98a34695a41e0651051c440db69d93fbb37db31cd4bea8cd10d00a64fea9ca9f941ecbcf47f5fbf959c1f222f449f99','V2 Modified','mod@test.com','admin','default.png','aktif','2026-07-27 08:59:10','2026-01-29 01:23:33','2026-07-27 01:59:10'),
-(2,'petugas','scrypt:32768:8:1$MoAKZkKxMSYIu5qx$dcdeabaec18385a91044114ea168f07368742ef20ac72b718395b8be66b7edc1f642b74022b7617eef8be5dbf81fdc4c145a8a8d50484c9b0e6a7937f36a3e1c','Petugas Kesehatan','petugas@rsud.go.id','petugas','default.png','aktif','2026-07-21 23:12:32','2026-02-05 10:56:16','2026-07-22 04:14:14');
+(1,'admin','scrypt:32768:8:1$dW2jNJLFDi0i6UfL$6aff2348914b68f4a8d36743bfd852f7e98a34695a41e0651051c440db69d93fbb37db31cd4bea8cd10d00a64fea9ca9f941ecbcf47f5fbf959c1f222f449f99','V2 Modified','mod@test.com','admin','default.png','aktif','2026-07-29 23:39:55','2026-01-29 01:23:33','2026-07-29 16:39:55'),
+(2,'petugas','scrypt:32768:8:1$93ESOaEC7a8090vP$6e7c847a656a1badea119ad8d594206eb5b09089a0d0e8505c19dec7d207db2c2188ee4dee3ce501d9e3dd38e18d5f0af43c27166015dd31e86024e8896b2616','Petugas Kesehatan','petugas@rsud.go.id','petugas','default.png','aktif','2026-07-21 23:12:32','2026-02-05 10:56:16','2026-07-29 16:39:41');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -511,4 +531,3 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-07-27  9:58:42

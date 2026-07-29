@@ -33,7 +33,7 @@ def api_train():
     """API endpoint untuk training"""
     try:
         data = request.get_json() or {}
-        n_estimators = data.get('n_estimators', 100)
+        n_estimators = data.get('n_estimators', 11)
         random_state = data.get('random_state', 42)
         
         from app.models import PasienDBD
