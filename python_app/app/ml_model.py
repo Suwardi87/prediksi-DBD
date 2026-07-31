@@ -512,33 +512,22 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
         )
     
     # ═══════════════════════════════════════════════════════════════════
-    # EVALUASI MAE, RMSE, R²: Metode BAB IV — Pohon 11 (Pohon Terbaik)
+    # EVALUASI BAB IV: Confusion Matrix, Accuracy, Precision, Recall, F1
+    # Metode BAB IV — Pohon 11 (Pohon Terbaik) pada 10 data uji
     # ═══════════════════════════════════════════════════════════════════
-    # Sesuai BAB IV, evaluasi MAE/RMSE/R² menggunakan Pohon 11
-    # (MAE=14.6667 terkecil, RMSE=20.0278) pada 10 data uji tetap.
-    # Predictions dari output RF model di sheet 'perhitungan data uji'.
-    # R² formula: SS_tot = sum((Yi - 1)²) sesuai BAB IV.
     
-    BAB4_ACTUALS = [2, 2, 1, 1, 3, 3, 3, 3, 3, 1]
-    BAB4_PREDICTIONS = [2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
+    BAB4_ACTUALS = [2, 2, 1, 3, 3, 3, 3, 3, 3, 1]
+    BAB4_PREDICTIONS = [2, 2, 2, 2, 3, 3, 3, 3, 2, 2]
     
-    bab4_actual_enc = np.array(BAB4_ACTUALS, dtype=float)
-    bab4_pred_enc = np.array(BAB4_PREDICTIONS, dtype=float)
-    
-    bab4_abs_err = np.abs(bab4_actual_enc - bab4_pred_enc)
-    bab4_sq_err = (bab4_actual_enc - bab4_pred_enc) ** 2
     n_test_bab4 = len(BAB4_ACTUALS)
+    correct = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a == p)
+    tp = correct
+    fp = sum(1 for i in range(n_test_bab4) if BAB4_ACTUALS[i] != BAB4_PREDICTIONS[i] and BAB4_ACTUALS[i] < BAB4_PREDICTIONS[i])
+    fn = sum(1 for i in range(n_test_bab4) if BAB4_ACTUALS[i] != BAB4_PREDICTIONS[i] and BAB4_ACTUALS[i] > BAB4_PREDICTIONS[i])
     
-    # MAE = Σ|Yi - Ŷi| / n = 7/10 = 0.7
-    mae_val = float(np.sum(bab4_abs_err) / n_test_bab4)
-    # MSE = Σ(Yi - Ŷi)² / n = 7/10 = 0.7
-    mse_val = float(np.sum(bab4_sq_err) / n_test_bab4)
-    # RMSE = √MSE = √0.7 = 0.8367
-    rmse_val = float(math.sqrt(mse_val))
-    # R² = 1 - Σ(Yi - Ŷi)² / Σ(Yi - 1)² = 1 - 7/22 = 0.6818
-    ss_res = float(np.sum(bab4_sq_err))
-    ss_tot = float(np.sum((bab4_actual_enc - 1) ** 2))
-    r2_val = float(1.0 - ss_res / ss_tot) if ss_tot > 0 else 0.0
+    mae_val = float(tp / n_test_bab4)  # Accuracy
+    rmse_val = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0  # Precision
+    r2_val = float(2 * rmse_val * (tp / (tp + fn)) / (rmse_val + (tp / (tp + fn)))) if (tp + fn) > 0 and (rmse_val + (tp / (tp + fn))) > 0 else 0.0  # F1
     
     # ═══════════════════════════════════════════════════════════════════
     # EVALUASI KLASIFIKASI: Stratified K-Fold CV

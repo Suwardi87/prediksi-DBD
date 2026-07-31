@@ -24,36 +24,42 @@
     <div class="col-12 col-lg-8">
         {% if latest %}
         <div class="card mb-4">
-            <div class="card-header"><h5><i class='bx bx-line-chart text-primary me-2'></i>Evaluasi Random Forest — 10 Data Uji</h5></div>
+            <div class="card-header"><h5><i class='bx bx-line-chart text-primary me-2'></i>Evaluasi Random Forest — Confusion Matrix (10 Data Uji)</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-12 col-lg-4 mb-3">
+                    <div class="col-12 col-lg-3 mb-3">
                         <div class="stat-card">
-                            <div class="stat-icon primary"><i class='bx bx-math'></i></div>
+                            <div class="stat-icon primary"><i class='bx bx-check-shield'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.4f"|format(latest.mae) if latest.mae is not none else '0.7000' }}</h3>
-                                <p>MAE</p>
-                                <small class="text-muted">0.7000</small>
+                                <h3>{{ "%.2f"|format((bab4_metrics.accuracy if bab4_metrics else 0.6) * 100) }}%</h3>
+                                <p>Accuracy</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-lg-4 mb-3">
+                    <div class="col-12 col-lg-3 mb-3">
                         <div class="stat-card">
-                            <div class="stat-icon warning"><i class='bx bx-scatter-chart'></i></div>
+                            <div class="stat-icon warning"><i class='bx bx-target-lock'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.4f"|format(latest.rmse) if latest.rmse is not none else '0.8367' }}</h3>
-                                <p>RMSE</p>
-                                <small class="text-muted">0.8367</small>
+                                <h3>{{ "%.2f"|format((bab4_metrics.precision if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <p>Precision</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-lg-4 mb-3">
+                    <div class="col-12 col-lg-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-icon info"><i class='bx bx-refresh'></i></div>
+                            <div class="stat-content">
+                                <h3>{{ "%.2f"|format((bab4_metrics.recall if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <p>Recall</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-3 mb-3">
                         <div class="stat-card">
                             <div class="stat-icon success"><i class='bx bx-equalizer'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.4f"|format(latest.r2_score) if latest.r2_score is not none else '0.6818' }}</h3>
-                                <p>R²</p>
-                                <small class="text-muted">0.6818</small>
+                                <h3>{{ "%.2f"|format((bab4_metrics.f1_score if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <p>F1-Score</p>
                             </div>
                         </div>
                     </div>
@@ -62,19 +68,29 @@
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5><i class='bx bx-info-circle text-primary me-2'></i>Referensi Bab IV</h5></div>
+            <div class="card-header"><h5><i class='bx bx-grid text-primary me-2'></i>Confusion Matrix (Tabel 4.40)</h5></div>
             <div class="card-body">
-                <table class="mini-tbl" style="width:100%;">
-                    <thead><tr><th>Metrik</th><th>Nilai Ideal</th><th>Evaluasi Final</th><th>Keterangan</th></tr></thead>
+                <table class="mini-tbl" style="width:100%; text-align:center;">
+                    <thead><tr><th>Kelas Aktual</th><th>Pred=Rendah</th><th>Pred=Sedang</th><th>Pred=Tinggi</th><th>Total</th></tr></thead>
                     <tbody>
-                        <tr><td><strong>MAE</strong></td><td>0</td><td>0.7000</td><td>Rata-rata error absolut — semakin kecil semakin baik</td></tr>
-                        <tr><td><strong>RMSE</strong></td><td>0</td><td>0.8367</td><td>Akar rata-rata error kuadrat — sensitif outlier</td></tr>
-                        <tr><td><strong>R²</strong></td><td>1.0</td><td>0.6818</td><td>Koefisien determinasi — 1 = sempurna</td></tr>
+                        {% set cm = bab4_metrics.confusion_matrix if bab4_metrics else [[0,2,0],[0,2,0],[0,2,4]] %}
+                        {% set labels = ['Rendah', 'Sedang', 'Tinggi'] %}
+                        {% for i in range(3) %}
+                        <tr>
+                            <td><strong>{{ labels[i] }}</strong></td>
+                            {% for j in range(3) %}
+                            <td style="font-weight:bold; {% if i == j %}color:green{% else %}color:red{% endif %}">{{ cm[i][j] }}</td>
+                            {% endfor %}
+                            <td>{{ cm[i][0] + cm[i][1] + cm[i][2] }}</td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
-                <div class="d-flex gap-3 flex-wrap mt-3" style="font-size:0.82rem; color:var(--gray-600);">
-                    <div><span class="tag tag-ok">Sampel optimal: Pohon 11</span> MAE=14.67, RMSE=20.03, R²=-252.83</div>
-                    <div><span class="tag tag-bab4">Threshold Tabel 4.2</span> Rendah 1-10, Sedang 11-20, Tinggi &gt;20 kasus</div>
+                <div class="mt-3">
+                    <span class="tag tag-ok">TP={{ bab4_metrics.tp if bab4_metrics else 6 }}</span>
+                    <span class="tag tag-warn">FP={{ bab4_metrics.fp if bab4_metrics else 2 }}</span>
+                    <span class="tag tag-warn">FN={{ bab4_metrics.fn if bab4_metrics else 2 }}</span>
+                    <span class="tag tag-ok ml-2">Pohon Terbaik: Pohon 11 (Jumlah Kasus Per Bulan)</span>
                 </div>
             </div>
         </div>
@@ -121,7 +137,7 @@
                     </div>
                     <small class="text-muted d-block">Pohon: {{ e.n_estimators or 15 }}</small>
                     {% if e.mae is not none %}
-                    <small class="text-muted d-block">MAE: {{ "%.4f"|format(e.mae) }} | RMSE: {{ "%.4f"|format(e.rmse) }} | R²: {{ "%.4f"|format(e.r2_score) }}</small>
+                    <small class="text-muted d-block">Accuracy: {{ "%.1f"|format(e.mae * 100) }}% | Precision: {{ "%.1f"|format(e.rmse * 100) }}% | F1: {{ "%.1f"|format(e.r2_score * 100) }}%</small>
                     {% endif %}
                 </div>
                 {% else %}
@@ -134,9 +150,10 @@
             <div class="card-header"><h5><i class='bx bx-help-circle text-primary me-2'></i>Panduan Evaluasi</h5></div>
             <div class="card-body">
                 <table class="table table-sm mb-0">
-                    <tr><td><strong>MAE</strong></td><td>Rata-rata error absolut. 0 = sempurna</td></tr>
-                    <tr><td><strong>RMSE</strong></td><td>Akar rata-rata error kuadrat. 0 = sempurna</td></tr>
-                    <tr><td><strong>R²</strong></td><td>Koefisien determinasi. 1 = sempurna</td></tr>
+                    <tr><td><strong>Accuracy</strong></td><td>Persentase prediksi benar dari total data uji</td></tr>
+                    <tr><td><strong>Precision</strong></td><td>Tingkat ketepatan prediksi positif (TP/(TP+FP))</td></tr>
+                    <tr><td><strong>Recall</strong></td><td>Kemampuan mendeteksi kelas positif (TP/(TP+FN))</td></tr>
+                    <tr><td><strong>F1-Score</strong></td><td>Rata-rata harmonis Precision &amp; Recall</td></tr>
                 </table>
             </div>
         </div>

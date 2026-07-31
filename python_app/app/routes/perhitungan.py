@@ -28,12 +28,13 @@ COL_MAP = {
     'Jumlah Kasus Perbulan': 'jumlah_kasus',
     'Jenis Kelamin': 'jk',
     'Tingkat Resiko': 'tingkat_risiko',
+    'Terdeteksi': 'tingkat_risiko',
     'Nama': 'nama',
 }
 
 POHON_NAMES = [
     'Pohon 1', 'Pohon 2', 'Pohon 3', 'Pohon 4', 'Pohon 5',
-    'Pohon 6', 'Pohon 7', 'Pohon 8 ', 'Pohon 9', 'Pohon 10',
+    'Pohon 6',     'Pohon 7', 'Pohon 8', 'Pohon 9', 'Pohon 10',
     'Pohon 11', 'Pohon 12', 'Pohon 13', 'Pohon 14', 'Pohon 15',
 ]
 
@@ -42,24 +43,24 @@ PEMILIHAN_FITUR_HEADERS = ['Fitur', 'Nilai']
 N_TEST = 10
 
 BAB4_GAIN = {
-    1: 0.59558818, 2: 0.034558397, 3: 0.066195604, 4: -0.001930068,
-    5: 0.65403293, 6: 0.033807028, 7: 0.007208794, 8: 0.03702069,
-    9: 0.6597991, 10: 0.023709616, 11: 0.004491452, 12: 0.001453179,
-    13: 0.616055251, 14: 0.014241368, 15: 0.019288709,
+    1: 0.5575, 2: 0.6771, 3: 0.6003, 4: 0.6208,
+    5: 0.5644, 6: 0.5482, 7: 0.5677, 8: 0.6409,
+    9: 0.5779, 10: 0.5858, 11: 0.5548, 12: 0.5720,
+    13: 0.4393, 14: 0.5903, 15: 0.4993,
 }
 
 BAB4_ENTROPY_AFTER = {
-    1: 0.692344, 2: 1.30689651, 3: 1.23592389, 4: 1.28519682,
-    5: 0.735984404, 6: 1.31736004, 7: 1.4063900, 8: 1.28442100,
-    9: 0.74291800, 10: 1.22876400, 11: 1.38625852, 12: 1.37582041,
-    13: 0.7746900, 14: 1.2506700, 15: 1.38342803,
+    1: 0.6324, 2: 0.5928, 3: 0.7622, 4: 0.5877,
+    5: 0.7614, 6: 0.8130, 7: 0.8084, 8: 0.7385,
+    9: 0.7528, 10: 0.7191, 11: 0.7247, 12: 0.8184,
+    13: 0.7731, 14: 0.7152, 15: 0.7839,
 }
 
 BAB4_TEST_DATA = [
     {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
     {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
     {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
-    {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
+    {'jumlah_kasus': 7, 'risiko_aktual': 'Tinggi'},
     {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
     {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
     {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
@@ -70,13 +71,31 @@ BAB4_TEST_DATA = [
 
 # Prediksi final dari model RF pada 10 data uji (encoded: Rendah=1, Sedang=2, Tinggi=3)
 # Sesuai sheet 'perhitungan data uji' di Excel baru
-BAB4_PREDICTIONS = [2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
-BAB4_POHON11_THRESHOLDS = [2.44, 4.68]
+BAB4_PREDICTIONS = [2, 2, 2, 2, 3, 3, 3, 3, 2, 2]
+BAB4_POHON11_THRESHOLDS = [13, 26.6]
 BAB4_POHON11_RULES = [
-    'IF Lama Rawat Inap < 2.44 THEN Risiko = Rendah',
-    'IF Lama Rawat Inap >= 2.44 AND <= 4.68 THEN Risiko = Sedang',
-    'IF Lama Rawat Inap > 4.68 THEN Risiko = Tinggi',
+    'IF Jumlah Kasus Per Bulan < 13 THEN Risiko = Sedang',
+    'IF Jumlah Kasus Per Bulan >= 13 AND <= 26.6 THEN Risiko = Tinggi',
+    'IF Jumlah Kasus Per Bulan > 26.6 THEN Risiko = Tinggi',
 ]
+
+BAB4_EVAL = {
+    1: {'MAE': 16.6, 'RMSE': 18.28, 'R2': -4.555},
+    2: {'MAE': 15.2, 'RMSE': 18.34, 'R2': -4.659},
+    3: {'MAE': 21.4, 'RMSE': 28.79, 'R2': -58.89},
+    4: {'MAE': 19.6, 'RMSE': 25.65, 'R2': -6.727},
+    5: {'MAE': 20.6, 'RMSE': 25.81, 'R2': -7.771},
+    6: {'MAE': 18.2, 'RMSE': 20.97, 'R2': -3.666},
+    7: {'MAE': 19.6, 'RMSE': 26.26, 'R2': -13.02},
+    8: {'MAE': 21.6, 'RMSE': 28.05, 'R2': -11.73},
+    9: {'MAE': 24.6, 'RMSE': 32.15, 'R2': -20.08},
+    10: {'MAE': 22.6, 'RMSE': 26.32, 'R2': -45.82},
+    11: {'MAE': 18.4, 'RMSE': 20.44, 'R2': -3.190},
+    12: {'MAE': 23.4, 'RMSE': 29.88, 'R2': -38.18},
+    13: {'MAE': 21.2, 'RMSE': 29.30, 'R2': -8.785},
+    14: {'MAE': 22.2, 'RMSE': 26.22, 'R2': -5.727},
+    15: {'MAE': 18.4, 'RMSE': 20.08, 'R2': -6.678},
+}
 
 
 def _parse_numeric(val):
@@ -103,6 +122,11 @@ def _read_data_dbd(wb):
                 row[COL_MAP[h]] = ws.cell(row=r, column=c + 1).value
         if row.get('tingkat_risiko') in LABEL_ENCODE:
             data.append(row)
+        else:
+            tr = row.get('tingkat_risiko')
+            if isinstance(tr, (int, float)) and LABEL_DECODE.get(int(tr)):
+                row['tingkat_risiko'] = LABEL_DECODE[int(tr)]
+                data.append(row)
     return data
 
 
@@ -136,8 +160,14 @@ def _read_bootstrap_from_sheet(wb, pohon_name):
                 sample[feat_name] = _parse_numeric(raw)
             else:
                 sample[feat_name] = raw
-        if 'tingkat_risiko' in sample and sample['tingkat_risiko'] in LABEL_ENCODE:
-            samples.append(sample)
+        tr = sample.get('tingkat_risiko')
+        if tr is not None:
+            if isinstance(tr, (int, float)):
+                tr = LABEL_DECODE.get(int(tr))
+                if tr:
+                    sample['tingkat_risiko'] = tr
+            if sample.get('tingkat_risiko') in LABEL_ENCODE:
+                samples.append(sample)
     return samples
 
 
@@ -192,21 +222,21 @@ def _calc_root_entropy(samples):
 BINARY_FEATURES = {'jk'}
 
 BAB4_POHON_CONFIG = {
-    1:  {'feature': 'jumlah_kasus', 't1': 13.35, 't2': 28.4},
-    2:  {'feature': 'usia',         't1': 16.61, 't2': 54.4},
-    3:  {'feature': 'lama_rawat',   't1': 2.44,  't2': 4.68},
-    4:  {'feature': 'jk',           't1': 0.5,   't2': 0.5},
-    5:  {'feature': 'jumlah_kasus', 't1': 12.60, 't2': 29.21},
-    6:  {'feature': 'lama_rawat',   't1': 2.5,   't2': 4.67},
-    7:  {'feature': 'jk',           't1': 0.5,   't2': 0.5},
-    8:  {'feature': 'usia',         't1': 15.70, 't2': 54.27},
-    9:  {'feature': 'jumlah_kasus', 't1': 11.31, 't2': 29.95},
-    10: {'feature': 'usia',         't1': 17.31, 't2': 53.39},
-    11: {'feature': 'lama_rawat',   't1': 2.44,  't2': 4.68},
-    12: {'feature': 'jk',           't1': 0.5,   't2': 0.5},
-    13: {'feature': 'jumlah_kasus', 't1': 11.77, 't2': 29.40},
-    14: {'feature': 'usia',         't1': 17.31, 't2': 54.61},
-    15: {'feature': 'lama_rawat',   't1': 2.47,  't2': 4.63},
+    1:  {'feature': 'jumlah_kasus', 't1': 13.7, 't2': 29.6},
+    2:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 30.1},
+    3:  {'feature': 'jumlah_kasus', 't1': 11.9, 't2': 25.6},
+    4:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 28.2},
+    5:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 28.2},
+    6:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 24.7},
+    7:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 25.2},
+    8:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 26.5},
+    9:  {'feature': 'jumlah_kasus', 't1': 12,   't2': 26.2},
+    10: {'feature': 'jumlah_kasus', 't1': 13,   't2': 27.4},
+    11: {'feature': 'jumlah_kasus', 't1': 13,   't2': 26.6},
+    12: {'feature': 'jumlah_kasus', 't1': 11,   't2': 24},
+    13: {'feature': 'jumlah_kasus', 't1': 11,   't2': 27},
+    14: {'feature': 'jumlah_kasus', 't1': 13,   't2': 27},
+    15: {'feature': 'jumlah_kasus', 't1': 13,   't2': 25},
 }
 
 
