@@ -1,7 +1,7 @@
 """
 Evaluation Routes
-Confusion Matrix, Accuracy, Precision, Recall, F1-Score sesuai BAB IV.
-Semua nilai dibaca dari Excel (tanpa hardcode).
+Confusion Matrix, Accuracy, Precision, Recall, F1-Score sesuai BAB IV Revisi.
+Best tree: Pohon 6 (R² tertinggi). Binary evaluation: Positive=Sedang.
 """
 from flask import Blueprint, render_template
 from flask_login import login_required
@@ -16,8 +16,8 @@ _ENC = {'Rendah': 1, 'Sedang': 2, 'Tinggi': 3}
 
 def _compute_bab4_metrics():
     """
-    Hitung Confusion Matrix, Accuracy, Precision, Recall, F1-Score
-    dari Excel: Data Uji (actuals) + Pohon 11 rules (predictions).
+    Hitung Confusion Matrix (binary: Sedang=Positive), Accuracy, Precision, Recall, F1.
+    Best tree dari PenentuanPohonterbaik (R² tertinggi).
     """
     from app.routes.perhitungan import (
         EXCEL_PATH, POHON_NAMES,
@@ -30,10 +30,12 @@ def _compute_bab4_metrics():
 
     penentuan = _read_penentuan_pohon_terbaik(wb)
     if penentuan:
-        best_entry = min(penentuan, key=lambda x: x.get('mae') or 999999)
-        best_idx = best_entry.get('no', 11) - 1
+        best_entry = max(penentuan, key=lambda x: x.get('r2') or -999999)
+        best_idx = best_entry.get('no', 6) - 1
+        best_name = best_entry.get('name', f'Sampel {best_idx + 1}')
     else:
-        best_idx = 10
+        best_idx = 5
+        best_name = 'Sampel 6'
 
     t1, t2 = _read_pohon_thresholds(wb, POHON_NAMES[best_idx])
     bs = _read_bootstrap_from_sheet(wb, POHON_NAMES[best_idx])
@@ -57,28 +59,48 @@ def _compute_bab4_metrics():
             predictions.append(_ENC.get(right_cls, 3))
 
     n = len(actuals)
-    cm = [[0]*3 for _ in range(3)]
+
+    cm_3x3 = [[0]*3 for _ in range(3)]
     for a, p in zip(actuals, predictions):
-        cm[a-1][p-1] += 1
+        cm_3x3[a-1][p-1] += 1
 
-    correct = sum(cm[c][c] for c in range(3))
-    accuracy = correct / n
+    POSITIVE = 2
+    tp = sum(1 for a, p in zip(actuals, predictions) if a == POSITIVE and p == POSITIVE)
+    fp = sum(1 for a, p in zip(actuals, predictions) if a != POSITIVE and p == POSITIVE)
+    tn = sum(1 for a, p in zip(actuals, predictions) if a != POSITIVE and p != POSITIVE)
+    fn = sum(1 for a, p in zip(actuals, predictions) if a == POSITIVE and p != POSITIVE)
 
-    tp = correct
-    fp = n - correct
-    fn = n - correct
+    cm_binary = {
+        'Rendah': {'positif': 0, 'negatif': 0},
+        'Sedang': {'positif': 0, 'negatif': 0},
+        'Tinggi': {'positif': 0, 'negatif': 0},
+    }
+    labels = {1: 'Rendah', 2: 'Sedang', 3: 'Tinggi'}
+    for a, p in zip(actuals, predictions):
+        lbl = labels[a]
+        if p == POSITIVE:
+            cm_binary[lbl]['positif'] += 1
+        else:
+            cm_binary[lbl]['negatif'] += 1
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    accuracy = (tp + tn) / n if n > 0 else 0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
     return {
-        'confusion_matrix': cm,
-        'tp': tp, 'fp': fp, 'fn': fn,
+        'confusion_matrix': cm_3x3,
+        'cm_binary': cm_binary,
+        'tp': tp, 'fp': fp, 'tn': tn, 'fn': fn,
         'accuracy': round(accuracy, 4),
         'precision': round(precision, 4),
         'recall': round(recall, 4),
         'f1_score': round(f1, 4),
+        'best_tree_name': best_name,
+        'best_tree_idx': best_idx + 1,
+        'thresholds': [round(t1, 2) if t1 else 0, round(t2, 2) if t2 else 0],
+        'actuals': actuals,
+        'predictions': predictions,
     }
 
 

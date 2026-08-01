@@ -196,9 +196,9 @@ def extract_rules(tree, feature_names, model_classes=None):
     return rules
 
 def create_manual_rf():
-    """Membuat RandomForest yang menggunakan data bootstrap persis dari Excel (Hanya Pohon 5)"""
+    """Membuat RandomForest yang menggunakan data bootstrap persis dari Excel (Pohon Terbaik)"""
     from sklearn.ensemble import RandomForestClassifier
-    # Sesuai permintaan dosen, gunakan 1 estimator saja yang diambil dari Pohon 5
+    # Gunakan Pohon Terbaik (R² tertinggi dari PenentuanPohonterbaik)
     rf = RandomForestClassifier(n_estimators=1, criterion='entropy', max_features=None, random_state=42)
     
     # Inisialisasi properti dasar agar dikenali sebagai fitted model
@@ -382,10 +382,10 @@ def extract_all_trees_details(model, X_test=None, y_test=None, feature_names=Non
         })
 
     if penentuan:
-        best_entry = min(penentuan, key=lambda x: x.get('mae') or 999999)
-        optimal_idx = best_entry.get('no', 11) - 1
+        best_entry = max(penentuan, key=lambda x: x.get('r2') or -999999)
+        optimal_idx = best_entry.get('no', 6) - 1
     else:
-        optimal_idx = 10
+        optimal_idx = 5
 
     return {
         'trees': trees_details,
@@ -472,7 +472,7 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
     _wb = _opx.load_workbook(_xlp, data_only=True)
     _pen = _rpp(_wb)
     if _pen:
-        _best = min(_pen, key=lambda x: x.get('mae') or 999999)
+        _best = max(_pen, key=lambda x: x.get('r2') or -999999)
         _best_idx = _best.get('no', 11) - 1
     else:
         _best_idx = 10
@@ -499,12 +499,13 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
             BAB4_PREDICTIONS.append(_enc.get(_r_cls, 3))
 
     n_test_bab4 = len(BAB4_ACTUALS)
-    correct = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a == p)
-    tp = correct
-    fp = n_test_bab4 - correct
-    fn = n_test_bab4 - correct
+    POSITIVE = 2
+    tp = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a == POSITIVE and p == POSITIVE)
+    fp = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a != POSITIVE and p == POSITIVE)
+    tn = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a != POSITIVE and p != POSITIVE)
+    fn = sum(1 for a, p in zip(BAB4_ACTUALS, BAB4_PREDICTIONS) if a == POSITIVE and p != POSITIVE)
 
-    mae_val = float(tp / n_test_bab4)
+    mae_val = float((tp + tn) / n_test_bab4)
     rmse_val = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
     _recall_val = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
     r2_val = float(2 * rmse_val * _recall_val / (rmse_val + _recall_val)) if (rmse_val + _recall_val) > 0 else 0.0
@@ -647,7 +648,9 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
             'f1_score_weighted': float(f1),
             'mae': float(mae_val),
             'rmse': float(rmse_val),
-            'r2_score': float(r2_val)
+            'r2_score': float(r2_val),
+            'bab4_recall': float(_recall_val),
+            'bab4_tp': tp, 'bab4_tn': tn, 'bab4_fp': fp, 'bab4_fn': fn,
         },
         'cv_details': {
             'n_folds': n_folds,
@@ -666,7 +669,7 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
         'max_depth': max_depth,
         'random_state': random_state,
         'model_type': 'Random Forest Classifier (Pohon Keputusan)',
-        'evaluation_method': 'Evaluasi BAB IV — Pohon 5 (10 data uji)',
+        'evaluation_method': 'Evaluasi BAB IV — Pohon Terbaik (R² tertinggi)',
         'trees_details': trees_info
     }
 

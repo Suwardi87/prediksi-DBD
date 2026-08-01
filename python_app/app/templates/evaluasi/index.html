@@ -68,29 +68,28 @@
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5><i class='bx bx-grid text-primary me-2'></i>Confusion Matrix (Tabel 4.40)</h5></div>
+            <div class="card-header"><h5><i class='bx bx-grid text-primary me-2'></i>Confusion Matrix (Tabel 4.40) — Pohon {{ bab4_metrics.best_tree_idx if bab4_metrics else 6 }}</h5></div>
             <div class="card-body">
+                {% set cmb = bab4_metrics.cm_binary if bab4_metrics else {'Rendah': {'positif': 0, 'negatif': 3}, 'Sedang': {'positif': 2, 'negatif': 0}, 'Tinggi': {'positif': 5, 'negatif': 0}} %}
                 <table class="mini-tbl" style="width:100%; text-align:center;">
-                    <thead><tr><th>Kelas Aktual</th><th>Pred=Rendah</th><th>Pred=Sedang</th><th>Pred=Tinggi</th><th>Total</th></tr></thead>
+                    <thead><tr><th>Kelas Aktual</th><th>Positif (Sedang)</th><th>Negatif (Non-Sedang)</th><th>Total Aktual</th></tr></thead>
                     <tbody>
-                        {% set cm = bab4_metrics.confusion_matrix if bab4_metrics else [[0,2,0],[0,2,0],[0,2,4]] %}
-                        {% set labels = ['Rendah', 'Sedang', 'Tinggi'] %}
-                        {% for i in range(3) %}
+                        {% for cls in ['Rendah', 'Sedang', 'Tinggi'] %}
                         <tr>
-                            <td><strong>{{ labels[i] }}</strong></td>
-                            {% for j in range(3) %}
-                            <td style="font-weight:bold; {% if i == j %}color:green{% else %}color:red{% endif %}">{{ cm[i][j] }}</td>
-                            {% endfor %}
-                            <td>{{ cm[i][0] + cm[i][1] + cm[i][2] }}</td>
+                            <td><strong>{{ cls }}</strong></td>
+                            <td style="font-weight:bold; color:{% if cls == 'Sedang' %}green{% else %}red{% endif %};">{{ cmb[cls]['positif'] }}</td>
+                            <td style="font-weight:bold; color:{% if cls != 'Sedang' %}green{% else %}red{% endif %};">{{ cmb[cls]['negatif'] }}</td>
+                            <td>{{ cmb[cls]['positif'] + cmb[cls]['negatif'] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="mt-3">
-                    <span class="tag tag-ok">TP={{ bab4_metrics.tp if bab4_metrics else 6 }}</span>
-                    <span class="tag tag-warn">FP={{ bab4_metrics.fp if bab4_metrics else 2 }}</span>
-                    <span class="tag tag-warn">FN={{ bab4_metrics.fn if bab4_metrics else 2 }}</span>
-                    <span class="tag tag-ok ml-2">Pohon Terbaik: Pohon 11 (Jumlah Kasus Per Bulan)</span>
+                    <span class="tag tag-ok">TP={{ bab4_metrics.tp if bab4_metrics else 2 }}</span>
+                    <span class="tag tag-ok">TN={{ bab4_metrics.tn if bab4_metrics else 3 }}</span>
+                    <span class="tag tag-bab4">FP={{ bab4_metrics.fp if bab4_metrics else 5 }}</span>
+                    <span class="tag tag-bab4">FN={{ bab4_metrics.fn if bab4_metrics else 0 }}</span>
+                    <span class="tag tag-ok ml-2">Pohon Terbaik: {{ bab4_metrics.best_tree_name if bab4_metrics else 'Sampel 6' }} (R² Tertinggi)</span>
                 </div>
             </div>
         </div>

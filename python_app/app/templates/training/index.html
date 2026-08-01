@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Training Model{% endblock %}
+{% block title %}Model Testing{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -102,8 +102,8 @@
 
 {% block content %}
 <div>
-    <h2 class="page-title">Training Model</h2>
-    <p class="page-subtitle">Melatih model Random Forest secara dinamis</p>
+    <h2 class="page-title">Model Testing</h2>
+    <p class="page-subtitle">Pengujian model Random Forest — Pohon Terbaik & Metrics</p>
 </div>
 
 <!-- Card: Parameter Training -->
@@ -131,16 +131,61 @@
         </div>
         
         <button class="btn btn-dark-blue" id="btnTraining" onclick="jalankanTraining()">
-            <i class='bx bx-play-circle me-1'></i> Mulai Training
+            <i class='bx bx-play-circle me-1'></i> Mulai Pengujian
         </button>
     </div>
 </div>
 
 <!-- Alert Success -->
 <div class="alert-success-custom" id="alertSuccess">
-    Training selesai dengan <span id="res_n_trees"></span> pohon dari <span id="res_n_data"></span> data uji. Akurasi: <span id="res_accuracy"></span>%
+    Pengujian selesai dengan <span id="res_n_trees"></span> pohon dari <span id="res_n_data"></span> data. <span id="res_best_tree"></span>
 </div>
 <div class="alert alert-danger" id="alertError" style="display: none; border-radius: 6px;"></div>
+
+<!-- Metrics Cards -->
+<div class="card mb-4" id="cardMetrics" style="display: none; border-radius: 8px;">
+    <div class="card-body p-4">
+        <h5 class="card-title-custom mb-3">Hasil Evaluasi Model (Pohon Terbaik)</h5>
+        <div class="row g-3">
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:var(--primary);" id="metricAccuracy">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">Accuracy</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:#f59e0b;" id="metricPrecision">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">Precision</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:#22c55e;" id="metricRecall">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">Recall</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:#8b5cf6;" id="metricF1">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">F1-Score</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:var(--success);" id="metricTP">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">TP / TN</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:700; color:var(--danger);" id="metricFP">-</div>
+                    <div style="font-size:0.75rem; color:var(--gray-500);">FP / FN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Table: Ringkasan Pohon -->
 <div class="card mb-4" id="cardRingkasan" style="display: none; border-radius: 8px;">
@@ -150,15 +195,16 @@
             <table class="table table-dark-header">
                 <thead>
                     <tr>
-                        <th width="20%">Pohon</th>
-                        <th width="20%">Entropy Root</th>
-                        <th width="20%">Total Sampel Node Root</th>
-                        <th width="20%">Jumlah Leaf (Daun)</th>
-                        <th width="20%">Aksi</th>
+                        <th>Pohon</th>
+                        <th>Entropy Root</th>
+                        <th>Sampel</th>
+                        <th>MAE</th>
+                        <th>RMSE</th>
+                        <th>R²</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tbodyRingkasan">
-                    <!-- Diisi via JS -->
                 </tbody>
             </table>
         </div>
@@ -220,18 +266,33 @@
             if (res.ok && data.status === 'success') {
                 document.getElementById('res_n_trees').textContent = data.n_estimators;
                 document.getElementById('res_n_data').textContent = data.total_data;
-                document.getElementById('res_accuracy').textContent = (data.metrics.accuracy * 100).toFixed(2);
+                const optimalIdx = data.trees_details.optimal_tree_idx;
+                document.getElementById('res_best_tree').textContent = `Pohon terbaik: Pohon ${optimalIdx}`;
                 document.getElementById('alertSuccess').style.display = 'block';
+                
+                const m = data.metrics;
+                document.getElementById('metricAccuracy').textContent = (m.mae * 100).toFixed(2) + '%';
+                document.getElementById('metricPrecision').textContent = (m.rmse * 100).toFixed(2) + '%';
+                document.getElementById('metricRecall').textContent = (m.bab4_recall * 100).toFixed(2) + '%';
+                document.getElementById('metricF1').textContent = (m.r2_score * 100).toFixed(2) + '%';
+                document.getElementById('metricTP').textContent = (m.bab4_tp || 0) + '+' + (m.bab4_tn || 0);
+                document.getElementById('metricFP').textContent = (m.bab4_fp || 0) + '+' + (m.bab4_fn || 0);
+                document.getElementById('cardMetrics').style.display = 'block';
                 
                 globalTreesData = data.trees_details.trees;
                 
                 let htmlRingkasan = '';
                 globalTreesData.forEach((tree, idx) => {
-                    htmlRingkasan += `<tr>
-                        <td><strong>${tree.name}</strong></td>
+                    const isBest = (idx + 1) === optimalIdx;
+                    const evalData = tree.evaluation || {};
+                    const bestBadge = isBest ? ' <span class="badge bg-success" style="font-size:0.65rem;">Terbaik</span>' : '';
+                    htmlRingkasan += `<tr${isBest ? ' style="background:#def7ec;"' : ''}>
+                        <td><strong>${tree.name}</strong>${bestBadge}</td>
                         <td>${tree.root_entropy.toFixed(4)}</td>
                         <td>${tree.total_samples}</td>
-                        <td>${tree.n_leaves}</td>
+                        <td>${evalData.mae ? evalData.mae.toFixed(2) : '-'}</td>
+                        <td>${evalData.rmse ? evalData.rmse.toFixed(2) : '-'}</td>
+                        <td>${evalData.r2 ? evalData.r2.toFixed(3) : '-'}</td>
                         <td><button class="btn btn-dark-blue btn-oval" onclick="lihatDetailPohon(${idx})">Detail</button></td>
                     </tr>`;
                 });
@@ -248,7 +309,7 @@
             errDiv.style.display = 'block';
         }
         
-        btn.innerHTML = "<i class='bx bx-play-circle me-1'></i> Mulai Training";
+        btn.innerHTML = "<i class='bx bx-play-circle me-1'></i> Mulai Pengujian";
         btn.disabled = false;
     }
 

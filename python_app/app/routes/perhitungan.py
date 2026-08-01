@@ -722,10 +722,10 @@ def hitung():
 
         penentuan_data = _read_penentuan_pohon_terbaik(wb)
         if penentuan_data:
-            best_entry = min(penentuan_data, key=lambda x: x.get('mae') or 999999)
-            best_tree_idx = best_entry.get('no', 11) - 1
+            best_entry = max(penentuan_data, key=lambda x: x.get('r2') or -999999)
+            best_tree_idx = best_entry.get('no', 6) - 1
         else:
-            best_tree_idx = 10
+            best_tree_idx = 5
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
 
         excel_test = _read_test_actuals(wb)
