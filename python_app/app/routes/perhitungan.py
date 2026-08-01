@@ -42,60 +42,7 @@ PEMILIHAN_FITUR_HEADERS = ['Fitur', 'Nilai']
 
 N_TEST = 10
 
-BAB4_GAIN = {
-    1: 0.5575, 2: 0.6771, 3: 0.6003, 4: 0.6208,
-    5: 0.5644, 6: 0.5482, 7: 0.5677, 8: 0.6409,
-    9: 0.5779, 10: 0.5858, 11: 0.5548, 12: 0.5720,
-    13: 0.4393, 14: 0.5903, 15: 0.4993,
-}
 
-BAB4_ENTROPY_AFTER = {
-    1: 0.6324, 2: 0.5928, 3: 0.7622, 4: 0.5877,
-    5: 0.7614, 6: 0.8130, 7: 0.8084, 8: 0.7385,
-    9: 0.7528, 10: 0.7191, 11: 0.7247, 12: 0.8184,
-    13: 0.7731, 14: 0.7152, 15: 0.7839,
-}
-
-BAB4_TEST_DATA = [
-    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-    {'jumlah_kasus': 12, 'risiko_aktual': 'Sedang'},
-    {'jumlah_kasus': 7, 'risiko_aktual': 'Rendah'},
-    {'jumlah_kasus': 7, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 18, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 21, 'risiko_aktual': 'Tinggi'},
-    {'jumlah_kasus': 3, 'risiko_aktual': 'Rendah'},
-]
-
-# Prediksi final dari model RF pada 10 data uji (encoded: Rendah=1, Sedang=2, Tinggi=3)
-# Sesuai sheet 'perhitungan data uji' di Excel baru
-BAB4_PREDICTIONS = [2, 2, 2, 2, 3, 3, 3, 3, 2, 2]
-BAB4_POHON11_THRESHOLDS = [13, 26.6]
-BAB4_POHON11_RULES = [
-    'IF Jumlah Kasus Per Bulan < 13 THEN Risiko = Sedang',
-    'IF Jumlah Kasus Per Bulan >= 13 AND <= 26.6 THEN Risiko = Tinggi',
-    'IF Jumlah Kasus Per Bulan > 26.6 THEN Risiko = Tinggi',
-]
-
-BAB4_EVAL = {
-    1: {'MAE': 16.6, 'RMSE': 18.28, 'R2': -4.555},
-    2: {'MAE': 15.2, 'RMSE': 18.34, 'R2': -4.659},
-    3: {'MAE': 21.4, 'RMSE': 28.79, 'R2': -58.89},
-    4: {'MAE': 19.6, 'RMSE': 25.65, 'R2': -6.727},
-    5: {'MAE': 20.6, 'RMSE': 25.81, 'R2': -7.771},
-    6: {'MAE': 18.2, 'RMSE': 20.97, 'R2': -3.666},
-    7: {'MAE': 19.6, 'RMSE': 26.26, 'R2': -13.02},
-    8: {'MAE': 21.6, 'RMSE': 28.05, 'R2': -11.73},
-    9: {'MAE': 24.6, 'RMSE': 32.15, 'R2': -20.08},
-    10: {'MAE': 22.6, 'RMSE': 26.32, 'R2': -45.82},
-    11: {'MAE': 18.4, 'RMSE': 20.44, 'R2': -3.190},
-    12: {'MAE': 23.4, 'RMSE': 29.88, 'R2': -38.18},
-    13: {'MAE': 21.2, 'RMSE': 29.30, 'R2': -8.785},
-    14: {'MAE': 22.2, 'RMSE': 26.22, 'R2': -5.727},
-    15: {'MAE': 18.4, 'RMSE': 20.08, 'R2': -6.678},
-}
 
 
 def _parse_numeric(val):
@@ -181,6 +128,83 @@ def _read_excel_entropy(wb, pohon_name):
     return None
 
 
+def _find_calc_header_row(ws, label, col_start=15, max_row=300):
+    for r in range(1, min(ws.max_row + 1, max_row)):
+        v = ws.cell(row=r, column=col_start).value
+        if v and isinstance(v, str) and label.lower() in v.lower():
+            return r
+    return None
+
+
+def _read_pohon_root_calc(wb, pohon_name):
+    ws = wb[pohon_name]
+    hdr_row = _find_calc_header_row(ws, 'Perhitungan root')
+    if hdr_row is None:
+        return None
+    ent_row = _find_calc_header_row(ws, 'Entropy Root')
+    if ent_row is None:
+        return None
+    counts = {}
+    probs = {}
+    for r in range(hdr_row + 1, ent_row):
+        lbl = ws.cell(row=r, column=15).value
+        cnt = ws.cell(row=r, column=16).value
+        prb = ws.cell(row=r, column=17).value
+        if lbl is not None and cnt is not None:
+            key = int(lbl) if isinstance(lbl, (int, float)) else str(lbl)
+            counts[key] = int(cnt) if isinstance(cnt, (int, float)) else 0
+            probs[key] = float(prb) if isinstance(prb, (int, float)) else 0.0
+    root_entropy = ws.cell(row=ent_row, column=16).value
+    return {
+        'class_counts': counts,
+        'class_probs': probs,
+        'root_entropy': float(root_entropy) if isinstance(root_entropy, (int, float)) else 0.0,
+    }
+
+
+def _read_pohon_thresholds(wb, pohon_name):
+    ws = wb[pohon_name]
+    hdr_row = _find_calc_header_row(ws, 'JUMLAH KASUS')
+    if hdr_row is None:
+        hdr_row = _find_calc_header_row(ws, 'Jumlah kasus')
+    if hdr_row is None:
+        return None, None
+    t1 = ws.cell(row=hdr_row + 1, column=16).value
+    t2 = ws.cell(row=hdr_row + 1, column=17).value
+    t1 = float(t1) if isinstance(t1, (int, float)) else None
+    t2 = float(t2) if isinstance(t2, (int, float)) else None
+    return t1, t2
+
+
+def _read_pohon_gain(wb, pohon_name):
+    ws = wb[pohon_name]
+    for r in range(150, min(ws.max_row + 1, 250)):
+        for c in range(15, 18):
+            v = ws.cell(row=r, column=c).value
+            if v and isinstance(v, str) and v.strip().upper() == 'IG':
+                ig = ws.cell(row=r + 1, column=c).value
+                ea = ws.cell(row=r + 1, column=c + 1).value
+                if isinstance(ig, (int, float)) and isinstance(ea, (int, float)):
+                    return float(ig), float(ea)
+    return None, None
+
+
+def _read_test_actuals(wb):
+    if 'Data Uji' not in wb.sheetnames:
+        return []
+    ws = wb['Data Uji']
+    data = []
+    for r in range(2, ws.max_row + 1):
+        jk = ws.cell(row=r, column=3).value
+        risk = ws.cell(row=r, column=5).value
+        if jk is not None and risk is not None:
+            data.append({
+                'jumlah_kasus': int(jk) if isinstance(jk, (int, float)) else 0,
+                'risk_enc': int(risk) if isinstance(risk, (int, float)) else 0,
+            })
+    return data
+
+
 def _read_pohon_features(wb, pohon_name):
     ws = wb[pohon_name]
     headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
@@ -220,24 +244,6 @@ def _calc_root_entropy(samples):
 
 
 BINARY_FEATURES = {'jk'}
-
-BAB4_POHON_CONFIG = {
-    1:  {'feature': 'jumlah_kasus', 't1': 13.7, 't2': 29.6},
-    2:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 30.1},
-    3:  {'feature': 'jumlah_kasus', 't1': 11.9, 't2': 25.6},
-    4:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 28.2},
-    5:  {'feature': 'jumlah_kasus', 't1': 13,   't2': 28.2},
-    6:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 24.7},
-    7:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 25.2},
-    8:  {'feature': 'jumlah_kasus', 't1': 11,   't2': 26.5},
-    9:  {'feature': 'jumlah_kasus', 't1': 12,   't2': 26.2},
-    10: {'feature': 'jumlah_kasus', 't1': 13,   't2': 27.4},
-    11: {'feature': 'jumlah_kasus', 't1': 13,   't2': 26.6},
-    12: {'feature': 'jumlah_kasus', 't1': 11,   't2': 24},
-    13: {'feature': 'jumlah_kasus', 't1': 11,   't2': 27},
-    14: {'feature': 'jumlah_kasus', 't1': 13,   't2': 27},
-    15: {'feature': 'jumlah_kasus', 't1': 13,   't2': 25},
-}
 
 
 def _compute_split_with_thresholds(samples, feature_key, t1, t2):
@@ -628,12 +634,10 @@ def hitung():
             pohon_features = _read_pohon_features(wb, pohon_name)
             excel_entropy = _read_excel_entropy(wb, pohon_name)
 
-            bab4_cfg = BAB4_POHON_CONFIG.get(pohon_num, {})
-            bab4_feat = bab4_cfg.get('feature')
-            bab4_t1 = bab4_cfg.get('t1')
-            bab4_t2 = bab4_cfg.get('t2')
+            bab4_t1, bab4_t2 = _read_pohon_thresholds(wb, pohon_name)
+            bab4_feat = 'jumlah_kasus'
 
-            if bab4_feat and bab4_t1 is not None and bab4_t2 is not None:
+            if bab4_t1 is not None and bab4_t2 is not None:
                 best_threshold_low = bab4_t1
                 best_threshold_high = bab4_t2
                 best_feature = bab4_feat
@@ -675,8 +679,11 @@ def hitung():
                 unique_hashes.add(str(sorted(s.items())))
             n_unique = len(unique_hashes)
 
-            bab4_gain = BAB4_GAIN.get(pohon_num, 0)
-            bab4_entropy_after = BAB4_ENTROPY_AFTER.get(pohon_num, 0)
+            bab4_gain, bab4_entropy_after = _read_pohon_gain(wb, pohon_name)
+            if bab4_gain is None:
+                bab4_gain = best_gain
+            if bab4_entropy_after is None:
+                bab4_entropy_after = best_split_info['weighted_entropy'] if best_split_info else 0
 
             display_gain = bab4_gain
             display_root_entropy = round(bab4_gain + bab4_entropy_after, 6)
@@ -713,20 +720,41 @@ def hitung():
                 'excel_entropy': round(excel_entropy, 6) if excel_entropy is not None else None,
             })
 
-        best_tree_idx = 10
+        penentuan_data = _read_penentuan_pohon_terbaik(wb)
+        if penentuan_data:
+            best_entry = min(penentuan_data, key=lambda x: x.get('mae') or 999999)
+            best_tree_idx = best_entry.get('no', 11) - 1
+        else:
+            best_tree_idx = 10
         best_tree = pohon_results[best_tree_idx] if best_tree_idx < len(pohon_results) else None
 
+        excel_test = _read_test_actuals(wb)
+        p11_t1, p11_t2 = _read_pohon_thresholds(wb, POHON_NAMES[best_tree_idx])
+        p11_bootstrap = _read_bootstrap_from_sheet(wb, POHON_NAMES[best_tree_idx])
+        p11_left = [s for s in p11_bootstrap if float(s.get('jumlah_kasus', 0)) < p11_t1]
+        p11_mid = [s for s in p11_bootstrap if p11_t1 <= float(s.get('jumlah_kasus', 0)) <= p11_t2]
+        p11_right = [s for s in p11_bootstrap if float(s.get('jumlah_kasus', 0)) > p11_t2]
+        p11_left_cls, _ = _majority_class(p11_left) if p11_left else ('Sedang', {})
+        p11_mid_cls, _ = _majority_class(p11_mid) if p11_mid else ('Tinggi', {})
+        p11_right_cls, _ = _majority_class(p11_right) if p11_right else ('Tinggi', {})
+
         bab4_test_results = []
-        for i, td in enumerate(BAB4_TEST_DATA):
+        for i, td in enumerate(excel_test):
             jk = td['jumlah_kasus']
-            actual = td['risiko_aktual']
-            predicted_enc = BAB4_PREDICTIONS[i]
-            predicted = LABEL_DECODE[predicted_enc]
+            actual_enc = td['risk_enc']
+            actual = LABEL_DECODE.get(actual_enc, 'Sedang')
+            if jk < p11_t1:
+                predicted = p11_left_cls
+            elif jk <= p11_t2:
+                predicted = p11_mid_cls
+            else:
+                predicted = p11_right_cls
+            predicted_enc = LABEL_ENCODE.get(predicted, 2)
             bab4_test_results.append({
                 'no': i + 1,
                 'jumlah_kasus': jk,
                 'actual': actual,
-                'actual_enc': LABEL_ENCODE.get(actual, 0),
+                'actual_enc': actual_enc,
                 'predicted': predicted,
                 'predicted_enc': predicted_enc,
                 'correct': actual == predicted,
@@ -832,9 +860,9 @@ def hitung():
             'perhitungan_data_uji_metrics': perhitungan_data_uji_metrics,
             'step5': {
                 'best_tree': best_tree,
-                'bab4_rules': BAB4_POHON11_RULES,
-                'bab4_thresholds': BAB4_POHON11_THRESHOLDS,
-                'best_tree_name': 'Pohon 11 (Sampel 11)',
+                'bab4_rules': _build_rules_text(p11_bootstrap, 'jumlah_kasus', p11_t1, p11_t2),
+                'bab4_thresholds': [round(p11_t1, 2), round(p11_t2, 2)],
+                'best_tree_name': f'Pohon {best_tree_idx + 1} (Sampel {best_tree_idx + 1})',
                 'bab4_test_data': bab4_test_results,
                 'bab4_correct': bab4_correct,
                 'bab4_accuracy': bab4_accuracy,
