@@ -9,95 +9,225 @@
 .text-sm { font-size: 0.85rem; color: var(--gray-600); }
 .btn-dark-blue { background-color: #1c324f; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 500; font-size: 0.85rem; }
 .btn-dark-blue:hover { background-color: #0f172a; color: white; }
-.alert-success-custom { background-color: #def7ec; color: #03543f; border: none; border-radius: 6px; padding: 1rem; font-size: 0.85rem; margin-bottom: 1.5rem; display: none; }
-.table-dark-header th { background-color: #1c324f !important; color: white !important; font-size: 0.75rem; font-weight: 500; padding: 0.75rem 1rem; }
-.table td { font-size: 0.8rem; vertical-align: middle; padding: 0.5rem 1rem; }
-.tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+.form-input { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.85rem; width: 100%; }
+.form-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+.form-label-custom { font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.25rem; font-weight: 500; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
 .tag-rendah { background: #dcfce7; color: #166534; }
 .tag-sedang { background: #fef3c7; color: #92400e; }
 .tag-tinggi { background: #fee2e2; color: #991b1b; }
+.result-box { border-radius: 8px; padding: 1.5rem; margin-top: 1rem; }
+.rule-box { background: #f8fafc; border-left: 3px solid var(--primary); padding: 0.75rem 1rem; margin: 0.5rem 0; font-size: 0.82rem; border-radius: 0 6px 6px 0; }
+.tree-viz { display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; }
+.tree-node { border-radius: 8px; padding: 1rem; text-align: center; min-width: 120px; }
+.table-dark-header th { background-color: #1c324f !important; color: white !important; font-size: 0.75rem; font-weight: 500; padding: 0.75rem 1rem; }
+.table td { font-size: 0.8rem; vertical-align: middle; padding: 0.5rem 1rem; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div>
     <h2 class="page-title">Prediksi Risiko DBD</h2>
-    <p class="page-subtitle">Upload data uji dan jalankan prediksi Random Forest</p>
+    <p class="page-subtitle">Cek prediksi tingkat risiko pasien berdasarkan jumlah kasus per bulan</p>
 </div>
 
+<!-- Form Prediksi Individual -->
 <div class="card mb-3" style="border-radius: 8px;">
     <div class="card-body p-4">
-        <h5 class="card-title-custom">Prediksi Data Uji</h5>
-        <p class="text-sm mb-4">Setiap pohon akan memprediksi data uji, lalu voting mayoritas menentukan hasil akhir.</p>
-        <button class="btn btn-dark-blue" onclick="jalankanPrediksi()">Jalankan Prediksi</button>
-    </div>
-</div>
-
-<div class="alert-success-custom" id="alertSuccess"></div>
-
-<div class="card mb-4" id="cardVoting" style="display: none; border-radius: 8px;">
-    <div class="card-body p-4">
-        <h5 class="card-title-custom mb-3">Hasil Voting per Pohon</h5>
-        <div class="table-responsive">
-            <table class="table table-dark-header" id="votingTable">
-                <thead id="votingHead"></thead>
-                <tbody id="votingBody"></tbody>
-            </table>
+        <h5 class="card-title-custom"><i class='bx bx-user'></i> Informasi Pasien</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="form-label-custom">Nama Pasien</div>
+                <input type="text" id="inputNama" class="form-input" placeholder="Masukkan nama pasien">
+            </div>
+            <div class="col-md-2">
+                <div class="form-label-custom">Usia (tahun)</div>
+                <input type="number" id="inputUsia" class="form-input" placeholder="0-120">
+            </div>
+            <div class="col-md-2">
+                <div class="form-label-custom">Jenis Kelamin</div>
+                <select id="inputJK" class="form-input">
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="form-label-custom">Lama Rawat (hari)</div>
+                <input type="number" id="inputLamaRawat" class="form-input" placeholder="1-30" value="3">
+            </div>
+            <div class="col-md-2">
+                <div class="form-label-custom">Jumlah Kasus/Bulan</div>
+                <input type="number" id="inputJumlahKasus" class="form-input" placeholder="0-100">
+            </div>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-dark-blue" id="btnCek" onclick="cekHasil()">
+                <i class='bx bx-search'></i> CEK HASIL
+            </button>
         </div>
     </div>
 </div>
 
-<div class="card mb-4" id="cardAccuracy" style="display: none; border-radius: 8px;">
+<!-- Hasil Prediksi Individual -->
+<div id="cardHasil" style="display:none;">
+    <div class="card mb-4" style="border-radius: 8px;">
+        <div class="card-body p-4">
+            <h5 class="card-title-custom"><i class='bx bx-check-shield'></i> Detail Hasil Klasifikasi (Rule Base)</h5>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="result-box" id="riskResultBox">
+                        <div class="text-sm mb-1">Tingkat Risiko</div>
+                        <div style="font-size: 2rem; font-weight: 700;" id="riskLevel">-</div>
+                        <div class="text-sm mt-1" id="riskPasienInfo"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-sm mb-2"><strong>Dasar Keputusan (Rules) — Pohon <span id="pohonNum"></span></strong></div>
+                    <div id="rulesContainer"></div>
+                </div>
+            </div>
+
+            <div class="text-sm mb-2 mt-3"><strong>Visualisasi Pohon (Threshold)</strong></div>
+            <div class="tree-viz" id="treeViz"></div>
+
+            <div class="text-sm mb-2 mt-3"><strong>Rekomendasi Medis</strong></div>
+            <div id="rekomendasiBox" style="background:#f8fafc; border-radius:8px; padding:1rem;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Batch Prediction -->
+<div class="card mb-3" style="border-radius: 8px;">
     <div class="card-body p-4">
-        <h5 class="card-title-custom mb-3">Akurasi</h5>
-        <div class="row">
-            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--primary);" id="accValue">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Akurasi</div></div></div>
-            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--success);" id="correctCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Benar</div></div></div>
-            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--danger);" id="wrongCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Salah</div></div></div>
-            <div class="col-md-3"><div style="background:var(--gray-50); border-radius:8px; padding:16px; text-align:center;"><div style="font-size:1.8rem; font-weight:700; color:var(--warning);" id="totalCount">-</div><div style="font-size:0.85rem; color:var(--gray-500);">Total</div></div></div>
+        <h5 class="card-title-custom"><i class='bx bx-table'></i> Prediksi Batch (Data Uji)</h5>
+        <p class="text-sm mb-3">Jalankan prediksi untuk 10 data uji dari database</p>
+        <button class="btn btn-dark-blue" onclick="jalankanBatch()">
+            <i class='bx bx-play-circle'></i> Jalankan Prediksi Batch
+        </button>
+    </div>
+</div>
+
+<div class="card mb-4" id="cardBatch" style="display: none; border-radius: 8px;">
+    <div class="card-body p-4">
+        <h5 class="card-title-custom mb-3">Hasil Prediksi Batch</h5>
+        <div class="table-responsive">
+            <table class="table table-dark-header" id="batchTable">
+                <thead><tr><th>No</th><th>Pasien</th><th>Usia</th><th>JK</th><th>Jumlah Kasus</th><th>Prediksi</th><th>Aktual</th><th>Status</th></tr></thead>
+                <tbody id="batchBody"></tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
 function renderTag(label) {
+    if (!label) return '-';
     const cls = label === 'Rendah' ? 'tag-rendah' : label === 'Sedang' ? 'tag-sedang' : 'tag-tinggi';
     return `<span class="tag ${cls}">${label}</span>`;
 }
 
-async function jalankanPrediksi() {
+async function cekHasil() {
+    const btn = document.getElementById('btnCek');
+    const nama = document.getElementById('inputNama').value || 'Pasien';
+    const usia = parseInt(document.getElementById('inputUsia').value) || 0;
+    const jk = document.getElementById('inputJK').value;
+    const lamaRawat = parseInt(document.getElementById('inputLamaRawat').value) || 0;
+    const jumlahKasus = parseInt(document.getElementById('inputJumlahKasus').value) || 0;
+
+    if (!jumlahKasus && jumlahKasus !== 0) {
+        alert('Mohon isi Jumlah Kasus');
+        return;
+    }
+
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Memproses...";
+    btn.disabled = true;
+
     try {
-        const resp = await fetch('/prediksi/batch', { method: 'POST' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const resp = await fetch('/prediksi/cek', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nama, usia, jenis_kelamin: jk, lama_rawat: lamaRawat, jumlah_kasus: jumlahKasus})
+        });
         const data = await resp.json();
         if (data.status === 'error') throw new Error(data.message);
 
-        document.getElementById('alertSuccess').style.display = 'block';
-        document.getElementById('alertSuccess').textContent = `Prediksi berhasil untuk ${data.data.length} data uji`;
-        document.getElementById('cardVoting').style.display = 'block';
-        document.getElementById('cardAccuracy').style.display = 'block';
+        const box = document.getElementById('riskResultBox');
+        const level = document.getElementById('riskLevel');
+        level.textContent = data.tingkat_risiko;
+        level.style.color = data.risk_color;
+        box.style.background = data.risk_color + '15';
+        box.style.border = `2px solid ${data.risk_color}`;
+        document.getElementById('riskPasienInfo').textContent = `${nama} — Usia ${usia} thn, JK ${jk}, JKasus ${jumlahKasus}`;
 
-        let tbody = '';
-        let correct = 0;
-        const nTrees = data.data[0].tree_votes.length;
-        let thead = '<tr><th>No</th><th>Usia</th><th>Lama Rawat</th><th>Jumlah Kasus</th><th>JK</th>';
-        for (let i = 1; i <= nTrees; i++) thead += `<th>Pohon ${i}</th>`;
-        thead += '<th>Hasil Akhir</th><th>Aktual</th><th>Status</th></tr>';
-        document.getElementById('votingHead').innerHTML = thead;
-        data.data.forEach(p => {
-            const votes = p.tree_votes.map(v => `<td style="font-size:0.72rem;">${renderTag(v)}</td>`).join('');
-            tbody += `<tr><td>${p.id}</td><td>${p.usia}</td><td>${p.lama_rawat}</td><td>${p.jumlah_kasus}</td><td>${p.jenis_kelamin}</td>${votes}<td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td>${p.status_prediksi}</td></tr>`;
-            if (p.status_prediksi === 'Benar') correct++;
+        document.getElementById('pohonNum').textContent = data.pohon;
+
+        let rulesHtml = '';
+        data.rules.forEach(rule => {
+            const isActive = rule.includes(data.branch_condition.split(' ')[0]) || rule.includes(data.tingkat_risiko);
+            rulesHtml += `<div class="rule-box" style="${isActive ? 'border-left-color:' + data.risk_color + ';' : ''}">${rule}</div>`;
         });
-        document.getElementById('votingBody').innerHTML = tbody;
+        document.getElementById('rulesContainer').innerHTML = rulesHtml;
 
-        const total = data.data.length;
-        const acc = ((correct / total) * 100).toFixed(1) + '%';
-        document.getElementById('accValue').textContent = acc;
-        document.getElementById('correctCount').textContent = correct;
-        document.getElementById('wrongCount').textContent = total - correct;
-        document.getElementById('totalCount').textContent = total;
-    } catch (err) {
+        const bi = data.branch_info;
+        const t1 = data.thresholds[0], t2 = data.thresholds[1];
+        const branches = [
+            {label: `< ${t1}`, cls: bi.left.cls, n: bi.left.n, color: '#3b82f6'},
+            {label: `${t1} - ${t2}`, cls: bi.mid.cls, n: bi.mid.n, color: '#22c55e'},
+            {label: `> ${t2}`, cls: bi.right.cls, n: bi.right.n, color: '#f59e0b'},
+        ];
+        let treeHtml = '';
+        branches.forEach(b => {
+            const isMatch = b.cls === data.tingkat_risiko && (
+                (data.branch === 'Kiri' && b.label.includes('<')) ||
+                (data.branch === 'Tengah' && b.label.includes('-')) ||
+                (data.branch === 'Kanan' && b.label.includes('>'))
+            );
+            treeHtml += `<div class="tree-node" style="background:${b.color}15; border:2px solid ${isMatch ? data.risk_color : b.color + '40'};">
+                <div style="font-size:0.7rem; color:#64748b;">${b.label}</div>
+                <div style="font-weight:700; font-size:0.9rem; margin:4px 0;">${b.cls}</div>
+                <div style="font-size:0.7rem; color:#64748b;">n=${b.n}</div>
+            </div>`;
+        });
+        document.getElementById('treeViz').innerHTML = treeHtml;
+
+        const rec = data.recommendation;
+        let recHtml = `<div style="font-weight:600; color:${data.risk_color}; margin-bottom:6px;">${rec.status}</div><ul style="margin:0; padding-left:1.2rem;">`;
+        rec.actions.forEach(a => { recHtml += `<li style="font-size:0.82rem; margin:2px 0;">${a}</li>`; });
+        recHtml += '</ul>';
+        document.getElementById('rekomendasiBox').innerHTML = recHtml;
+
+        document.getElementById('cardHasil').style.display = 'block';
+        document.getElementById('cardHasil').scrollIntoView({behavior: 'smooth'});
+    } catch(err) {
+        alert('Gagal: ' + err.message);
+    }
+    btn.innerHTML = "<i class='bx bx-search'></i> CEK HASIL";
+    btn.disabled = false;
+}
+
+async function jalankanBatch() {
+    try {
+        const resp = await fetch('/prediksi/batch', {method: 'POST'});
+        const data = await resp.json();
+        if (data.status === 'error') throw new Error(data.message);
+
+        document.getElementById('cardBatch').style.display = 'block';
+        let tbody = '';
+        data.data.forEach(p => {
+            tbody += `<tr>
+                <td>${p.id}</td>
+                <td>${p.nama || '-'}</td>
+                <td>${p.usia}</td>
+                <td>${p.jenis_kelamin}</td>
+                <td>${p.jumlah_kasus}</td>
+                <td>${renderTag(p.final_prediction)}</td>
+                <td>${renderTag(p.aktual)}</td>
+                <td>${p.status_prediksi === 'Benar' ? '<span style="color:green">✓</span>' : '<span style="color:red">✗</span>'}</td>
+            </tr>`;
+        });
+        document.getElementById('batchBody').innerHTML = tbody;
+    } catch(err) {
         alert('Gagal: ' + err.message);
     }
 }
