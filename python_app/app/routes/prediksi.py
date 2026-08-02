@@ -42,8 +42,8 @@ def _get_best_tree_rules():
 
     return {
         'pohon': best_idx + 1,
-        't1': round(t1, 2) if t1 else 0,
-        't2': round(t2, 2) if t2 else 0,
+        't1': t1 if t1 else 0,
+        't2': t2 if t2 else 0,
         'left_cls': l_cls,
         'mid_cls': m_cls,
         'right_cls': r_cls,

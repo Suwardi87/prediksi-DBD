@@ -332,8 +332,8 @@
         document.getElementById('detailPohonTitle').textContent = `Detail ${tree.name}`;
         document.getElementById('detailEntropy').textContent = (Math.trunc(tree.root_entropy * 10000) / 10000).toFixed(4);
         document.getElementById('detailGain').textContent = (Math.trunc(tree.information_gain * 10000) / 10000).toFixed(4);
-        document.getElementById('detailThreshold').textContent = `t1=${tree.threshold_low || '-'}, t2=${tree.threshold_high || '-'}`;
-        
+        const fmt = v => v != null && v !== '-' ? (Math.trunc(v * 10000) / 10000).toFixed(4) : '-';
+        document.getElementById('detailThreshold').textContent = `t1=${tree.threshold_low ? fmt(tree.threshold_low) : '-'}, t2=${tree.threshold_high ? fmt(tree.threshold_high) : '-'}`;
         let badgesHtml = '';
         const clsColors = {'Rendah': '#dcfce7', 'Sedang': '#fef3c7', 'Tinggi': '#fee2e2'};
         for (const [cls, count] of Object.entries(tree.class_distribution)) {
@@ -348,7 +348,7 @@
         let treeVizHtml = `<div style="display:flex;flex-direction:column;align-items:center;max-width:540px;margin:0 auto;">
             <div style="background:linear-gradient(135deg,#7667B2,#6B5BA8);color:white;padding:0.8rem 1.8rem;border-radius:12px;text-align:center;box-shadow:0 3px 12px rgba(118,103,178,0.3);border:2px solid white;">
                 <div style="font-weight:700;font-size:0.85rem;">Jumlah Kasus Per Bulan</div>
-                <div style="font-size:0.7rem;opacity:0.85;margin-top:3px;">Total: ${tree.total_samples} data — Threshold: ${t1} / ${t2}</div>
+                <div style="font-size:0.7rem;opacity:0.85;margin-top:3px;">Total: ${tree.total_samples} data — Threshold: ${fmt(t1)} / ${fmt(t2)}</div>
             </div>`;
         
         // Diagonal connector lines with arrows
@@ -366,9 +366,9 @@
         // Branch boxes (orange/green/blue gradient like Colab)
         treeVizHtml += '<div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;width:100%;">';
         const branchLabels = [
-            {label: `< ${t1}`, name: 'Kiri', color: 'left', bg: 'linear-gradient(135deg,#C87B48,#B86A38)'},
-            {label: `${t1} - ${t2}`, name: 'Tengah', color: 'mid', bg: 'linear-gradient(135deg,#5B9E6D,#4B8E5D)'},
-            {label: `> ${t2}`, name: 'Kanan', color: 'right', bg: 'linear-gradient(135deg,#4B74A5,#3B64A5)'},
+            {label: `< ${fmt(t1)}`, name: 'Kiri', color: 'left', bg: 'linear-gradient(135deg,#C87B48,#B86A38)'},
+            {label: `${fmt(t1)} - ${fmt(t2)}`, name: 'Tengah', color: 'mid', bg: 'linear-gradient(135deg,#5B9E6D,#4B8E5D)'},
+            {label: `> ${fmt(t2)}`, name: 'Kanan', color: 'right', bg: 'linear-gradient(135deg,#4B74A5,#3B64A5)'},
         ];
         
         if (tree.rules && tree.rules.length > 0) {

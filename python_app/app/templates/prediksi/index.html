@@ -330,20 +330,22 @@ async function cekHasil() {
         let rulesHtml = '';
         data.rules.forEach(rule => {
             const isActive = rule.includes(data.tingkat_risiko);
-            rulesHtml += `<div class="rule-item ${isActive ? 'active' : ''}">${rule}</div>`;
+            const fmtRule = rule.replace(/(\d+\.\d+)/g, m => (Math.trunc(parseFloat(m) * 10000) / 10000).toFixed(4));
+            rulesHtml += `<div class="rule-item ${isActive ? 'active' : ''}">${fmtRule}</div>`;
         });
         document.getElementById('rulesContainer').innerHTML = rulesHtml;
 
         const bi = data.branch_info;
         const t1 = data.thresholds[0], t2 = data.thresholds[1];
+        const fmt = v => (Math.trunc(v * 10000) / 10000).toFixed(4);
         const branches = [
-            {cond: `< ${t1}`, cls: bi.left.cls, n: bi.left.n, counts: bi.left.counts, key: 'left', label: 'Kiri', color: 'left'},
-            {cond: `${t1} - ${t2}`, cls: bi.mid.cls, n: bi.mid.n, counts: bi.mid.counts, key: 'mid', label: 'Tengah', color: 'mid'},
-            {cond: `> ${t2}`, cls: bi.right.cls, n: bi.right.n, counts: bi.right.counts, key: 'right', label: 'Kanan', color: 'right'},
+            {cond: `< ${fmt(t1)}`, cls: bi.left.cls, n: bi.left.n, counts: bi.left.counts, key: 'left', label: 'Kiri', color: 'left'},
+            {cond: `${fmt(t1)} - ${fmt(t2)}`, cls: bi.mid.cls, n: bi.mid.n, counts: bi.mid.counts, key: 'mid', label: 'Tengah', color: 'mid'},
+            {cond: `> ${fmt(t2)}`, cls: bi.right.cls, n: bi.right.n, counts: bi.right.counts, key: 'right', label: 'Kanan', color: 'right'},
         ];
         const matchedBranch = data.branch === 'Kiri' ? 'left' : data.branch === 'Tengah' ? 'mid' : 'right';
         let treeHtml = '<div class="tree-root"><div class="root-label">Jumlah Kasus Per Bulan</div>';
-        treeHtml += `<div class="root-thresholds">Total: 163 data — Threshold: ${t1} / ${t2}</div></div>`;
+        treeHtml += `<div class="root-thresholds">Total: 163 data — Threshold: ${fmt(t1)} / ${fmt(t2)}</div></div>`;
         treeHtml += `<svg class="tree-svg" width="100%" height="40" viewBox="0 0 540 40" preserveAspectRatio="none">
             <defs>
                 <marker id="arrowL" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">

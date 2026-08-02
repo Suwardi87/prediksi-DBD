@@ -31,7 +31,7 @@
                         <div class="stat-card">
                             <div class="stat-icon primary"><i class='bx bx-check-shield'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.2f"|format((bab4_metrics.accuracy if bab4_metrics else 0.6) * 100) }}%</h3>
+                                <h3>{{ ((bab4_metrics.accuracy if bab4_metrics else 0.6) * 100)|int }}%</h3>
                                 <p>Accuracy</p>
                             </div>
                         </div>
@@ -40,7 +40,7 @@
                         <div class="stat-card">
                             <div class="stat-icon warning"><i class='bx bx-target-lock'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.2f"|format((bab4_metrics.precision if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <h3>{{ ((bab4_metrics.precision if bab4_metrics else 0.75) * 100)|int }}%</h3>
                                 <p>Precision</p>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                         <div class="stat-card">
                             <div class="stat-icon info"><i class='bx bx-refresh'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.2f"|format((bab4_metrics.recall if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <h3>{{ ((bab4_metrics.recall if bab4_metrics else 0.75) * 100)|int }}%</h3>
                                 <p>Recall</p>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                         <div class="stat-card">
                             <div class="stat-icon success"><i class='bx bx-equalizer'></i></div>
                             <div class="stat-content">
-                                <h3>{{ "%.2f"|format((bab4_metrics.f1_score if bab4_metrics else 0.75) * 100) }}%</h3>
+                                <h3>{{ ((bab4_metrics.f1_score if bab4_metrics else 0.75) * 100)|int }}%</h3>
                                 <p>F1-Score</p>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <span>{{ feat }}</span>
-                        <span>{{ "%.2f"|format(imp * 100) }}%</span>
+                        <span>{{ (imp * 100)|int }}%</span>
                     </div>
                     <div class="progress">
                         <div class="progress-bar" style="width: {{ imp * 100 }}%; background: var(--primary);"></div>
@@ -136,7 +136,7 @@
                     </div>
                     <small class="text-muted d-block">Pohon: {{ e.n_estimators or 15 }}</small>
                     {% if e.mae is not none %}
-                    <small class="text-muted d-block">Accuracy: {{ "%.1f"|format(e.mae * 100) }}% | Precision: {{ "%.1f"|format(e.rmse * 100) }}% | F1: {{ "%.1f"|format(e.r2_score * 100) }}%</small>
+                    <small class="text-muted d-block">Accuracy: {{ (e.mae * 100)|int }}% | Precision: {{ (e.rmse * 100)|int }}% | F1: {{ (e.r2_score * 100)|int }}%</small>
                     {% endif %}
                 </div>
                 {% else %}

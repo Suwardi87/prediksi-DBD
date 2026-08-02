@@ -351,9 +351,9 @@ def extract_all_trees_details(model, X_test=None, y_test=None, feature_names=Non
         if i < len(rf_eval):
             m = rf_eval[i].get('metrics', {})
             eval_metrics = {
-                'mae': round(m.get('MAE', 0), 4),
-                'rmse': round(m.get('RMSE', 0), 4),
-                'r2': round(m.get('R2', 0), 4),
+                'mae': m.get('MAE', 0),
+                'rmse': m.get('RMSE', 0),
+                'r2': m.get('R2', 0),
             }
 
         trees_details.append({
@@ -361,7 +361,7 @@ def extract_all_trees_details(model, X_test=None, y_test=None, feature_names=Non
             'name': f'Pohon {tree_id}',
             'total_samples': total_samples,
             'class_distribution': class_dist,
-            'class_probabilities': {k: round(v / total_samples, 6) for k, v in class_dist.items()} if total_samples else {},
+            'class_probabilities': {k: v / total_samples for k, v in class_dist.items()} if total_samples else {},
             'root_entropy': root_calc['root_entropy'],
             'root_feature': 'Jumlah Kasus Perbulan',
             'root_threshold': t1 if t1 else 0,
@@ -654,8 +654,8 @@ def train_model(data, n_estimators=11, max_depth=None, random_state=42):
         },
         'cv_details': {
             'n_folds': n_folds,
-            'fold_accuracies': [round(a, 4) for a in cv_accuracy],
-            'fold_f1_scores': [round(f, 4) for f in cv_f1],
+            'fold_accuracies': list(cv_accuracy),
+            'fold_f1_scores': list(cv_f1),
             'accuracy_std': float(np.std(cv_accuracy)),
             'f1_std': float(np.std(cv_f1))
         },

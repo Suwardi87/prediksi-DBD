@@ -363,7 +363,7 @@ function renderStep0() {
     let tbl = '<table class="mini-tbl"><thead><tr><th>Kelas</th><th>Jumlah</th><th>%</th></tr></thead><tbody>';
     labels.forEach((l, i) => {
         const pct = (counts[i] / d.total * 100);
-        tbl += `<tr><td>${tag(l)}</td><td>${counts[i]}</td><td>${pct}%</td></tr>`;
+        tbl += `<tr><td>${tag(l)}</td><td>${counts[i]}</td><td>${(Math.trunc(pct * 10000) / 10000).toFixed(4)}%</td></tr>`;
     });
     tbl += '</tbody></table>';
     document.getElementById('labelTable').innerHTML = tbl;
@@ -432,7 +432,7 @@ function renderStep5() {
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td>
             <td><span class="tag tag-feat">${t.target_label}</span></td>
             <td><strong style="${gainColor}">${t.gain}</strong></td>
-            <td><strong>${t.weighted_entropy}</strong></td>
+            <td><strong>${(Math.trunc(t.weighted_entropy * 10000) / 10000).toFixed(4)}</strong></td>
             <td>${(Math.trunc(t.root_entropy * 10000) / 10000).toFixed(4)}</td>
         </tr>`;
     });
@@ -473,12 +473,13 @@ function showRuleDetail(idx) {
 
     // 2. SPLIT CALCULATIONS
     if (rd) {
+        const fT = v => (Math.trunc(v * 10000) / 10000).toFixed(4);
         const partitions = [
-            {name: 'Kiri',  criteria: `${fname} < ${t.threshold_low}`,
+            {name: 'Kiri',  criteria: `${fname} < ${fT(t.threshold_low)}`,
              counts: rd.left_counts,  nSub: rd.left_n,  ent: t.left_entropy},
-            {name: 'Tengah',criteria: `${t.threshold_low} ≤ ${fname} ≤ ${t.threshold_high}`,
+            {name: 'Tengah',criteria: `${fT(t.threshold_low)} ≤ ${fname} ≤ ${fT(t.threshold_high)}`,
              counts: rd.mid_counts,   nSub: rd.mid_n,   ent: t.mid_entropy},
-            {name: 'Kanan', criteria: `${fname} > ${t.threshold_high}`,
+            {name: 'Kanan', criteria: `${fname} > ${fT(t.threshold_high)}`,
              counts: rd.right_counts, nSub: rd.right_n, ent: t.right_entropy},
         ];
 
@@ -546,6 +547,7 @@ function renderStep6() {
     if (!rf || !rf.length) return;
     let html = '';
     rf.forEach(t => {
+        const fmtM = v => (v !== undefined && v !== null && v !== '-' ? (Math.trunc(Number(v) * 10000) / 10000).toFixed(4) : '-');
         const mae = t.metrics.MAE || '-';
         const mse = t.metrics.MSE || '-';
         const rmse = t.metrics.RMSE || '-';
@@ -557,10 +559,10 @@ function renderStep6() {
             <table class="mini-tbl" style="max-width:600px;">
                 <thead><tr><th>Metrik</th><th>Nilai</th></tr></thead>
                 <tbody>
-                    <tr><td><strong>MAE</strong></td><td>${mae}</td></tr>
-                    <tr><td><strong>MSE</strong></td><td>${mse}</td></tr>
-                    <tr><td><strong>RMSE</strong></td><td>${rmse}</td></tr>
-                    <tr><td><strong>R²</strong></td><td>${r2}</td></tr>
+                    <tr><td><strong>MAE</strong></td><td>${fmtM(mae)}</td></tr>
+                    <tr><td><strong>MSE</strong></td><td>${fmtM(mse)}</td></tr>
+                    <tr><td><strong>RMSE</strong></td><td>${fmtM(rmse)}</td></tr>
+                    <tr><td><strong>R²</strong></td><td>${fmtM(r2)}</td></tr>
                 </tbody>
             </table>
         </div>`;
@@ -676,8 +678,8 @@ async function jalankanPerhitungan() {
         }
         const elThr = document.getElementById('hdrBestThr');
         if (elThr && DATA.step5.best_tree) {
-            const bt = DATA.step5.best_tree;
-            elThr.textContent = bt.threshold_low + ' dan ' + bt.threshold_high;
+        const bt = DATA.step5.best_tree;
+        elThr.textContent = (Math.trunc(bt.threshold_low * 10000) / 10000).toFixed(4) + ' dan ' + (Math.trunc(bt.threshold_high * 10000) / 10000).toFixed(4);
         }
         const elStatBT = document.getElementById('statBestTreeName');
         if (elStatBT) elStatBT.textContent = hdrName;

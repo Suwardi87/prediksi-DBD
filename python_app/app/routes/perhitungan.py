@@ -483,7 +483,7 @@ def _read_pemilihan_fitur(wb):
         if fitur:
             data.append({
                 'fitur': str(fitur),
-                'nilai': round(float(nilai), 6) if nilai and isinstance(nilai, (int, float)) else str(nilai or ''),
+                'nilai': float(nilai) if nilai and isinstance(nilai, (int, float)) else str(nilai or ''),
             })
     return data
 
@@ -506,7 +506,7 @@ def _read_perhitungan_rf(wb):
         elif current and c8 and c9:
             metric_key = str(c8).strip()
             try:
-                current['metrics'][metric_key] = round(float(c9), 6)
+                current['metrics'][metric_key] = float(c9)
             except (ValueError, TypeError):
                 pass
     if current:
@@ -529,9 +529,9 @@ def _read_penentuan_pohon_terbaik(wb):
             data.append({
                 'no': int(no) if isinstance(no, (int, float)) else no,
                 'name': str(name or ''),
-                'mae': round(float(mae), 4) if mae else None,
-                'rmse': round(float(rmse), 4) if rmse else None,
-                'r2': round(float(r2), 4) if r2 else None,
+                'mae': float(mae) if mae else None,
+                'rmse': float(rmse) if rmse else None,
+                'r2': float(r2) if r2 else None,
             })
     return data
 
@@ -547,7 +547,7 @@ def _read_perhitungan_data_uji(wb):
         c9 = ws.cell(row=r, column=9).value
         if c8 and c9:
             try:
-                metrics[str(c8).strip()] = round(float(c9), 6)
+                metrics[str(c8).strip()] = float(c9)
             except (ValueError, TypeError):
                 pass
     return metrics
@@ -704,8 +704,8 @@ def hitung():
                 'n_duplicates': len(bootstrap_samples) - n_unique,
                 'features_available': pohon_features,
                 'best_feature': best_feature,
-                'threshold_low': round(best_threshold_low, 2) if best_threshold_low is not None else None,
-                'threshold_high': round(best_threshold_high, 2) if best_threshold_high is not None else None,
+                'threshold_low': best_threshold_low if best_threshold_low is not None else None,
+                'threshold_high': best_threshold_high if best_threshold_high is not None else None,
                 'gain': display_gain,
                 'gain_bab4': bab4_gain,
                 'root_entropy': display_root_entropy,
@@ -766,7 +766,7 @@ def hitung():
             })
 
         bab4_correct = sum(1 for t in bab4_test_results if t['correct'])
-        bab4_accuracy = round(bab4_correct / N_TEST, 4)
+        bab4_accuracy = bab4_correct / N_TEST
 
         bab4_actual_enc = [t['actual_enc'] for t in bab4_test_results]
         bab4_pred_enc = [t['predicted_enc'] for t in bab4_test_results]
@@ -774,11 +774,11 @@ def hitung():
         bab4_pred = np.array(bab4_pred_enc, dtype=float)
         bab4_abs_err = np.abs(bab4_actual - bab4_pred)
         bab4_sq_err = (bab4_actual - bab4_pred) ** 2
-        bab4_mae = round(float(np.mean(bab4_abs_err)), 4)
-        bab4_rmse = round(float(math.sqrt(np.mean(bab4_sq_err))), 4)
+        bab4_mae = float(np.mean(bab4_abs_err))
+        bab4_rmse = float(math.sqrt(np.mean(bab4_sq_err)))
         bab4_ss_res = float(np.sum(bab4_sq_err))
         bab4_ss_tot = float(np.sum((bab4_actual - 1) ** 2))
-        bab4_r2 = round(1 - bab4_ss_res / bab4_ss_tot, 4) if bab4_ss_tot > 0 else 0.0
+        bab4_r2 = 1 - bab4_ss_res / bab4_ss_tot if bab4_ss_tot > 0 else 0.0
 
         our_test_results = []
         our_threshold_used = None
@@ -817,7 +817,7 @@ def hitung():
                     })
 
         our_correct = sum(1 for t in our_test_results if t['correct'])
-        our_accuracy = round(our_correct / N_TEST, 4)
+        our_accuracy = our_correct / N_TEST
 
         our_actual_enc = [t['actual_enc'] for t in our_test_results]
         our_pred_enc = [t['predicted_enc'] for t in our_test_results]
@@ -825,12 +825,12 @@ def hitung():
         our_pred = np.array(our_pred_enc, dtype=float)
         our_abs_err = np.abs(our_actual - our_pred)
         our_sq_err = (our_actual - our_pred) ** 2
-        our_mae = round(float(np.mean(our_abs_err)), 4)
-        our_rmse = round(float(math.sqrt(np.mean(our_sq_err))), 4)
+        our_mae = float(np.mean(our_abs_err))
+        our_rmse = float(math.sqrt(np.mean(our_sq_err)))
         our_y_mean = float(np.mean(our_actual))
         our_ss_res = float(np.sum(our_sq_err))
         our_ss_tot = float(np.sum((our_actual - our_y_mean) ** 2))
-        our_r2 = round(1 - our_ss_res / our_ss_tot, 4) if our_ss_tot > 0 else 0.0
+        our_r2 = 1 - our_ss_res / our_ss_tot if our_ss_tot > 0 else 0.0
 
         return jsonify({
             'status': 'success',
@@ -866,7 +866,7 @@ def hitung():
             'step5': {
                 'best_tree': best_tree,
                 'bab4_rules': _build_rules_text(p11_bootstrap, 'jumlah_kasus', p11_t1, p11_t2),
-                'bab4_thresholds': [round(p11_t1, 2), round(p11_t2, 2)],
+                'bab4_thresholds': [p11_t1, p11_t2],
                 'best_tree_name': f'Pohon {best_tree_idx + 1} (Sampel {best_tree_idx + 1})',
                 'bab4_test_data': bab4_test_results,
                 'bab4_correct': bab4_correct,

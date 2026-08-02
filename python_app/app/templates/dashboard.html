@@ -163,7 +163,7 @@
                 <div class="p-3 rounded" style="background: var(--gray-50);">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Akurasi</span>
-                        <span class="fw-bold text-success">{{ "%.2f"|format((model_info.accuracy or 0) * 100) }}%</span>
+                        <span class="fw-bold text-success">{{ ((model_info.accuracy or 0) * 100)|int }}%</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">n_estimators</span>
