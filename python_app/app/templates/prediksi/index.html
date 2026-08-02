@@ -345,12 +345,14 @@ async function cekHasil() {
         let treeHtml = '<div class="tree-root"><div class="root-label">Jumlah Kasus Per Bulan</div>';
         treeHtml += `<div class="root-thresholds">Total: 163 data — Threshold: ${t1} / ${t2}</div></div>`;
         treeHtml += `<svg class="tree-svg" width="100%" height="36" viewBox="0 0 300 36" preserveAspectRatio="none">
-            <line x1="150" y1="0" x2="50" y2="26" stroke="#94a3b8" stroke-width="1.5"/>
-            <line x1="150" y1="0" x2="150" y2="26" stroke="#94a3b8" stroke-width="1.5"/>
-            <line x1="150" y1="0" x2="250" y2="26" stroke="#94a3b8" stroke-width="1.5"/>
-            <polygon points="50,30 46,22 54,22" fill="#94a3b8"/>
-            <polygon points="150,30 146,22 154,22" fill="#94a3b8"/>
-            <polygon points="250,30 246,22 254,22" fill="#94a3b8"/>
+            <defs>
+                <marker id="arrowL" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+                </marker>
+            </defs>
+            <line x1="150" y1="0" x2="50" y2="30" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowL)"/>
+            <line x1="150" y1="0" x2="150" y2="30" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowL)"/>
+            <line x1="150" y1="0" x2="250" y2="30" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowL)"/>
         </svg>`;
         treeHtml += '<div class="tree-branches">';
         branches.forEach(b => {
