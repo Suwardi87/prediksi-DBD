@@ -412,7 +412,7 @@ function renderStep4() {
             <td>${t.n_samples}</td>
             <td>${t.n_unique}</td>
             <td>${t.n_duplicates}</td>
-            <td>${Math.trunc(t.root_entropy * 100) / 100}</td>
+            <td>${(Math.trunc(t.root_entropy * 10000) / 10000).toFixed(4)}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -433,7 +433,7 @@ function renderStep5() {
             <td><span class="tag tag-feat">${t.target_label}</span></td>
             <td><strong style="${gainColor}">${t.gain}</strong></td>
             <td><strong>${t.weighted_entropy}</strong></td>
-            <td>${Math.trunc(t.root_entropy * 100) / 100}</td>
+            <td>${(Math.trunc(t.root_entropy * 10000) / 10000).toFixed(4)}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -468,7 +468,7 @@ function showRuleDetail(idx) {
         <strong>1. Entropy Root</strong><br>
         Tinggi = ${rT}, Sedang = ${rS}, Rendah = ${rR}, Total = ${n}<br>
         <em>Entropy = -Σ(pi × log2 pi)</em><br>
-        <strong>Entropy Root = ${Math.trunc(t.root_entropy * 100) / 100}</strong>
+        <strong>Entropy Root = ${(Math.trunc(t.root_entropy * 10000) / 10000).toFixed(4)}</strong>
     </div>`;
 
     // 2. SPLIT CALCULATIONS
@@ -490,9 +490,9 @@ function showRuleDetail(idx) {
             html += `<div class="formula-box" style="margin-bottom:10px;">
                 <strong>${i + 2}. Split ${i + 1} — ${p.name} (${p.criteria})</strong><br>
                 Tinggi = ${cT}, Sedang = ${cS}, Rendah = ${cR}, Total = ${p.nSub}<br>
-                <em>Entropy = ${p.ent}</em><br>
-                <em>Entropy Berbobot = ${p.nSub}/${n} = ${bobot}</em><br>
-                <em>Matriks Ternormalisasi Berbobot = ${p.ent} × ${bobot} = ${ternormalisasi}</em>
+                <em>Entropy = ${(Math.trunc(p.ent * 10000) / 10000).toFixed(4)}</em><br>
+                <em>Entropy Berbobot = ${p.nSub}/${n} = ${(Math.trunc(bobot * 10000) / 10000).toFixed(4)}</em><br>
+                <em>Matriks Ternormalisasi Berbobot = ${(Math.trunc(p.ent * 10000) / 10000).toFixed(4)} × ${(Math.trunc(bobot * 10000) / 10000).toFixed(4)} = ${(Math.trunc(ternormalisasi * 10000) / 10000).toFixed(4)}</em>
             </div>`;
         });
 
@@ -504,9 +504,9 @@ function showRuleDetail(idx) {
         html += `<div class="formula-box" style="margin-bottom:10px; border-left:3px solid var(--primary);">
             <strong>5. Information Gain</strong><br>
             <em>Gain = Entropy Root – (Split1 + Split2 + Split3)</em><br>
-            Gain = ${Math.trunc(t.root_entropy * 100) / 100} – (${w1} + ${w2} + ${w3})<br>
-            <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain}</strong><br>
-            <strong>Entropy = ${t.weighted_entropy}</strong>
+            Gain = ${(Math.trunc(t.root_entropy * 10000) / 10000).toFixed(4)} – (${(Math.trunc(w1 * 10000) / 10000).toFixed(4)} + ${(Math.trunc(w2 * 10000) / 10000).toFixed(4)} + ${(Math.trunc(w3 * 10000) / 10000).toFixed(4)})<br>
+            <strong>Gain = ${(Math.trunc(t.gain * 10000) / 10000).toFixed(4)}</strong><br>
+            <strong>Entropy = ${(Math.trunc(t.weighted_entropy * 10000) / 10000).toFixed(4)}</strong>
         </div>`;
 
         // 4. RULES
@@ -535,9 +535,9 @@ function renderStep7() {
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bestTree.name}</div><div class="lbl">Pohon Terbaik</div></div>
         <div class="stat-box"><div class="val">${bestTree.target_label}</div><div class="lbl">Fitur</div></div>
-        <div class="stat-box"><div class="val">${Math.trunc(bestMae * 100) / 100}</div><div class="lbl">MAE</div></div>
-        <div class="stat-box"><div class="val">${Math.trunc(bestRmse * 100) / 100}</div><div class="lbl">RMSE</div></div>
-        <div class="stat-box"><div class="val">${Math.trunc(bestR2 * 100) / 100}</div><div class="lbl">R²</div></div>
+        <div class="stat-box"><div class="val">${(Math.trunc(bestMae * 10000) / 10000).toFixed(4)}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${(Math.trunc(bestRmse * 10000) / 10000).toFixed(4)}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${(Math.trunc(bestR2 * 10000) / 10000).toFixed(4)}</div><div class="lbl">R²</div></div>
     `;
 }
 
@@ -582,7 +582,7 @@ function renderPenentuanPohonTerbaik() {
     ppt.forEach(p => {
         const isB = p.r2 !== null && p.r2 === best.r2;
         const bg = isB ? ' style="background:#f0fdf4;"' : '';
-        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae ? Math.trunc(p.mae * 100) / 100 : '-'}</td><td>${p.rmse ? Math.floor(p.rmse * 100) / 100 : '-'}</td><td>${p.r2 ? Math.floor(p.r2 * 100) / 100 : '-'}</td></tr>`;
+        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae ? (Math.trunc(p.mae * 10000) / 10000).toFixed(4) : '-'}</td><td>${p.rmse ? (Math.trunc(p.rmse * 10000) / 10000).toFixed(4) : '-'}</td><td>${p.r2 ? (Math.trunc(p.r2 * 10000) / 10000).toFixed(4) : '-'}</td></tr>`;
     });
     tblHtml += '</tbody></table></div>';
     document.getElementById('penentuanPohonTerbaikTable').innerHTML = tblHtml;
