@@ -273,16 +273,6 @@
         <p class="desc">Perbandingan MAE, RMSE, dan R² dari 15 pohon. Pohon dengan R² tertinggi dipilih sebagai pohon terbaik.</p>
         <div id="penentuanPohonTerbaikTable"></div>
     </div>
-
-    <div class="card-clean">
-        <h6><i class='bx bx-book'></i> Aturan Pohon Terbaik</h6>
-        <div id="bab4Rules"></div>
-    </div>
-
-    <div class="card-clean">
-        <h6><i class='bx bx-calculator'></i> Perhitungan Entropy & Gain — Pohon Terbaik</h6>
-        <div id="bestTreeCalc"></div>
-    </div>
 </div>
 
 <!-- STEP 8: EVALUASI -->
@@ -555,50 +545,6 @@ function renderStep7() {
         <div class="stat-box"><div class="val">${bestRmse}</div><div class="lbl">RMSE</div></div>
         <div class="stat-box"><div class="val">${bestR2}</div><div class="lbl">R²</div></div>
     `;
-
-    document.getElementById('bab4Rules').innerHTML = bt.bab4_rules.map(r =>
-        `<div class="rule-card"><div class="rule-body">${r}</div></div>`
-    ).join('');
-
-    // Perhitungan entropy & gain untuk Pohon Terbaik
-    const t = bestTree;
-    const n = t.n_samples;
-    const rd = (t.rules_deep && t.rules_deep[0]) ? t.rules_deep[0] : null;
-    const fname = t.target_label;
-    let html = '';
-
-    const rc = t.root_counts || {};
-    html += `<div class="formula-box" style="margin-bottom:10px;">
-        <strong>1. Entropy Root</strong><br>
-        Tinggi = ${rc.Tinggi || 0}, Sedang = ${rc.Sedang || 0}, Rendah = ${rc.Rendah || 0}, Total = ${n}<br>
-        <strong>Entropy Root = ${t.root_entropy}</strong>
-    </div>`;
-
-    if (rd) {
-        const parts = [
-            {name: 'Kiri',  crit: `${fname} < ${t.threshold_low}`,       c: rd.left_counts,  nSub: rd.left_n,  ent: t.left_entropy},
-            {name: 'Tengah',crit: `${t.threshold_low} ≤ ${fname} ≤ ${t.threshold_high}`, c: rd.mid_counts, nSub: rd.mid_n, ent: t.mid_entropy},
-            {name: 'Kanan', crit: `${fname} > ${t.threshold_high}`,      c: rd.right_counts, nSub: rd.right_n, ent: t.right_entropy},
-        ];
-        parts.forEach((p, i) => {
-            const c = p.c || {};
-            const bobot = p.nSub / n;
-            html += `<div class="formula-box" style="margin-bottom:8px;">
-                <strong>${i + 2}. Split ${i + 1} — ${p.name} (${p.crit})</strong><br>
-                Tinggi = ${c.Tinggi || 0}, Sedang = ${c.Sedang || 0}, Rendah = ${c.Rendah || 0}, Total = ${p.nSub}<br>
-                Entropy = ${p.ent} | Berbobot = ${p.nSub}/${n} = ${bobot.toFixed(6)} | Ternormalisasi = ${(bobot * p.ent).toFixed(6)}
-            </div>`;
-        });
-        const w1 = (parts[0].nSub / n) * parts[0].ent;
-        const w2 = (parts[1].nSub / n) * parts[1].ent;
-        const w3 = (parts[2].nSub / n) * parts[2].ent;
-        html += `<div class="formula-box" style="border-left:3px solid var(--primary);">
-            <strong>5. Information Gain</strong><br>
-            Gain = ${t.root_entropy} – (${w1.toFixed(6)} + ${w2.toFixed(6)} + ${w3.toFixed(6)})<br>
-            <strong style="color:var(--primary);">Gain = ${t.gain}</strong> | <strong>Entropy = ${t.weighted_entropy}</strong>
-        </div>`;
-    }
-    document.getElementById('bestTreeCalc').innerHTML = html;
 }
 
 function renderStep6() {
