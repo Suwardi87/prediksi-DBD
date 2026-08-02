@@ -362,7 +362,7 @@ function renderStep0() {
 
     let tbl = '<table class="mini-tbl"><thead><tr><th>Kelas</th><th>Jumlah</th><th>%</th></tr></thead><tbody>';
     labels.forEach((l, i) => {
-        const pct = (counts[i] / d.total * 100).toFixed(1);
+        const pct = (counts[i] / d.total * 100);
         tbl += `<tr><td>${tag(l)}</td><td>${counts[i]}</td><td>${pct}%</td></tr>`;
     });
     tbl += '</tbody></table>';
@@ -412,7 +412,7 @@ function renderStep4() {
             <td>${t.n_samples}</td>
             <td>${t.n_unique}</td>
             <td>${t.n_duplicates}</td>
-            <td>${t.root_entropy.toFixed(4)}</td>
+            <td>${t.root_entropy}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -431,9 +431,9 @@ function renderStep5() {
             <td>${t.id}</td>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td>
             <td><span class="tag tag-feat">${t.target_label}</span></td>
-            <td><strong style="${gainColor}">${t.gain.toFixed(4)}</strong></td>
-            <td><strong>${t.weighted_entropy.toFixed(4)}</strong></td>
-            <td>${t.root_entropy.toFixed(4)}</td>
+            <td><strong style="${gainColor}">${t.gain}</strong></td>
+            <td><strong>${t.weighted_entropy}</strong></td>
+            <td>${t.root_entropy}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -468,7 +468,7 @@ function showRuleDetail(idx) {
         <strong>1. Entropy Root</strong><br>
         Tinggi = ${rT}, Sedang = ${rS}, Rendah = ${rR}, Total = ${n}<br>
         <em>Entropy = -Σ(pi × log2 pi)</em><br>
-        <strong>Entropy Root = ${t.root_entropy.toFixed(4)}</strong>
+        <strong>Entropy Root = ${t.root_entropy}</strong>
     </div>`;
 
     // 2. SPLIT CALCULATIONS
@@ -491,8 +491,8 @@ function showRuleDetail(idx) {
                 <strong>${i + 2}. Split ${i + 1} — ${p.name} (${p.criteria})</strong><br>
                 Tinggi = ${cT}, Sedang = ${cS}, Rendah = ${cR}, Total = ${p.nSub}<br>
                 <em>Entropy = ${p.ent}</em><br>
-                <em>Entropy Berbobot = ${p.nSub}/${n} = ${bobot.toFixed(8)}</em><br>
-                <em>Matriks Ternormalisasi Berbobot = ${p.ent} × ${bobot.toFixed(8)} = ${ternormalisasi.toFixed(6)}</em>
+                <em>Entropy Berbobot = ${p.nSub}/${n} = ${bobot}</em><br>
+                <em>Matriks Ternormalisasi Berbobot = ${p.ent} × ${bobot} = ${ternormalisasi}</em>
             </div>`;
         });
 
@@ -504,9 +504,9 @@ function showRuleDetail(idx) {
         html += `<div class="formula-box" style="margin-bottom:10px; border-left:3px solid var(--primary);">
             <strong>5. Information Gain</strong><br>
             <em>Gain = Entropy Root – (Split1 + Split2 + Split3)</em><br>
-            Gain = ${t.root_entropy.toFixed(4)} – (${w1.toFixed(6)} + ${w2.toFixed(6)} + ${w3.toFixed(6)})<br>
-            <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain.toFixed(4)}</strong><br>
-            <strong>Entropy = ${t.weighted_entropy.toFixed(4)}</strong>
+            Gain = ${t.root_entropy} – (${w1} + ${w2} + ${w3})<br>
+            <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain}</strong><br>
+            <strong>Entropy = ${t.weighted_entropy}</strong>
         </div>`;
 
         // 4. RULES
@@ -535,9 +535,9 @@ function renderStep7() {
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bestTree.name}</div><div class="lbl">Pohon Terbaik</div></div>
         <div class="stat-box"><div class="val">${bestTree.target_label}</div><div class="lbl">Fitur</div></div>
-        <div class="stat-box"><div class="val">${bestMae.toFixed(2)}</div><div class="lbl">MAE</div></div>
-        <div class="stat-box"><div class="val">${bestRmse.toFixed(3)}</div><div class="lbl">RMSE</div></div>
-        <div class="stat-box"><div class="val">${bestR2.toFixed(4)}</div><div class="lbl">R²</div></div>
+        <div class="stat-box"><div class="val">${bestMae}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${bestRmse}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${bestR2}</div><div class="lbl">R²</div></div>
     `;
 }
 
@@ -582,7 +582,7 @@ function renderPenentuanPohonTerbaik() {
     ppt.forEach(p => {
         const isB = p.r2 !== null && p.r2 === best.r2;
         const bg = isB ? ' style="background:#f0fdf4;"' : '';
-        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae ? p.mae.toFixed(2) : '-'}</td><td>${p.rmse ? p.rmse.toFixed(3) : '-'}</td><td>${p.r2 ? p.r2.toFixed(4) : '-'}</td></tr>`;
+        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae ? p.mae : '-'}</td><td>${p.rmse ? p.rmse : '-'}</td><td>${p.r2 ? p.r2 : '-'}</td></tr>`;
     });
     tblHtml += '</tbody></table></div>';
     document.getElementById('penentuanPohonTerbaikTable').innerHTML = tblHtml;
@@ -632,10 +632,10 @@ function renderStep8() {
     const f1 = 2 * precision * recall / (precision + recall) || 0;
 
     document.getElementById('statEval').innerHTML = `
-        <div class="stat-box"><div class="val" style="color:var(--primary);">${(accuracy * 100).toFixed(2)}%</div><div class="lbl">Accuracy</div></div>
-        <div class="stat-box"><div class="val" style="color:#f59e0b;">${(precision * 100).toFixed(2)}%</div><div class="lbl">Precision</div></div>
-        <div class="stat-box"><div class="val" style="color:#22c55e;">${(recall * 100).toFixed(2)}%</div><div class="lbl">Recall</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${(f1 * 100).toFixed(2)}%</div><div class="lbl">F1-Score</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--primary);">${(accuracy * 100)}%</div><div class="lbl">Accuracy</div></div>
+        <div class="stat-box"><div class="val" style="color:#f59e0b;">${(precision * 100)}%</div><div class="lbl">Precision</div></div>
+        <div class="stat-box"><div class="val" style="color:#22c55e;">${(recall * 100)}%</div><div class="lbl">Recall</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${(f1 * 100)}%</div><div class="lbl">F1-Score</div></div>
         <div class="stat-box"><div class="val" style="color:var(--success);">${tp}+${tn}</div><div class="lbl">TP / TN</div></div>
         <div class="stat-box"><div class="val" style="color:var(--danger);">${fp}+${fn}</div><div class="lbl">FP / FN</div></div>
     `;
