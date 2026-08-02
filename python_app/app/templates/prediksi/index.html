@@ -47,15 +47,6 @@ select.form-input { cursor: pointer; }
 .btn-cek:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-cek svg { width: 16px; height: 16px; }
 
-.btn-batch {
-    background: white; color: #0891B2; border: 1.5px solid #0891B2;
-    padding: 0.55rem 1.4rem; border-radius: 8px; font-weight: 600; font-size: 0.82rem;
-    cursor: pointer; transition: all 0.2s ease;
-    display: inline-flex; align-items: center; gap: 0.4rem;
-}
-.btn-batch:hover { background: #ecfeff; border-color: #0891B2; }
-.btn-batch svg { width: 14px; height: 14px; }
-
 /* Result */
 .result-card { border-left: 4px solid; }
 .result-card.rendah { border-left-color: #22c55e; }
@@ -149,17 +140,6 @@ select.form-input { cursor: pointer; }
 .reco-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
 .reco-list { margin: 0; padding-left: 1.2rem; }
 .reco-list li { font-size: 0.8rem; color: #475569; margin: 0.3rem 0; }
-
-/* Batch table */
-.batch-table { width: 100%; border-collapse: collapse; }
-.batch-table th {
-    background: #1c324f; color: white; padding: 0.65rem 0.8rem; text-align: left;
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em;
-}
-.batch-table th:first-child { border-radius: 8px 0 0 0; }
-.batch-table th:last-child { border-radius: 0 8px 0 0; }
-.batch-table td { padding: 0.5rem 0.8rem; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; color: #334155; }
-.batch-table tbody tr:hover { background: #f8fafc; }
 
 .tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
 .tag-rendah { background: #dcfce7; color: #166534; }
@@ -255,27 +235,6 @@ select.form-input { cursor: pointer; }
         </div>
     </div>
 
-    <!-- Batch -->
-    <div class="predict-card">
-        <div class="section-title">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            Prediksi Batch (10 Data Uji)
-        </div>
-        <p style="font-size:0.82rem; color:#64748b; margin-bottom:0.8rem;">Jalankan prediksi untuk seluruh data uji dari database</p>
-        <button class="btn-batch" onclick="jalankanBatch()">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Jalankan Prediksi Batch
-        </button>
-    </div>
-
-    <div class="predict-card" id="cardBatch" style="display:none;">
-        <div class="table-responsive">
-            <table class="batch-table">
-                <thead><tr><th>No</th><th>Pasien</th><th>Usia</th><th>JK</th><th>Jml Kasus</th><th>Prediksi</th><th>Aktual</th><th>Status</th></tr></thead>
-                <tbody id="batchBody"></tbody>
-            </table>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
@@ -384,24 +343,6 @@ async function cekHasil() {
     }
     btn.disabled = false;
     btn.innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> CEK HASIL';
-}
-
-async function jalankanBatch() {
-    try {
-        const resp = await fetch('/prediksi/batch', {method: 'POST'});
-        const data = await resp.json();
-        if (data.status === 'error') throw new Error(data.message);
-        document.getElementById('cardBatch').style.display = 'block';
-        let tbody = '';
-        data.data.forEach(p => {
-            tbody += `<tr><td>${p.id}</td><td>${p.nama || '-'}</td><td>${p.usia}</td><td>${p.jenis_kelamin}</td><td>${p.jumlah_kasus}</td><td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td class="${p.status_prediksi === 'Benar' ? 'status-correct' : 'status-wrong'}">${p.status_prediksi === 'Benar' ? 'Benar' : 'Salah'}</td></tr>`;
-        });
-        document.getElementById('batchBody').innerHTML = tbody;
-        document.getElementById('cardBatch').classList.add('fade-in');
-        document.getElementById('cardBatch').scrollIntoView({behavior:'smooth', block:'start'});
-    } catch(err) {
-        alert('Gagal: ' + err.message);
-    }
 }
 
 if (!document.getElementById('spin-keyframe')) {
