@@ -302,7 +302,7 @@
                     const bestBadge = isBest ? ' <span class="badge bg-success" style="font-size:0.65rem;">Terbaik</span>' : '';
                     htmlRingkasan += `<tr${isBest ? ' style="background:#def7ec;"' : ''}>
                         <td><strong>${tree.name}</strong>${bestBadge}</td>
-                        <td>${tree.root_entropy.toFixed(4)}</td>
+                        <td>${tree.root_entropy}</td>
                         <td>${tree.total_samples}</td>
                         <td>${evalData.mae ? evalData.mae.toFixed(2) : '-'}</td>
                         <td>${evalData.rmse ? evalData.rmse.toFixed(2) : '-'}</td>
@@ -330,8 +330,8 @@
     function lihatDetailPohon(idx) {
         const tree = globalTreesData[idx];
         document.getElementById('detailPohonTitle').textContent = `Detail ${tree.name}`;
-        document.getElementById('detailEntropy').textContent = tree.root_entropy.toFixed(4);
-        document.getElementById('detailGain').textContent = tree.information_gain.toFixed(4);
+        document.getElementById('detailEntropy').textContent = tree.root_entropy;
+        document.getElementById('detailGain').textContent = tree.information_gain;
         document.getElementById('detailThreshold').textContent = `t1=${tree.threshold_low || '-'}, t2=${tree.threshold_high || '-'}`;
         
         let badgesHtml = '';
