@@ -412,7 +412,7 @@ function renderStep4() {
             <td>${t.n_samples}</td>
             <td>${t.n_unique}</td>
             <td>${t.n_duplicates}</td>
-            <td>${t.root_entropy}</td>
+            <td>${Math.floor(t.root_entropy * 100000) / 100000}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -433,7 +433,7 @@ function renderStep5() {
             <td><span class="tag tag-feat">${t.target_label}</span></td>
             <td><strong style="${gainColor}">${t.gain}</strong></td>
             <td><strong>${t.weighted_entropy}</strong></td>
-            <td>${t.root_entropy}</td>
+            <td>${Math.floor(t.root_entropy * 100000) / 100000}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -468,7 +468,7 @@ function showRuleDetail(idx) {
         <strong>1. Entropy Root</strong><br>
         Tinggi = ${rT}, Sedang = ${rS}, Rendah = ${rR}, Total = ${n}<br>
         <em>Entropy = -Σ(pi × log2 pi)</em><br>
-        <strong>Entropy Root = ${t.root_entropy}</strong>
+        <strong>Entropy Root = ${Math.floor(t.root_entropy * 100000) / 100000}</strong>
     </div>`;
 
     // 2. SPLIT CALCULATIONS
@@ -504,7 +504,7 @@ function showRuleDetail(idx) {
         html += `<div class="formula-box" style="margin-bottom:10px; border-left:3px solid var(--primary);">
             <strong>5. Information Gain</strong><br>
             <em>Gain = Entropy Root – (Split1 + Split2 + Split3)</em><br>
-            Gain = ${t.root_entropy} – (${w1} + ${w2} + ${w3})<br>
+            Gain = ${Math.floor(t.root_entropy * 100000) / 100000} – (${w1} + ${w2} + ${w3})<br>
             <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain}</strong><br>
             <strong>Entropy = ${t.weighted_entropy}</strong>
         </div>`;
@@ -632,10 +632,10 @@ function renderStep8() {
     const f1 = 2 * precision * recall / (precision + recall) || 0;
 
     document.getElementById('statEval').innerHTML = `
-        <div class="stat-box"><div class="val" style="color:var(--primary);">${(accuracy * 100)}%</div><div class="lbl">Accuracy</div></div>
-        <div class="stat-box"><div class="val" style="color:#f59e0b;">${(precision * 100)}%</div><div class="lbl">Precision</div></div>
-        <div class="stat-box"><div class="val" style="color:#22c55e;">${(recall * 100)}%</div><div class="lbl">Recall</div></div>
-        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${(f1 * 100)}%</div><div class="lbl">F1-Score</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--primary);">${Math.floor(accuracy * 100)}%</div><div class="lbl">Accuracy</div></div>
+        <div class="stat-box"><div class="val" style="color:#f59e0b;">${Math.floor(precision * 100)}%</div><div class="lbl">Precision</div></div>
+        <div class="stat-box"><div class="val" style="color:#22c55e;">${Math.floor(recall * 100)}%</div><div class="lbl">Recall</div></div>
+        <div class="stat-box"><div class="val" style="color:#8b5cf6;">${Math.floor(f1 * 100)}%</div><div class="lbl">F1-Score</div></div>
         <div class="stat-box"><div class="val" style="color:var(--success);">${tp}+${tn}</div><div class="lbl">TP / TN</div></div>
         <div class="stat-box"><div class="val" style="color:var(--danger);">${fp}+${fn}</div><div class="lbl">FP / FN</div></div>
     `;
