@@ -120,7 +120,7 @@ select.form-input { cursor: pointer; }
     font-size: 0.62rem; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
 }
 .tree-branch .branch-cond { font-size: 0.7rem; color: white; font-weight: 600; margin: 0.2rem 0; }
-.tree-branch .branch-n { font-size: 0.7rem; color: rgba(255,255,255,0.8); margin: 0.15rem 0; }
+.tree-branch .branch-count { font-size: 0.85rem; color: white; font-weight: 700; margin: 0.2rem 0; }
 .tree-branch .branch-counts { 
     font-size: 0.62rem; color: rgba(255,255,255,0.85); margin-top: 0.35rem; 
     padding-top: 0.35rem; border-top: 1px solid rgba(255,255,255,0.2);
@@ -129,11 +129,6 @@ select.form-input { cursor: pointer; }
 .tree-branch .branch-counts .count-r { color: #86efac; }
 .tree-branch .branch-counts .count-s { color: #fde68a; }
 .tree-branch .branch-counts .count-t { color: #fca5a5; }
-.tree-branch .branch-majority {
-    font-size: 0.75rem; font-weight: 700; color: white; margin-top: 0.3rem;
-    padding: 2px 8px; border-radius: 4px; display: inline-block;
-    background: rgba(0,0,0,0.2);
-}
 
 /* Recommendation */
 .reco-box { background: #f8fafc; border-radius: 10px; padding: 1rem; border: 1px solid #e2e8f0; }
@@ -318,11 +313,11 @@ async function cekHasil() {
         treeHtml += '<div class="tree-branches">';
         branches.forEach(b => {
             const matched = b.key === matchedBranch ? 'matched' : '';
+            const cnt = (b.counts && b.counts[b.cls] != null) ? b.counts[b.cls] : b.n;
             treeHtml += `<div class="tree-branch branch-${b.color} ${matched}">
                 <div class="branch-label">${b.label}</div>
                 <div class="branch-cond">${b.cond}</div>
-                <div class="branch-n">n = ${b.n}</div>
-                <div class="branch-majority">${b.cls}</div>
+                <div class="branch-count">${b.cls} : ${cnt}</div>
             </div>`;
         });
         treeHtml += '</div>';
