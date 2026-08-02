@@ -102,7 +102,7 @@
 {% block content %}
 <div class="page-header">
     <h4><i class='bx bx-git-branch'></i> Proses Training — Random Forest</h4>
-    <p>Alur Random Forest: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, Pohon 11 = terbaik</p>
+    <p>Alur Random Forest: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, Pohon 6 = terbaik (R² tertinggi)</p>
 </div>
 
 <div class="step-nav" id="stepNav">
@@ -260,27 +260,27 @@
 <!-- STEP 7: POHON TERBAIK -->
 <div class="step-panel" id="step7">
     <div class="card-clean">
-        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 11 (MAE Terkecil)</h6>
+        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 6 (R² Tertinggi)</h6>
         <p class="desc">
-            <strong>Pohon 11</strong> dipilih sebagai pohon terbaik karena memiliki MAE terkecil (14.6667).
-            Pohon 11 menggunakan fitur <strong>Lama Rawat Inap</strong> dengan threshold 2.44 dan 4.68.
+            <strong>Pohon 6</strong> dipilih sebagai pohon terbaik karena memiliki R² tertinggi (-2.4378).
+            Pohon 6 menggunakan fitur <strong>Jumlah Kasus Per Bulan</strong> dengan threshold 11.39 dan 24.76.
         </p>
         <div class="stat-row" id="statBestTree"></div>
     </div>
 
     <div class="card-clean">
         <h6><i class='bx bx-table'></i> Tabel Perbandingan — Penentuan Pohon Terbaik</h6>
-        <p class="desc">Perbandingan MAE, RMSE, dan R² dari 15 pohon. Pohon dengan MAE terkecil dipilih sebagai pohon terbaik.</p>
+        <p class="desc">Perbandingan MAE, RMSE, dan R² dari 15 pohon. Pohon dengan R² tertinggi dipilih sebagai pohon terbaik.</p>
         <div id="penentuanPohonTerbaikTable"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-book'></i> Aturan Pohon 11</h6>
+        <h6><i class='bx bx-book'></i> Aturan Pohon Terbaik</h6>
         <div id="bab4Rules"></div>
     </div>
 
     <div class="card-clean">
-        <h6><i class='bx bx-calculator'></i> Perhitungan Entropy & Gain — Pohon 11</h6>
+        <h6><i class='bx bx-calculator'></i> Perhitungan Entropy & Gain — Pohon Terbaik</h6>
         <div id="bestTreeCalc"></div>
     </div>
 </div>
@@ -288,7 +288,7 @@
 <!-- STEP 8: EVALUASI -->
 <div class="step-panel" id="step8">
     <div class="card-clean">
-        <h6><i class='bx bx-line-chart'></i> Evaluasi Pohon 11 pada 10 Data Uji</h6>
+        <h6><i class='bx bx-line-chart'></i> Evaluasi Pohon Terbaik pada 10 Data Uji</h6>
         <p class="desc">Data uji: 12, 12, 7, 7, 18, 18, 18, 18, 21, 3</p>
         <div class="stat-row" id="statEval"></div>
     </div>
@@ -415,11 +415,11 @@ function renderStep4() {
         <div class="stat-box"><div class="val">${trees.length}</div><div class="lbl">Jumlah Pohon</div></div>
         <div class="stat-box"><div class="val">163</div><div class="lbl">Data per Pohon</div></div>
         <div class="stat-box"><div class="val">1</div><div class="lbl">Fitur / Pohon</div></div>
-        <div class="stat-box"><div class="val">Pohon 11</div><div class="lbl">Terbaik</div></div>
+        <div class="stat-box"><div class="val">Pohon 6</div><div class="lbl">Terbaik</div></div>
     `;
     let html = '<thead><tr><th>Pohon</th><th>Fitur</th><th>N Data</th><th>N Unik</th><th>Duplikat</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 11;
+        const isBest = t.id === 6;
         const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
         html += `<tr${rowStyle}>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">Terbaik</span>' : ''}</td>
@@ -439,7 +439,7 @@ function renderStep5() {
 
     let html = '<thead><tr><th>No</th><th>Pohon Keputusan</th><th>Fitur</th><th>Gain</th><th>Entropy</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 11;
+        const isBest = t.id === 6;
         const rowBg = isBest ? 'background:#f0fdf4;' : '';
         const gainColor = t.gain > 0.5 ? 'color:#16a34a;' : t.gain < 0 ? 'color:#dc2626;' : '';
         html += `<tr style="${rowBg} cursor:pointer;" onclick="showRuleDetail(${t.id - 1})">
@@ -472,7 +472,7 @@ function showRuleDetail(idx) {
 
     let html = `<div style="margin-bottom:14px;">
         <strong style="font-size:1rem;">${t.name}</strong>
-        ${t.id === 11 ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
+        ${t.id === 6 ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
         <span class="tag tag-feat" style="margin-left:6px;">${fname}</span>
     </div>`;
 
@@ -559,7 +559,7 @@ function renderStep7() {
         `<div class="rule-card"><div class="rule-body">${r}</div></div>`
     ).join('');
 
-    // Perhitungan entropy & gain untuk Pohon 11
+    // Perhitungan entropy & gain untuk Pohon Terbaik
     const t = bestTree;
     const n = t.n_samples;
     const rd = (t.rules_deep && t.rules_deep[0]) ? t.rules_deep[0] : null;
@@ -609,7 +609,7 @@ function renderStep6() {
         const mse = t.metrics.MSE || '-';
         const rmse = t.metrics.RMSE || '-';
         const r2 = t.metrics.R2 || '-';
-        const isBest = t.name === 'Sampel Pohon 11';
+        const isBest = t.name === 'Sampel Pohon 6';
         const bg = isBest ? ' style="background:#f0fdf4;"' : '';
         html += `<div class="card-clean"${bg}>
             <h6>${t.name} ${isBest ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}</h6>
@@ -632,14 +632,14 @@ function renderPenentuanPohonTerbaik() {
     if (!ppt || !ppt.length) return;
     let bestIdx = 0;
     ppt.forEach((p, i) => {
-        if (p.mae !== null && p.r2 !== null) {
-            if (p.mae < ppt[bestIdx].mae) bestIdx = i;
+        if (p.r2 !== null && p.r2 !== undefined) {
+            if (p.r2 > ppt[bestIdx].r2) bestIdx = i;
         }
     });
     const best = ppt[bestIdx];
     let tblHtml = '<div class="scroll-box-lg" style="max-height:450px;"><table class="mini-tbl"><thead><tr><th>No</th><th>Sampel Pohon</th><th>MAE</th><th>RMSE</th><th>R²</th></tr></thead><tbody>';
     ppt.forEach(p => {
-        const isB = p.mae !== null && p.mae === best.mae;
+        const isB = p.r2 !== null && p.r2 === best.r2;
         const bg = isB ? ' style="background:#f0fdf4;"' : '';
         tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae || '-'}</td><td>${p.rmse || '-'}</td><td>${p.r2 || '-'}</td></tr>`;
     });
