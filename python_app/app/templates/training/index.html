@@ -377,20 +377,16 @@
                 rulesHtml += `<div style="padding:6px 10px; background:#f8fafc; border-left:3px solid #7667B2; margin:4px 0; border-radius:0 6px 6px 0; font-size:0.82rem; color:#475569;">${ruleText}</div>`;
                 
                 const clsMatch = ruleText.match(/Risiko\s*=\s*(\w+)/);
-                const nMatch = ruleText.match(/n=(\d+)/);
                 const cls = clsMatch ? clsMatch[1] : '-';
-                const n = nMatch ? nMatch[1] : '0';
                 // Jumlah kelas mayoritas (seperti PDF), e.g. rule berisi  {'Rendah': 16, ...}
                 const clsCountMatch = cls !== '-' ? ruleText.match(new RegExp("'?" + cls + "'?\\s*:\\s*(\\d+)")) : null;
-                const primaryCount = clsCountMatch ? clsCountMatch[1] : n;
+                const primaryCount = clsCountMatch ? clsCountMatch[1] : '-';
                 const bl = branchLabels[i] || {label: '', name: ''};
                 
                 treeVizHtml += `<div style="flex:1;min-width:130px;max-width:170px;border-radius:12px;padding:0.85rem 0.7rem;text-align:center;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.06);background:${bl.bg};transition:all 0.2s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
                     <div style="font-size:0.62rem;color:rgba(255,255,255,0.7);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">${bl.name}</div>
                     <div style="font-size:0.7rem;color:white;font-weight:600;margin:0.2rem 0;">${bl.label}</div>
-                    <div style="font-size:0.75rem;color:white;font-weight:700;">${cls} : ${primaryCount}</div>
-                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.8);">n = ${n}</div>
-                    <div style="font-size:0.75rem;font-weight:700;color:white;margin-top:0.3rem;padding:2px 8px;border-radius:4px;display:inline-block;background:rgba(0,0,0,0.2);">${cls}</div>
+                    <div style="font-size:0.85rem;color:white;font-weight:700;">${cls} : ${primaryCount}</div>
                 </div>`;
             });
         } else {
