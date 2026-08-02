@@ -412,7 +412,7 @@ function renderStep4() {
             <td>${t.n_samples}</td>
             <td>${t.n_unique}</td>
             <td>${t.n_duplicates}</td>
-            <td>${t.root_entropy}</td>
+            <td>${t.root_entropy.toFixed(4)}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -431,9 +431,9 @@ function renderStep5() {
             <td>${t.id}</td>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td>
             <td><span class="tag tag-feat">${t.target_label}</span></td>
-            <td><strong style="${gainColor}">${t.gain}</strong></td>
-            <td><strong>${t.weighted_entropy}</strong></td>
-            <td>${t.root_entropy}</td>
+            <td><strong style="${gainColor}">${t.gain.toFixed(4)}</strong></td>
+            <td><strong>${t.weighted_entropy.toFixed(4)}</strong></td>
+            <td>${t.root_entropy.toFixed(4)}</td>
         </tr>`;
     });
     html += '</tbody>';
@@ -468,7 +468,7 @@ function showRuleDetail(idx) {
         <strong>1. Entropy Root</strong><br>
         Tinggi = ${rT}, Sedang = ${rS}, Rendah = ${rR}, Total = ${n}<br>
         <em>Entropy = -Σ(pi × log2 pi)</em><br>
-        <strong>Entropy Root = ${t.root_entropy}</strong>
+        <strong>Entropy Root = ${t.root_entropy.toFixed(4)}</strong>
     </div>`;
 
     // 2. SPLIT CALCULATIONS
@@ -504,9 +504,9 @@ function showRuleDetail(idx) {
         html += `<div class="formula-box" style="margin-bottom:10px; border-left:3px solid var(--primary);">
             <strong>5. Information Gain</strong><br>
             <em>Gain = Entropy Root – (Split1 + Split2 + Split3)</em><br>
-            Gain = ${t.root_entropy} – (${w1.toFixed(6)} + ${w2.toFixed(6)} + ${w3.toFixed(6)})<br>
-            <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain}</strong><br>
-            <strong>Entropy = ${t.weighted_entropy}</strong>
+            Gain = ${t.root_entropy.toFixed(4)} – (${w1.toFixed(6)} + ${w2.toFixed(6)} + ${w3.toFixed(6)})<br>
+            <strong style="font-size:1rem; color:var(--primary);">Gain = ${t.gain.toFixed(4)}</strong><br>
+            <strong>Entropy = ${t.weighted_entropy.toFixed(4)}</strong>
         </div>`;
 
         // 4. RULES
@@ -535,9 +535,9 @@ function renderStep7() {
     document.getElementById('statBestTree').innerHTML = `
         <div class="stat-box"><div class="val" style="font-size:1.1rem;">${bestTree.name}</div><div class="lbl">Pohon Terbaik</div></div>
         <div class="stat-box"><div class="val">${bestTree.target_label}</div><div class="lbl">Fitur</div></div>
-        <div class="stat-box"><div class="val">${bestMae}</div><div class="lbl">MAE</div></div>
-        <div class="stat-box"><div class="val">${bestRmse}</div><div class="lbl">RMSE</div></div>
-        <div class="stat-box"><div class="val">${bestR2}</div><div class="lbl">R²</div></div>
+        <div class="stat-box"><div class="val">${bestMae.toFixed(2)}</div><div class="lbl">MAE</div></div>
+        <div class="stat-box"><div class="val">${bestRmse.toFixed(3)}</div><div class="lbl">RMSE</div></div>
+        <div class="stat-box"><div class="val">${bestR2.toFixed(4)}</div><div class="lbl">R²</div></div>
     `;
 }
 
@@ -582,7 +582,7 @@ function renderPenentuanPohonTerbaik() {
     ppt.forEach(p => {
         const isB = p.r2 !== null && p.r2 === best.r2;
         const bg = isB ? ' style="background:#f0fdf4;"' : '';
-        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae || '-'}</td><td>${p.rmse || '-'}</td><td>${p.r2 || '-'}</td></tr>`;
+        tblHtml += `<tr${bg}><td>${p.no}</td><td><strong>${p.name}</strong> ${isB ? '<span class="tag tag-ok" style="font-size:0.66rem;">★ Terbaik</span>' : ''}</td><td>${p.mae ? p.mae.toFixed(2) : '-'}</td><td>${p.rmse ? p.rmse.toFixed(3) : '-'}</td><td>${p.r2 ? p.r2.toFixed(4) : '-'}</td></tr>`;
     });
     tblHtml += '</tbody></table></div>';
     document.getElementById('penentuanPohonTerbaikTable').innerHTML = tblHtml;
