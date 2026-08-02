@@ -347,18 +347,10 @@ async function cekHasil() {
         treeHtml += '<div class="tree-branches">';
         branches.forEach(b => {
             const matched = b.key === matchedBranch ? 'matched' : '';
-            let rCount = (b.counts && b.counts.Rendah) || 0;
-            let sCount = (b.counts && b.counts.Sedang) || 0;
-            let tCount = (b.counts && b.counts.Tinggi) || 0;
             treeHtml += `<div class="tree-branch branch-${b.color} ${matched}">
                 <div class="branch-label">${b.label}</div>
                 <div class="branch-cond">${b.cond}</div>
                 <div class="branch-n">n = ${b.n}</div>
-                <div class="branch-counts">
-                    <span class="count-r">Rendah: ${rCount}</span><br>
-                    <span class="count-s">Sedang: ${sCount}</span><br>
-                    <span class="count-t">Tinggi: ${tCount}</span>
-                </div>
                 <div class="branch-majority">${b.cls}</div>
             </div>`;
         });
