@@ -269,13 +269,13 @@ def _compute_split_with_thresholds(samples, feature_key, t1, t2):
     gain = root_e - weighted_e
 
     return t1, t2, gain, root_e, root_counts, {
-        'left_entropy': round(left_e, 6),
-        'mid_entropy': round(mid_e, 6),
-        'right_entropy': round(right_e, 6),
+        'left_entropy': left_e,
+        'mid_entropy': mid_e,
+        'right_entropy': right_e,
         'left_samples': len(left),
         'mid_samples': len(mid),
         'right_samples': len(right),
-        'weighted_entropy': round(weighted_e, 6),
+        'weighted_entropy': weighted_e,
     }
 
 
@@ -302,13 +302,13 @@ def _find_best_split_single_feature(samples, feature_key):
         weighted_e = (len(left) / n) * left_e + (len(mid) / n) * mid_e + (len(right) / n) * right_e
         gain = root_e - weighted_e
         return t1, t2, gain, root_e, root_counts, {
-            'left_entropy': round(left_e, 6),
-            'mid_entropy': round(mid_e, 6),
-            'right_entropy': round(right_e, 6),
+            'left_entropy': left_e,
+            'mid_entropy': mid_e,
+            'right_entropy': right_e,
             'left_samples': len(left),
             'mid_samples': len(mid),
             'right_samples': len(right),
-            'weighted_entropy': round(weighted_e, 6),
+            'weighted_entropy': weighted_e,
         }
 
     midpoints = [(values[i] + values[i + 1]) / 2.0 for i in range(len(values) - 1)]
@@ -353,13 +353,13 @@ def _find_best_split_single_feature(samples, feature_key):
     weighted_e = (len(best_left) / n) * left_e + (len(best_mid) / n) * mid_e + (len(best_right) / n) * right_e
 
     return best_t1, best_t2, best_gain, root_e, root_counts, {
-        'left_entropy': round(left_e, 6),
-        'mid_entropy': round(mid_e, 6),
-        'right_entropy': round(right_e, 6),
+        'left_entropy': left_e,
+        'mid_entropy': mid_e,
+        'right_entropy': right_e,
         'left_samples': len(best_left),
         'mid_samples': len(best_mid),
         'right_samples': len(best_right),
-        'weighted_entropy': round(weighted_e, 6),
+        'weighted_entropy': weighted_e,
     }
 
 
@@ -422,7 +422,7 @@ def _build_tree_rules_deep(samples, feature_key, depth=0, max_depth=3, fixed_t1=
         'feature': fname,
         'threshold_low': round(t1, 2),
         'threshold_high': round(t2, 2),
-        'gain': round(gain, 4),
+        'gain': gain,
         'left_class': left_majority,
         'left_counts': left_counts,
         'left_n': len(left),
@@ -691,7 +691,7 @@ def hitung():
                 bab4_entropy_after = best_split_info['weighted_entropy'] if best_split_info else 0
 
             display_gain = bab4_gain
-            display_root_entropy = round(bab4_gain + bab4_entropy_after, 6)
+            display_root_entropy = bab4_gain + bab4_entropy_after
 
             pohon_results.append({
                 'name': pohon_name,
@@ -706,8 +706,8 @@ def hitung():
                 'best_feature': best_feature,
                 'threshold_low': round(best_threshold_low, 2) if best_threshold_low is not None else None,
                 'threshold_high': round(best_threshold_high, 2) if best_threshold_high is not None else None,
-                'gain': round(display_gain, 6),
-                'gain_bab4': round(bab4_gain, 6),
+                'gain': display_gain,
+                'gain_bab4': bab4_gain,
                 'root_entropy': display_root_entropy,
                 'root_counts': {'Tinggi': best_root_counts.get('Tinggi', 0),
                                 'Sedang': best_root_counts.get('Sedang', 0),
@@ -719,10 +719,10 @@ def hitung():
                 'mid_samples': best_split_info.get('mid_samples', 0) if best_split_info else 0,
                 'right_samples': best_split_info.get('right_samples', 0) if best_split_info else 0,
                 'weighted_entropy': best_split_info.get('weighted_entropy', 0) if best_split_info else 0,
-                'entropy_bab4': round(bab4_entropy_after, 6),
+                'entropy_bab4': bab4_entropy_after,
                 'rules_text': rules_text,
                 'rules_deep': rules_deep,
-                'excel_entropy': round(excel_entropy, 6) if excel_entropy is not None else None,
+                'excel_entropy': excel_entropy if excel_entropy is not None else None,
             })
 
         penentuan_data = _read_penentuan_pohon_terbaik(wb)
