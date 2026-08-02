@@ -3,124 +3,273 @@
 
 {% block extra_css %}
 <style>
-.page-title { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); margin-bottom: 0.25rem; }
-.page-subtitle { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 1.5rem; }
-.card-title-custom { font-size: 1rem; font-weight: 700; color: var(--gray-800); margin-bottom: 1rem; }
-.text-sm { font-size: 0.85rem; color: var(--gray-600); }
-.btn-dark-blue { background-color: #1c324f; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 500; font-size: 0.85rem; }
-.btn-dark-blue:hover { background-color: #0f172a; color: white; }
-.form-input { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.85rem; width: 100%; }
-.form-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
-.form-label-custom { font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.25rem; font-weight: 500; }
-.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+
+.predict-page { font-family: 'Figtree', sans-serif; }
+.predict-page .page-title { font-size: 1.5rem; font-weight: 700; color: #164E63; margin-bottom: 0.25rem; }
+.predict-page .page-subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+
+.predict-card {
+    background: white; border-radius: 12px; padding: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+    border: 1px solid #e2e8f0; margin-bottom: 1.25rem;
+    transition: box-shadow 0.2s ease;
+}
+.predict-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+.predict-card .section-title {
+    font-size: 0.95rem; font-weight: 700; color: #164E63; margin-bottom: 1.1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.predict-card .section-title svg { width: 18px; height: 18px; color: #0891B2; }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.9rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.form-label { font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em; }
+.form-input {
+    background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    padding: 0.6rem 0.75rem; font-size: 0.88rem; font-family: 'Figtree', sans-serif;
+    color: #1e293b; transition: all 0.2s ease; width: 100%;
+}
+.form-input:focus { border-color: #0891B2; background: white; box-shadow: 0 0 0 3px rgba(8,145,178,0.12); outline: none; }
+.form-input::placeholder { color: #cbd5e1; }
+select.form-input { cursor: pointer; }
+
+.btn-cek {
+    background: linear-gradient(135deg, #0891B2, #059669); color: white; border: none;
+    padding: 0.7rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem;
+    font-family: 'Figtree', sans-serif; cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(8,145,178,0.25);
+}
+.btn-cek:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(8,145,178,0.35); }
+.btn-cek:active { transform: translateY(0); }
+.btn-cek:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-cek svg { width: 16px; height: 16px; }
+
+.btn-batch {
+    background: white; color: #0891B2; border: 1.5px solid #0891B2;
+    padding: 0.55rem 1.4rem; border-radius: 8px; font-weight: 600; font-size: 0.82rem;
+    cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.btn-batch:hover { background: #ecfeff; border-color: #0891B2; }
+.btn-batch svg { width: 14px; height: 14px; }
+
+/* Result */
+.result-card { border-left: 4px solid; }
+.result-card.rendah { border-left-color: #22c55e; }
+.result-card.sedang { border-left-color: #f59e0b; }
+.result-card.tinggi { border-left-color: #ef4444; }
+
+.result-hero {
+    display: flex; align-items: center; gap: 1rem; padding: 1.2rem;
+    border-radius: 10px; margin-bottom: 1rem;
+}
+.result-hero.rendah { background: linear-gradient(135deg, #dcfce7, #f0fdf4); }
+.result-hero.sedang { background: linear-gradient(135deg, #fef3c7, #fffbeb); }
+.result-hero.tinggi { background: linear-gradient(135deg, #fee2e2, #fef2f2); }
+
+.result-hero .risk-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.result-hero.rendah .risk-icon { background: #22c55e; }
+.result-hero.sedang .risk-icon { background: #f59e0b; }
+.result-hero.tinggi .risk-icon { background: #ef4444; }
+.result-hero .risk-icon svg { width: 28px; height: 28px; color: white; }
+
+.result-hero .risk-info { flex: 1; }
+.result-hero .risk-label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.result-hero .risk-value { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+.result-hero.rendah .risk-value { color: #166534; }
+.result-hero.sedang .risk-value { color: #92400e; }
+.result-hero.tinggi .risk-value { color: #991b1b; }
+.result-hero .patient-info { font-size: 0.78rem; color: #64748b; margin-top: 0.2rem; }
+
+/* Rules */
+.rule-item {
+    background: #f8fafc; border-left: 3px solid #0891B2;
+    padding: 0.6rem 0.9rem; margin: 0.4rem 0; border-radius: 0 6px 6px 0;
+    font-size: 0.8rem; color: #475569; transition: all 0.2s ease;
+}
+.rule-item:hover { background: #ecfeff; border-left-color: #059669; }
+.rule-item.active { background: #ecfeff; border-left-color: #059669; font-weight: 600; color: #164E63; }
+
+/* Tree viz */
+.tree-container { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem 0; }
+.tree-root {
+    background: #1c324f; color: white; padding: 0.7rem 1.5rem; border-radius: 10px;
+    text-align: center; box-shadow: 0 2px 8px rgba(28,50,79,0.2);
+}
+.tree-root .root-label { font-weight: 700; font-size: 0.85rem; }
+.tree-root .root-thresholds { font-size: 0.7rem; opacity: 0.8; margin-top: 2px; }
+.tree-branches { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; width: 100%; }
+.tree-branch {
+    flex: 1; min-width: 130px; max-width: 180px; border-radius: 10px; padding: 0.9rem;
+    text-align: center; border: 2px solid; transition: all 0.2s ease; position: relative;
+}
+.tree-branch:hover { transform: translateY(-2px); }
+.tree-branch.rendah { border-color: #22c55e40; background: #f0fdf4; }
+.tree-branch.sedang { border-color: #f59e0b40; background: #fffbeb; }
+.tree-branch.tinggi { border-color: #ef444440; background: #fef2f2; }
+.tree-branch.matched { box-shadow: 0 0 0 3px rgba(8,145,178,0.2); }
+.tree-branch .branch-cond { font-size: 0.68rem; color: #94a3b8; font-weight: 600; }
+.tree-branch .branch-cls { font-weight: 700; font-size: 0.95rem; margin: 0.3rem 0; }
+.tree-branch.rendah .branch-cls { color: #166534; }
+.tree-branch.sedang .branch-cls { color: #92400e; }
+.tree-branch.tinggi .branch-cls { color: #991b1b; }
+.tree-branch .branch-n { font-size: 0.7rem; color: #64748b; }
+.tree-branch .branch-detail { font-size: 0.62rem; color: #94a3b8; margin-top: 0.2rem; }
+
+/* Connector */
+.tree-connector {
+    width: 2px; height: 20px; background: #cbd5e1;
+}
+
+/* Recommendation */
+.reco-box { background: #f8fafc; border-radius: 10px; padding: 1rem; border: 1px solid #e2e8f0; }
+.reco-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+.reco-list { margin: 0; padding-left: 1.2rem; }
+.reco-list li { font-size: 0.8rem; color: #475569; margin: 0.3rem 0; }
+
+/* Batch table */
+.batch-table { width: 100%; border-collapse: collapse; }
+.batch-table th {
+    background: #1c324f; color: white; padding: 0.65rem 0.8rem; text-align: left;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em;
+}
+.batch-table th:first-child { border-radius: 8px 0 0 0; }
+.batch-table th:last-child { border-radius: 0 8px 0 0; }
+.batch-table td { padding: 0.5rem 0.8rem; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; color: #334155; }
+.batch-table tbody tr:hover { background: #f8fafc; }
+
+.tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
 .tag-rendah { background: #dcfce7; color: #166534; }
 .tag-sedang { background: #fef3c7; color: #92400e; }
 .tag-tinggi { background: #fee2e2; color: #991b1b; }
-.result-box { border-radius: 8px; padding: 1.5rem; margin-top: 1rem; }
-.rule-box { background: #f8fafc; border-left: 3px solid var(--primary); padding: 0.75rem 1rem; margin: 0.5rem 0; font-size: 0.82rem; border-radius: 0 6px 6px 0; }
-.tree-viz { display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; }
-.tree-node { border-radius: 8px; padding: 1rem; text-align: center; min-width: 120px; }
-.table-dark-header th { background-color: #1c324f !important; color: white !important; font-size: 0.75rem; font-weight: 500; padding: 0.75rem 1rem; }
-.table td { font-size: 0.8rem; vertical-align: middle; padding: 0.5rem 1rem; }
+
+.status-correct { color: #22c55e; font-weight: 700; }
+.status-wrong { color: #ef4444; font-weight: 700; }
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div>
+<div class="predict-page">
     <h2 class="page-title">Prediksi Risiko DBD</h2>
-    <p class="page-subtitle">Cek prediksi tingkat risiko pasien berdasarkan jumlah kasus per bulan</p>
-</div>
+    <p class="page-subtitle">Cek tingkat risiko penyebaran DBD berdasarkan jumlah kasus per bulan</p>
 
-<!-- Form Prediksi Individual -->
-<div class="card mb-3" style="border-radius: 8px;">
-    <div class="card-body p-4">
-        <h5 class="card-title-custom"><i class='bx bx-user'></i> Informasi Pasien</h5>
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="form-label-custom">Nama Pasien</div>
-                <input type="text" id="inputNama" class="form-input" placeholder="Masukkan nama pasien">
+    <!-- Form Input -->
+    <div class="predict-card">
+        <div class="section-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            Informasi Pasien & Data Kasus
+        </div>
+        <div class="form-grid mb-3">
+            <div class="form-group">
+                <label class="form-label">Nama Pasien</label>
+                <input type="text" id="inputNama" class="form-input" placeholder="Nama lengkap">
             </div>
-            <div class="col-md-2">
-                <div class="form-label-custom">Usia (tahun)</div>
-                <input type="number" id="inputUsia" class="form-input" placeholder="0-120">
+            <div class="form-group">
+                <label class="form-label">Usia (tahun)</label>
+                <input type="number" id="inputUsia" class="form-input" placeholder="0-120" min="0" max="120">
             </div>
-            <div class="col-md-2">
-                <div class="form-label-custom">Jenis Kelamin</div>
+            <div class="form-group">
+                <label class="form-label">Jenis Kelamin</label>
                 <select id="inputJK" class="form-input">
                     <option value="L">Laki-laki</option>
                     <option value="P">Perempuan</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <div class="form-label-custom">Lama Rawat (hari)</div>
-                <input type="number" id="inputLamaRawat" class="form-input" placeholder="1-30" value="3">
+            <div class="form-group">
+                <label class="form-label">Lama Rawat (hari)</label>
+                <input type="number" id="inputLamaRawat" class="form-input" placeholder="1-30" min="1" value="3">
             </div>
-            <div class="col-md-2">
-                <div class="form-label-custom">Jumlah Kasus/Bulan</div>
-                <input type="number" id="inputJumlahKasus" class="form-input" placeholder="0-100">
+            <div class="form-group">
+                <label class="form-label">Jumlah Kasus / Bulan</label>
+                <input type="number" id="inputJumlahKasus" class="form-input" placeholder="0-100" min="0">
             </div>
         </div>
-        <div class="mt-3">
-            <button class="btn btn-dark-blue" id="btnCek" onclick="cekHasil()">
-                <i class='bx bx-search'></i> CEK HASIL
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Hasil Prediksi Individual -->
-<div id="cardHasil" style="display:none;">
-    <div class="card mb-4" style="border-radius: 8px;">
-        <div class="card-body p-4">
-            <h5 class="card-title-custom"><i class='bx bx-check-shield'></i> Detail Hasil Klasifikasi (Rule Base)</h5>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="result-box" id="riskResultBox">
-                        <div class="text-sm mb-1">Tingkat Risiko</div>
-                        <div style="font-size: 2rem; font-weight: 700;" id="riskLevel">-</div>
-                        <div class="text-sm mt-1" id="riskPasienInfo"></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-sm mb-2"><strong>Dasar Keputusan (Rules) — Pohon <span id="pohonNum"></span></strong></div>
-                    <div id="rulesContainer"></div>
-                </div>
-            </div>
-
-            <div class="text-sm mb-2 mt-3"><strong>Visualisasi Pohon (Threshold)</strong></div>
-            <div class="tree-viz" id="treeViz"></div>
-
-            <div class="text-sm mb-2 mt-3"><strong>Rekomendasi Medis</strong></div>
-            <div id="rekomendasiBox" style="background:#f8fafc; border-radius:8px; padding:1rem;"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Batch Prediction -->
-<div class="card mb-3" style="border-radius: 8px;">
-    <div class="card-body p-4">
-        <h5 class="card-title-custom"><i class='bx bx-table'></i> Prediksi Batch (Data Uji)</h5>
-        <p class="text-sm mb-3">Jalankan prediksi untuk 10 data uji dari database</p>
-        <button class="btn btn-dark-blue" onclick="jalankanBatch()">
-            <i class='bx bx-play-circle'></i> Jalankan Prediksi Batch
+        <button class="btn-cek" id="btnCek" onclick="cekHasil()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            CEK HASIL
         </button>
     </div>
-</div>
 
-<div class="card mb-4" id="cardBatch" style="display: none; border-radius: 8px;">
-    <div class="card-body p-4">
-        <h5 class="card-title-custom mb-3">Hasil Prediksi Batch</h5>
+    <!-- Hasil -->
+    <div id="cardHasil" style="display:none;">
+        <div class="predict-card result-card fade-in" id="resultCard">
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Detail Hasil Klasifikasi (Rule Base)
+            </div>
+
+            <div class="result-hero" id="resultHero">
+                <div class="risk-icon" id="resultIcon"></div>
+                <div class="risk-info">
+                    <div class="risk-label">Tingkat Risiko</div>
+                    <div class="risk-value" id="riskLevel">-</div>
+                    <div class="patient-info" id="patientInfo"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div style="font-size:0.78rem; font-weight:700; color:#164E63; margin-bottom:0.5rem;">
+                        Dasar Keputusan — Pohon <span id="pohonNum"></span>
+                    </div>
+                    <div id="rulesContainer"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div style="font-size:0.78rem; font-weight:700; color:#164E63; margin-bottom:0.5rem;">
+                        Visualisasi Pohon Keputusan
+                    </div>
+                    <div class="tree-container" id="treeContainer"></div>
+                </div>
+            </div>
+
+            <div style="font-size:0.78rem; font-weight:700; color:#164E63; margin-bottom:0.5rem; margin-top:0.5rem;">
+                Rekomendasi Medis
+            </div>
+            <div class="reco-box" id="recoBox"></div>
+        </div>
+    </div>
+
+    <!-- Batch -->
+    <div class="predict-card">
+        <div class="section-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            Prediksi Batch (10 Data Uji)
+        </div>
+        <p style="font-size:0.82rem; color:#64748b; margin-bottom:0.8rem;">Jalankan prediksi untuk seluruh data uji dari database</p>
+        <button class="btn-batch" onclick="jalankanBatch()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Jalankan Prediksi Batch
+        </button>
+    </div>
+
+    <div class="predict-card" id="cardBatch" style="display:none;">
         <div class="table-responsive">
-            <table class="table table-dark-header" id="batchTable">
-                <thead><tr><th>No</th><th>Pasien</th><th>Usia</th><th>JK</th><th>Jumlah Kasus</th><th>Prediksi</th><th>Aktual</th><th>Status</th></tr></thead>
+            <table class="batch-table">
+                <thead><tr><th>No</th><th>Pasien</th><th>Usia</th><th>JK</th><th>Jml Kasus</th><th>Prediksi</th><th>Aktual</th><th>Status</th></tr></thead>
                 <tbody id="batchBody"></tbody>
             </table>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
+const ICONS = {
+    check: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+    warning: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+    alert: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+};
+
 function renderTag(label) {
     if (!label) return '-';
     const cls = label === 'Rendah' ? 'tag-rendah' : label === 'Sedang' ? 'tag-sedang' : 'tag-tinggi';
@@ -133,77 +282,82 @@ async function cekHasil() {
     const usia = parseInt(document.getElementById('inputUsia').value) || 0;
     const jk = document.getElementById('inputJK').value;
     const lamaRawat = parseInt(document.getElementById('inputLamaRawat').value) || 0;
-    const jumlahKasus = parseInt(document.getElementById('inputJumlahKasus').value) || 0;
+    const jkVal = document.getElementById('inputJumlahKasus').value;
 
-    if (!jumlahKasus && jumlahKasus !== 0) {
-        alert('Mohon isi Jumlah Kasus');
-        return;
-    }
+    if (jkVal === '') { alert('Mohon isi Jumlah Kasus Per Bulan'); return; }
 
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Memproses...";
     btn.disabled = true;
+    btn.innerHTML = '<svg class="animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px;animation:spin 1s linear infinite"><path stroke-linecap="round" d="M12 2a10 10 0 0110 10"/></svg> Memproses...';
 
     try {
         const resp = await fetch('/prediksi/cek', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({nama, usia, jenis_kelamin: jk, lama_rawat: lamaRawat, jumlah_kasus: jumlahKasus})
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nama, usia, jenis_kelamin: jk, lama_rawat: lamaRawat, jumlah_kasus: parseInt(jkVal)})
         });
         const data = await resp.json();
         if (data.status === 'error') throw new Error(data.message);
 
-        const box = document.getElementById('riskResultBox');
-        const level = document.getElementById('riskLevel');
-        level.textContent = data.tingkat_risiko;
-        level.style.color = data.risk_color;
-        box.style.background = data.risk_color + '15';
-        box.style.border = `2px solid ${data.risk_color}`;
-        document.getElementById('riskPasienInfo').textContent = `${nama} — Usia ${usia} thn, JK ${jk}, JKasus ${jumlahKasus}`;
+        const risk = data.tingkat_risiko.toLowerCase();
+        const hero = document.getElementById('resultHero');
+        const card = document.getElementById('resultCard');
+        const icon = document.getElementById('resultIcon');
+        [hero, card].forEach(el => el.className = el.className.replace(/\b(rendah|sedang|tinggi)\b/g, ''));
+        hero.classList.add(risk);
+        card.classList.add(risk);
+        icon.innerHTML = risk === 'rendah' ? ICONS.check : risk === 'sedang' ? ICONS.warning : ICONS.alert;
 
+        document.getElementById('riskLevel').textContent = data.tingkat_risiko;
+        document.getElementById('patientInfo').textContent = `${nama} — Usia ${usia} thn, JK ${jk}, Jumlah Kasus ${data.jumlah_kasus}`;
         document.getElementById('pohonNum').textContent = data.pohon;
 
         let rulesHtml = '';
         data.rules.forEach(rule => {
-            const isActive = rule.includes(data.branch_condition.split(' ')[0]) || rule.includes(data.tingkat_risiko);
-            rulesHtml += `<div class="rule-box" style="${isActive ? 'border-left-color:' + data.risk_color + ';' : ''}">${rule}</div>`;
+            const isActive = rule.includes(data.tingkat_risiko);
+            rulesHtml += `<div class="rule-item ${isActive ? 'active' : ''}">${rule}</div>`;
         });
         document.getElementById('rulesContainer').innerHTML = rulesHtml;
 
         const bi = data.branch_info;
         const t1 = data.thresholds[0], t2 = data.thresholds[1];
         const branches = [
-            {label: `< ${t1}`, cls: bi.left.cls, n: bi.left.n, color: '#3b82f6'},
-            {label: `${t1} - ${t2}`, cls: bi.mid.cls, n: bi.mid.n, color: '#22c55e'},
-            {label: `> ${t2}`, cls: bi.right.cls, n: bi.right.n, color: '#f59e0b'},
+            {cond: `< ${t1}`, cls: bi.left.cls, n: bi.left.n, detail: bi.left.counts, key: 'left'},
+            {cond: `${t1} - ${t2}`, cls: bi.mid.cls, n: bi.mid.n, detail: bi.mid.counts, key: 'mid'},
+            {cond: `> ${t2}`, cls: bi.right.cls, n: bi.right.n, detail: bi.right.counts, key: 'right'},
         ];
-        let treeHtml = '';
+        const matchedBranch = data.branch === 'Kiri' ? 'left' : data.branch === 'Tengah' ? 'mid' : 'right';
+        let treeHtml = '<div class="tree-root"><div class="root-label">Jumlah Kasus Per Bulan</div>';
+        treeHtml += `<div class="root-thresholds">Total: 163 data — Threshold: ${t1} / ${t2}</div></div>`;
+        treeHtml += '<div class="tree-connector"></div><div class="tree-branches">';
         branches.forEach(b => {
-            const isMatch = b.cls === data.tingkat_risiko && (
-                (data.branch === 'Kiri' && b.label.includes('<')) ||
-                (data.branch === 'Tengah' && b.label.includes('-')) ||
-                (data.branch === 'Kanan' && b.label.includes('>'))
-            );
-            treeHtml += `<div class="tree-node" style="background:${b.color}15; border:2px solid ${isMatch ? data.risk_color : b.color + '40'};">
-                <div style="font-size:0.7rem; color:#64748b;">${b.label}</div>
-                <div style="font-weight:700; font-size:0.9rem; margin:4px 0;">${b.cls}</div>
-                <div style="font-size:0.7rem; color:#64748b;">n=${b.n}</div>
+            const clsLower = b.cls.toLowerCase();
+            const matched = b.key === matchedBranch ? 'matched' : '';
+            let detailStr = '';
+            if (b.detail) { detailStr = Object.entries(b.detail).map(([k,v]) => `${k}:${v}`).join(' · '); }
+            treeHtml += `<div class="tree-branch ${clsLower} ${matched}">
+                <div class="branch-cond">${b.cond}</div>
+                <div class="branch-cls">${b.cls}</div>
+                <div class="branch-n">n = ${b.n}</div>
+                <div class="branch-detail">${detailStr}</div>
             </div>`;
         });
-        document.getElementById('treeViz').innerHTML = treeHtml;
+        treeHtml += '</div>';
+        document.getElementById('treeContainer').innerHTML = treeHtml;
 
         const rec = data.recommendation;
-        let recHtml = `<div style="font-weight:600; color:${data.risk_color}; margin-bottom:6px;">${rec.status}</div><ul style="margin:0; padding-left:1.2rem;">`;
-        rec.actions.forEach(a => { recHtml += `<li style="font-size:0.82rem; margin:2px 0;">${a}</li>`; });
+        const recColor = risk === 'rendah' ? '#166534' : risk === 'sedang' ? '#92400e' : '#991b1b';
+        let recHtml = `<div class="reco-title" style="color:${recColor}">${rec.status}</div><ul class="reco-list">`;
+        rec.actions.forEach(a => { recHtml += `<li>${a}</li>`; });
         recHtml += '</ul>';
-        document.getElementById('rekomendasiBox').innerHTML = recHtml;
+        document.getElementById('recoBox').innerHTML = recHtml;
 
-        document.getElementById('cardHasil').style.display = 'block';
-        document.getElementById('cardHasil').scrollIntoView({behavior: 'smooth'});
+        const cardHasil = document.getElementById('cardHasil');
+        cardHasil.style.display = 'block';
+        cardHasil.scrollIntoView({behavior: 'smooth', block: 'start'});
     } catch(err) {
         alert('Gagal: ' + err.message);
     }
-    btn.innerHTML = "<i class='bx bx-search'></i> CEK HASIL";
     btn.disabled = false;
+    btn.innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> CEK HASIL';
 }
 
 async function jalankanBatch() {
@@ -211,25 +365,24 @@ async function jalankanBatch() {
         const resp = await fetch('/prediksi/batch', {method: 'POST'});
         const data = await resp.json();
         if (data.status === 'error') throw new Error(data.message);
-
         document.getElementById('cardBatch').style.display = 'block';
         let tbody = '';
         data.data.forEach(p => {
-            tbody += `<tr>
-                <td>${p.id}</td>
-                <td>${p.nama || '-'}</td>
-                <td>${p.usia}</td>
-                <td>${p.jenis_kelamin}</td>
-                <td>${p.jumlah_kasus}</td>
-                <td>${renderTag(p.final_prediction)}</td>
-                <td>${renderTag(p.aktual)}</td>
-                <td>${p.status_prediksi === 'Benar' ? '<span style="color:green">✓</span>' : '<span style="color:red">✗</span>'}</td>
-            </tr>`;
+            tbody += `<tr><td>${p.id}</td><td>${p.nama || '-'}</td><td>${p.usia}</td><td>${p.jenis_kelamin}</td><td>${p.jumlah_kasus}</td><td>${renderTag(p.final_prediction)}</td><td>${renderTag(p.aktual)}</td><td class="${p.status_prediksi === 'Benar' ? 'status-correct' : 'status-wrong'}">${p.status_prediksi === 'Benar' ? 'Benar' : 'Salah'}</td></tr>`;
         });
         document.getElementById('batchBody').innerHTML = tbody;
+        document.getElementById('cardBatch').classList.add('fade-in');
+        document.getElementById('cardBatch').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(err) {
         alert('Gagal: ' + err.message);
     }
+}
+
+if (!document.getElementById('spin-keyframe')) {
+    const s = document.createElement('style');
+    s.id = 'spin-keyframe';
+    s.textContent = '@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }';
+    document.head.appendChild(s);
 }
 </script>
 {% endblock %}
