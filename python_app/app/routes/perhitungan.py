@@ -60,13 +60,18 @@ def _read_data_dbd(wb):
     if 'Data_DBD' not in wb.sheetnames:
         return []
     ws = wb['Data_DBD']
-    headers = [ws.cell(row=1, column=c).value for c in range(1, ws.max_column + 1)]
+    seen_cols = set()
+    headers = []
+    for c in range(1, ws.max_column + 1):
+        h = ws.cell(row=1, column=c).value
+        if h and h in COL_MAP and COL_MAP[h] not in seen_cols:
+            headers.append((c, COL_MAP[h]))
+            seen_cols.add(COL_MAP[h])
     data = []
     for r in range(2, ws.max_row + 1):
         row = {}
-        for c, h in enumerate(headers):
-            if h in COL_MAP:
-                row[COL_MAP[h]] = ws.cell(row=r, column=c + 1).value
+        for c, feat_name in headers:
+            row[feat_name] = ws.cell(row=r, column=c).value
         if row.get('tingkat_risiko') in LABEL_ENCODE:
             data.append(row)
         else:
