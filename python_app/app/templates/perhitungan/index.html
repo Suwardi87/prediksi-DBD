@@ -102,7 +102,7 @@
 {% block content %}
 <div class="page-header">
     <h4><i class='bx bx-git-branch'></i> Proses Training — Random Forest</h4>
-    <p>Alur Random Forest: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, Pohon 6 = terbaik (R² tertinggi)</p>
+    <p>Alur Random Forest: 163 data, 4 fitur (X1=Usia, X2=LamaRawat, X3=JK, X4=JumlahKasus), 15 pohon, <span id="hdrBestTree">Pohon terbaik</span> (R² tertinggi)</p>
 </div>
 
 <div class="step-nav" id="stepNav">
@@ -260,10 +260,10 @@
 <!-- STEP 7: POHON TERBAIK -->
 <div class="step-panel" id="step7">
     <div class="card-clean">
-        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — Pohon 6 (R² Tertinggi)</h6>
+        <h6><i class='bx bx-trophy'></i> Pohon Terbaik — <span id="hdrBestName">Pohon Terbaik</span> (R² Tertinggi)</h6>
         <p class="desc">
-            <strong>Pohon 6</strong> dipilih sebagai pohon terbaik karena memiliki R² tertinggi (-2.4378).
-            Pohon 6 menggunakan fitur <strong>Jumlah Kasus Per Bulan</strong> dengan threshold 11.39 dan 24.76.
+            <strong id="hdrBestName2">Pohon terbaik</strong> dipilih sebagai pohon terbaik karena memiliki R² tertinggi <span id="hdrBestR2">(-)</span>.
+            Menggunakan fitur <strong>Jumlah Kasus Per Bulan</strong> dengan threshold <span id="hdrBestThr">-</span>.
         </p>
         <div class="stat-row" id="statBestTree"></div>
     </div>
@@ -321,6 +321,7 @@
 const STEPS = ['Data Latih', 'Data Uji', 'Pemilihan Fitur', 'Encoding', 'Bootstrap', 'Pohon Keputusan', 'Perhitungan RF', 'Pohon Terbaik', 'Evaluasi'];
 let currentStep = 0;
 let DATA = null;
+let BEST_TREE_ID = null;
 let chartInstance = null;
 
 function goStep(n) {
@@ -415,11 +416,11 @@ function renderStep4() {
         <div class="stat-box"><div class="val">${trees.length}</div><div class="lbl">Jumlah Pohon</div></div>
         <div class="stat-box"><div class="val">163</div><div class="lbl">Data per Pohon</div></div>
         <div class="stat-box"><div class="val">1</div><div class="lbl">Fitur / Pohon</div></div>
-        <div class="stat-box"><div class="val">Pohon 6</div><div class="lbl">Terbaik</div></div>
+        <div class="stat-box"><div class="val" id="statBestTreeName">-</div><div class="lbl">Terbaik</div></div>
     `;
     let html = '<thead><tr><th>Pohon</th><th>Fitur</th><th>N Data</th><th>N Unik</th><th>Duplikat</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 6;
+        const isBest = t.id === BEST_TREE_ID;
         const rowStyle = isBest ? ' style="background:#f0fdf4;"' : '';
         html += `<tr${rowStyle}>
             <td><strong>${t.name}</strong> ${isBest ? '<span class="tag tag-ok" style="font-size:0.66rem;">Terbaik</span>' : ''}</td>
@@ -439,7 +440,7 @@ function renderStep5() {
 
     let html = '<thead><tr><th>No</th><th>Pohon Keputusan</th><th>Fitur</th><th>Gain</th><th>Entropy</th><th>Root Entropy</th></tr></thead><tbody>';
     trees.forEach(t => {
-        const isBest = t.id === 6;
+        const isBest = t.id === BEST_TREE_ID;
         const rowBg = isBest ? 'background:#f0fdf4;' : '';
         const gainColor = t.gain > 0.5 ? 'color:#16a34a;' : t.gain < 0 ? 'color:#dc2626;' : '';
         html += `<tr style="${rowBg} cursor:pointer;" onclick="showRuleDetail(${t.id - 1})">
@@ -472,7 +473,7 @@ function showRuleDetail(idx) {
 
     let html = `<div style="margin-bottom:14px;">
         <strong style="font-size:1rem;">${t.name}</strong>
-        ${t.id === 6 ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
+        ${t.id === BEST_TREE_ID ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}
         <span class="tag tag-feat" style="margin-left:6px;">${fname}</span>
     </div>`;
 
@@ -544,7 +545,7 @@ function renderStep7() {
     let bestMae = '-', bestRmse = '-', bestR2 = '-';
     if (ppt && ppt.length) {
         let bi = 0;
-        ppt.forEach((p, i) => { if (p.mae !== null && p.mae < ppt[bi].mae) bi = i; });
+        ppt.forEach((p, i) => { if (p.r2 !== null && p.r2 !== undefined && p.r2 > (ppt[bi].r2 || -999999)) bi = i; });
         bestMae = ppt[bi].mae; bestRmse = ppt[bi].rmse; bestR2 = ppt[bi].r2;
     }
     document.getElementById('statBestTree').innerHTML = `
@@ -609,7 +610,7 @@ function renderStep6() {
         const mse = t.metrics.MSE || '-';
         const rmse = t.metrics.RMSE || '-';
         const r2 = t.metrics.R2 || '-';
-        const isBest = t.name === 'Sampel Pohon 6';
+        const isBest = t.name === 'Sampel Pohon ' + BEST_TREE_ID;
         const bg = isBest ? ' style="background:#f0fdf4;"' : '';
         html += `<div class="card-clean"${bg}>
             <h6>${t.name} ${isBest ? '<span class="tag tag-ok">★ Terbaik</span>' : ''}</h6>
@@ -716,6 +717,25 @@ async function jalankanPerhitungan() {
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         DATA = await resp.json();
         if (DATA.status === 'error') throw new Error(DATA.message);
+
+        BEST_TREE_ID = DATA.step5.best_tree ? DATA.step5.best_tree.id : 6;
+
+        const hdrName = DATA.step5.best_tree ? DATA.step5.best_tree.name : 'Pohon Terbaik';
+        const elHdr = document.getElementById('hdrBestTree'); if (elHdr) elHdr.textContent = hdrName + ' = terbaik';
+        const elH2 = document.getElementById('hdrBestName'); if (elH2) elH2.textContent = hdrName;
+        const elH2b = document.getElementById('hdrBestName2'); if (elH2b) elH2b.textContent = hdrName;
+        const elR2 = document.getElementById('hdrBestR2');
+        if (elR2 && DATA.penentuan_pohon_terbaik) {
+            const best = DATA.penentuan_pohon_terbaik.find(p => p.no === BEST_TREE_ID);
+            if (best) elR2.textContent = '(' + best.r2 + ')';
+        }
+        const elThr = document.getElementById('hdrBestThr');
+        if (elThr && DATA.step5.best_tree) {
+            const bt = DATA.step5.best_tree;
+            elThr.textContent = bt.threshold_low + ' dan ' + bt.threshold_high;
+        }
+        const elStatBT = document.getElementById('statBestTreeName');
+        if (elStatBT) elStatBT.textContent = hdrName;
 
         renderStep0();
         renderStep1();
