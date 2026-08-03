@@ -198,6 +198,7 @@ def import_excel():
             col_rawat = 'Lama Rawat Inap' if 'Lama Rawat Inap' in df.columns else None
             col_jk = 'Jenis Kelamin' if 'Jenis Kelamin' in df.columns else None
             col_no = 'No' if 'No' in df.columns else None
+            col_kasus = 'Jumlah Kasus Perbulan' if 'Jumlah Kasus Perbulan' in df.columns else None
             
             if not all([col_nama, col_usia, col_rawat, col_jk]):
                 missing = []
@@ -214,8 +215,19 @@ def import_excel():
             bulan_list = BULAN_NAMES
             tahun_import = 2025
             
-            # Reset kasus bulanan for this year to avoid duplicates if re-importing
-            # Actually we can just update it below
+            # Pemetaan nilai Jumlah Kasus Perbulan unik -> bulan/tahun (sesuai sync_db lama)
+            kasus_to_month = {}
+            if col_kasus:
+                unique_kasus = sorted(pd.to_numeric(df[col_kasus], errors='coerce').dropna().unique())
+                for i, val in enumerate(unique_kasus):
+                    bln = bulan_list[i % 12]
+                    thn = tahun_import - (i // 12)
+                    kasus_to_month[val] = (bln, thn)
+            
+            # Hapus data lama tahun import agar idempoten (import ulang tidak menumpuk duplikat)
+            PasienDBD.query.filter_by(tahun=tahun_import).delete()
+            KasusBulanan.query.filter_by(tahun=tahun_import).delete()
+            db.session.flush()
             
             for idx, row in df.iterrows():
                 try:
@@ -231,12 +243,25 @@ def import_excel():
                     if pd.isna(nama) or nama == 'nan':
                         continue # Skip empty names
                     
-                    # Distribute months evenly
-                    bulan = bulan_list[idx % 12]
-                    month_idx = (idx % 12) + 1
+                    # Tentukan bulan dari nilai Jumlah Kasus Perbulan (jika ada)
+                    kasus_val = None
+                    if col_kasus and not pd.isna(row[col_kasus]):
+                        try:
+                            kasus_val = float(row[col_kasus])
+                        except (ValueError, TypeError):
+                            kasus_val = None
+                    
+                    if kasus_val is not None and kasus_val in kasus_to_month:
+                        bulan, tahun_row = kasus_to_month[kasus_val]
+                        month_idx = bulan_list.index(bulan) + 1
+                    else:
+                        # Fallback: distribusi bulan merata
+                        bulan = bulan_list[idx % 12]
+                        tahun_row = tahun_import
+                        month_idx = (idx % 12) + 1
                     
                     from datetime import date
-                    dummy_date = date(tahun_import, month_idx, (idx % 28) + 1)
+                    dummy_date = date(tahun_row, month_idx, (idx % 28) + 1)
                     
                     # No RM (Max 20 chars)
                     if col_no and not pd.isna(row[col_no]):
@@ -261,7 +286,7 @@ def import_excel():
                         lama_rawat=lama_rawat,
                         tanggal_masuk=dummy_date,
                         bulan=bulan,
-                        tahun=tahun_import
+                        tahun=tahun_row
                     )
                     db.session.add(pasien)
                     success_count += 1
@@ -271,28 +296,40 @@ def import_excel():
                     
             db.session.flush()
             
-            # Sync KasusBulanan for dashboard
-            from sqlalchemy import func
+            # Sync KasusBulanan from nilai Jumlah Kasus Perbulan (bukan hitung pasien per bulan)
             from app.ml_model import get_risk_level
             
             KasusBulanan.query.filter_by(tahun=tahun_import).delete()
             
-            agg = db.session.query(
-                PasienDBD.bulan, 
-                func.count(PasienDBD.id).label('total')
-            ).filter_by(tahun=tahun_import).group_by(PasienDBD.bulan).all()
-            
-            for b in bulan_list:
-                total = next((item.total for item in agg if item.bulan == b), 0)
-                kb = KasusBulanan(
-                    bulan=b,
-                    tahun=tahun_import,
-                    jumlah_kasus=total,
-                    jumlah_sembuh=0,
-                    jumlah_meninggal=0,
-                    tingkat_risiko=get_risk_level(total)
-                )
-                db.session.add(kb)
+            if kasus_to_month:
+                for val, (bln, thn) in kasus_to_month.items():
+                    kb = KasusBulanan(
+                        bulan=bln,
+                        tahun=thn,
+                        jumlah_kasus=int(val),
+                        jumlah_sembuh=0,
+                        jumlah_meninggal=0,
+                        tingkat_risiko=get_risk_level(int(val))
+                    )
+                    db.session.add(kb)
+            else:
+                # Fallback: hitung dari jumlah pasien per bulan
+                from sqlalchemy import func
+                agg = db.session.query(
+                    PasienDBD.bulan, 
+                    func.count(PasienDBD.id).label('total')
+                ).filter_by(tahun=tahun_import).group_by(PasienDBD.bulan).all()
+                for b in bulan_list:
+                    total = next((item.total for item in agg if item.bulan == b), 0)
+                    kb = KasusBulanan(
+                        bulan=b,
+                        tahun=tahun_import,
+                        jumlah_kasus=total,
+                        jumlah_sembuh=0,
+                        jumlah_meninggal=0,
+                        tingkat_risiko=get_risk_level(total)
+                    )
+                    db.session.add(kb)
                 
             log = LogAktivitas(
                 user_id=current_user.id,
