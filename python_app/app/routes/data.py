@@ -14,6 +14,21 @@ data_bp = Blueprint('data', __name__)
 BULAN_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
+def _parse_int(value):
+    """Parsing numerik yang toleran (mengatasi '2,8' atau angka desimal)."""
+    if value is None:
+        return 0
+    if isinstance(value, float) and value != value:  # NaN
+        return 0
+    s = str(value).strip()
+    if not s or s.lower() in ('nan', 'none', '-'):
+        return 0
+    s = s.replace(',', '.').replace(' ', '')
+    try:
+        return int(float(s))
+    except Exception:
+        return 0
+
 @data_bp.route('/')
 @login_required
 @admin_or_petugas_required
@@ -205,8 +220,8 @@ def import_excel():
             for idx, row in df.iterrows():
                 try:
                     # Parse data dengan aman
-                    usia = int(row[col_usia]) if not pd.isna(row[col_usia]) else 0
-                    lama_rawat = int(row[col_rawat]) if not pd.isna(row[col_rawat]) else 0
+                    usia = _parse_int(row[col_usia])
+                    lama_rawat = _parse_int(row[col_rawat])
                     
                     jk = str(row[col_jk]).strip().upper()
                     if jk not in ['L', 'P']:
