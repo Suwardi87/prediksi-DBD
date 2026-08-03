@@ -3,7 +3,7 @@ Report Routes
 """
 from flask import Blueprint, render_template, request
 from flask_login import login_required
-from app.models import KasusBulanan, HasilPrediksi
+from app.models import KasusBulanan, HasilPrediksi, PasienDBD
 from app import db
 from sqlalchemy import func
 
@@ -28,14 +28,25 @@ def index():
     default_tahun = tahun_list[0] if tahun_list else 2025
     tahun = request.args.get('tahun', default_tahun, type=int)
     
-    kasus_bulanan = KasusBulanan.query.filter_by(tahun=tahun).all()
-    # Urutkan per bulan
-    kasus_bulanan.sort(key=lambda k: BULAN_ORDER.get(k.bulan, 0))
+    # Jumlah kasus dari baris data pasien di database (bukan nilai kolom Excel)
+    from app.ml_model import get_risk_level
+    agg = db.session.query(
+        PasienDBD.bulan,
+        func.count(PasienDBD.id).label('total')
+    ).filter_by(tahun=tahun).group_by(PasienDBD.bulan).all()
+    jumlah_per_bulan = {bulan: total for bulan, total in agg}
+    # Pastikan semua 12 bulan tercakup (bulan tanpa data = 0)
+    BULAN_NAMES = list(BULAN_ORDER.keys())
+    for b in BULAN_NAMES:
+        jumlah_per_bulan.setdefault(b, 0)
+    risiko_per_bulan = {b: get_risk_level(jumlah_per_bulan[b]) for b in BULAN_NAMES}
     
     prediksi = HasilPrediksi.query.filter_by(tahun_prediksi=tahun).all()
     
     return render_template('laporan/index.html', 
-                          kasus_bulanan=kasus_bulanan,
+                          bulan_labels=BULAN_NAMES,
+                          jumlah_per_bulan=jumlah_per_bulan,
+                          risiko_per_bulan=risiko_per_bulan,
                           prediksi=prediksi,
                           tahun=tahun,
                           tahun_list=tahun_list)

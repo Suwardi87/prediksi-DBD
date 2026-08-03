@@ -128,13 +128,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for kasus in kasus_bulanan[:6] %}
+                        {% for bulan in bulan_labels %}
                         <tr>
-                            <td>{{ kasus.bulan }}</td>
-                            <td><strong>{{ kasus.jumlah_kasus }}</strong></td>
+                            <td>{{ bulan }}</td>
+                            <td><strong>{{ jumlah_per_bulan.get(bulan, 0) }}</strong></td>
                             <td>
-                                <span class="badge badge-{{ 'danger' if kasus.tingkat_risiko == 'Tinggi' else 'warning' if kasus.tingkat_risiko == 'Sedang' else 'success' }}">
-                                    {{ kasus.tingkat_risiko }}
+                                <span class="badge badge-{{ 'danger' if risiko_per_bulan.get(bulan) == 'Tinggi' else 'warning' if risiko_per_bulan.get(bulan) == 'Sedang' else 'success' }}">
+                                    {{ risiko_per_bulan.get(bulan) }}
                                 </span>
                             </td>
                         </tr>
@@ -192,9 +192,9 @@
 {% block extra_js %}
 <script>
     // Chart data from backend
-    const kasusData = {{ kasus_bulanan | map(attribute='jumlah_kasus') | list | tojson }};
-    const bulanLabels = {{ kasus_bulanan | map(attribute='bulan') | list | tojson }};
-    const risikoColors = {{ kasus_bulanan | map(attribute='tingkat_risiko') | list | tojson }}.map(r => {
+    const kasusData = {{ kasus_data | tojson }};
+    const bulanLabels = {{ bulan_labels | tojson }};
+    const risikoColors = {{ risiko_data | tojson }}.map(r => {
         if (r === 'Tinggi') return '#ef4444';
         if (r === 'Sedang') return '#f59e0b';
         return '#22c55e';

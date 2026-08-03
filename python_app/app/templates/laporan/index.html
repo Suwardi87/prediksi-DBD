@@ -44,23 +44,23 @@
                 </thead>
                 <tbody>
                     {% set total_kasus = namespace(val=0) %}
-                    {% for k in kasus_bulanan %}
-                    {% set total_kasus.val = total_kasus.val + k.jumlah_kasus %}
+                    {% for bln in bulan_labels %}
+                    {% set total_kasus.val = total_kasus.val + jumlah_per_bulan.get(bln, 0) %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{ k.bulan }}</td>
-                        <td>{{ k.tahun }}</td>
-                        <td><strong>{{ k.jumlah_kasus }}</strong></td>
+                        <td>{{ bln }}</td>
+                        <td>{{ tahun }}</td>
+                        <td><strong>{{ jumlah_per_bulan.get(bln, 0) }}</strong></td>
                         <td>
-                            <span class="badge badge-{{ 'danger' if k.tingkat_risiko == 'Tinggi' else 'warning' if k.tingkat_risiko == 'Sedang' else 'success' }}">
-                                {{ k.tingkat_risiko }}
+                            <span class="badge badge-{{ 'danger' if risiko_per_bulan.get(bln) == 'Tinggi' else 'warning' if risiko_per_bulan.get(bln) == 'Sedang' else 'success' }}">
+                                {{ risiko_per_bulan.get(bln) }}
                             </span>
                         </td>
                     </tr>
                     {% else %}
                     <tr><td colspan="5" class="text-center text-muted py-4">Tidak ada data</td></tr>
                     {% endfor %}
-                    {% if kasus_bulanan %}
+                    {% if bulan_labels %}
                     <tr style="font-weight: bold; background: var(--gray-50);">
                         <td colspan="3" class="text-end">Total Kasus</td>
                         <td><strong>{{ total_kasus.val }}</strong></td>

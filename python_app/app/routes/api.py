@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 from app.models import KasusBulanan, HasilPrediksi, ModelEvaluasi
 from app.ml_model import predict, train_model, prepare_training_data
 from app import db
+from sqlalchemy import func
 from datetime import datetime
 import json
 
@@ -124,9 +125,18 @@ def api_evaluate():
 @login_required
 def api_data():
     """API endpoint untuk statistik data"""
+    from app.models import PasienDBD
     kasus = KasusBulanan.query.all()
     
-    total_kasus = sum(k.jumlah_kasus for k in kasus)
+    # Jumlah kasus dihitung dari baris data pasien di database (bukan nilai kolom Excel)
+    agg = db.session.query(
+        PasienDBD.bulan,
+        PasienDBD.tahun,
+        func.count(PasienDBD.id).label('total')
+    ).group_by(PasienDBD.bulan, PasienDBD.tahun).all()
+    jumlah_map = {(bulan, tahun): total for bulan, tahun, total in agg}
+    
+    total_kasus = sum(jumlah_map.values())
     
     return jsonify({
         'status': 'success',
@@ -136,7 +146,7 @@ def api_data():
             'data': [{
                 'bulan': k.bulan,
                 'tahun': k.tahun,
-                'jumlah_kasus': k.jumlah_kasus,
+                'jumlah_kasus': jumlah_map.get((k.bulan, k.tahun), 0),
                 'tingkat_risiko': k.tingkat_risiko
             } for k in kasus]
         }

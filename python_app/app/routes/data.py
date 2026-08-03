@@ -163,6 +163,60 @@ def view(id):
     pasien = PasienDBD.query.get_or_404(id)
     return render_template('data/view.html', pasien=pasien)
 
+@data_bp.route('/import/template')
+@login_required
+@admin_or_petugas_required
+def import_template():
+    """Download template Excel untuk import data"""
+    import io
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from flask import send_file
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Template Import"
+    
+    headers = ['No', 'Nama Pasien', 'Usia', 'Jenis Kelamin', 'Lama Rawat Inap', 'Jumlah Kasus Perbulan']
+    header_fill = PatternFill(start_color='3B82F6', end_color='3B82F6', fill_type='solid')
+    header_font = Font(color='FFFFFF', bold=True)
+    thin_border = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+    
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = thin_border
+    
+    contoh = [
+        [1, 'Budi Santoso', 17, 'L', 5, 3],
+        [2, 'Siti Aminah', 9, 'P', 3, 3],
+        [3, 'Andi Wijaya', 45, 'L', 7, 4],
+    ]
+    for r, row in enumerate(contoh, 2):
+        for c, val in enumerate(row, 1):
+            cell = ws.cell(row=r, column=c, value=val)
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center')
+    
+    for col, width in zip(headers, [6, 24, 10, 16, 18, 22]):
+        ws.column_dimensions[openpyxl.utils.get_column_letter(list(headers).index(col) + 1)].width = width
+    
+    bio = io.BytesIO()
+    wb.save(bio)
+    bio.seek(0)
+    
+    return send_file(
+        bio,
+        as_attachment=True,
+        download_name='template_import_dbd.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
 @data_bp.route('/import', methods=['GET', 'POST'])
 @login_required
 @admin_or_petugas_required
